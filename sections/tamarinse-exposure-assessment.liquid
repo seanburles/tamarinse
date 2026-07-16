@@ -138,6 +138,8 @@
     margin-inline: auto;
   }
 
+  /* Mobile/tablet: stacked, centered header above the panel.
+     Desktop (≥990px) switches to the split rail layout below. */
   .tamarinse-quiz__header {
     text-align: center;
     margin-block-end: var(--t-space-lg);
@@ -439,6 +441,37 @@
 
     .tamarinse-quiz__option {
       padding: var(--t-space-md) var(--t-space-sm);
+    }
+  }
+
+  /* ---- Desktop: split layout matching the ingredient-science section —
+     sticky title/intro rail on the left, quiz panel on the right ---- */
+  @media screen and (min-width: 990px) {
+    .tamarinse-quiz__inner {
+      max-width: var(--t-content-max);
+      display: grid;
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: var(--t-space-2xl);
+      align-items: start;
+    }
+
+    .tamarinse-quiz__header {
+      position: sticky;
+      top: calc(var(--header-height, 64px) + var(--t-space-lg));
+      text-align: left;
+      margin-block-end: 0;
+    }
+
+    .tamarinse-quiz__intro {
+      margin-inline: 0;
+    }
+
+    /* Panel and result share the right-hand cell; the quiz's data-state
+       toggles which one is displayed. */
+    .tamarinse-quiz__panel,
+    .tamarinse-quiz__result {
+      grid-column: 2;
+      grid-row: 1;
     }
   }
 {% endstylesheet %}
