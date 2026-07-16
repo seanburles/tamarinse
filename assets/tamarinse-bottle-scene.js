@@ -121,11 +121,14 @@ class TamarinseBottleScene extends HTMLElement {
     scene.environment = this.#envTexture;
     this.#loadEnvironmentMap(THREE, renderer);
 
-    /* Soft daylight key + fill for the matte label. */
-    const key = new THREE.DirectionalLight(0xffffff, 1.2);
-    key.position.set(2.5, 4, 4);
-    const fill = new THREE.HemisphereLight(0xffffff, 0xd8d4cc, 1.1);
-    scene.add(key, fill);
+    /* Three-point-style: soft key + rim, ambient kept low — heavy ambient
+       fill flattens the transmission effect and makes glass read as plastic. */
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    keyLight.position.set(3, 5, 4);
+    const rimLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    rimLight.position.set(-4, 2, -3);
+    const fillLight = new THREE.AmbientLight(0xffffff, 0.15);
+    scene.add(keyLight, rimLight, fillLight);
 
     this.#bottle = this.#buildBottle(THREE);
     scene.add(this.#bottle);
@@ -272,14 +275,16 @@ class TamarinseBottleScene extends HTMLElement {
     const glassMaterial = new THREE.MeshPhysicalMaterial({
       color: 0xffffff,
       metalness: 0,
-      roughness: 0.04,
-      transmission: 1,
-      thickness: 0.4,
-      ior: 1.5,
-      clearcoat: 1,
-      clearcoatRoughness: 0.05,
-      transparent: true,
+      transmission: 1.0, // full light transmission = glass, not translucent plastic
+      roughness: 0.05, // near-zero for crisp reflections
+      thickness: 0.3, // thin-walled jar: keep low or the refraction over-distorts
+      ior: 1.5, // standard glass index of refraction
       envMapIntensity: 1.2,
+      clearcoat: 0.3, // subtle sheen — sells "glass" vs "acrylic" without over-gloss
+      clearcoatRoughness: 0.1,
+      attenuationColor: 0xffffff,
+      attenuationDistance: 0.3,
+      transparent: true,
     });
 
     const profilePoints = [
