@@ -368,49 +368,57 @@ class TamarinseBottleScene extends HTMLElement {
       transparent: true,
     });
 
+    /* Elegant jar silhouette: flat vertical wall → gentle shoulder → straight
+       neck → lip. The straight neck section is what separates "apothecary
+       jar" from "grenade" — never blend shoulder directly into the cap. */
     const profilePoints = [
       [0.0, 0.02],
-      [0.6, 0.02],
-      [0.78, 0.08],
-      [0.85, 0.28],
-      [0.86, 1.5],
-      [0.82, 1.72],
-      [0.64, 1.92],
-      [0.5, 2.02],
-      [0.47, 2.24],
+      [0.72, 0.02],
+      [0.76, 0.1],
+      [0.76, 2.05], // straight body wall — tall vertical section
+      [0.73, 2.2], // shoulder begins, gentle convex curve
+      [0.6, 2.35],
+      [0.44, 2.49], // shoulder ends
+      [0.44, 2.69], // neck — straight vertical section
+      [0.46, 2.73], // tiny lip flare where cap seats
     ];
     const profile = profilePoints.map(([x, y]) => new THREE.Vector2(x, y));
     const glass = new THREE.Mesh(new THREE.LatheGeometry(profile, 72), glassMaterial);
 
-    /* ---- Silver cap: wide band + domed top ---- */
+    /* ---- Silver cap: short, near-cylindrical, ~74% of body width.
+       Straight sides and low height keep it reading as a screw cap on a
+       neck, never a mushroom dome overhanging the jar. ---- */
     const silverMaterial = new THREE.MeshStandardMaterial({
       color: 0xd9dadb,
       metalness: 1,
       roughness: 0.3,
       envMapIntensity: 1.1,
     });
-    const capBand = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.63, 0.42, 64), silverMaterial);
-    capBand.position.y = 2.42;
-    const capDome = new THREE.Mesh(new THREE.CylinderGeometry(0.56, 0.62, 0.14, 64), silverMaterial);
-    capDome.position.y = 2.7;
+    const capBand = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.53, 0.22, 64), silverMaterial);
+    capBand.position.y = 2.8; /* band bottom overlaps the neck lip — no gap */
+    /* Top plate is near-flush: barely taller or narrower than the band, so
+       there's no visible bevel ring — just a thin closing edge. */
+    const capDome = new THREE.Mesh(new THREE.CylinderGeometry(0.51, 0.52, 0.05, 64), silverMaterial);
+    capDome.position.y = 2.935;
 
     /* ---- Capsules inside (visible above and below the label) ---- */
-    const capsuleGeometry = new THREE.CapsuleGeometry(0.085, 0.2, 4, 10);
+    /* Sized so ~60 capsules plausibly fill the jar: small pills, and the fill
+       stops below the shoulder leaving realistic headspace at the top. */
+    const capsuleGeometry = new THREE.CapsuleGeometry(0.06, 0.15, 4, 10);
     const capsuleMaterial = new THREE.MeshStandardMaterial({
       color: 0xffffff,
       roughness: 0.6,
       metalness: 0,
       envMapIntensity: 0.4,
     });
-    const capsuleCount = 120;
+    const capsuleCount = 260;
     const capsules = new THREE.InstancedMesh(capsuleGeometry, capsuleMaterial, capsuleCount);
     const dummy = new THREE.Object3D();
     const shade = new THREE.Color();
     const tanShades = [0x8f7a48, 0x83703f, 0x9c8752, 0x776437];
     for (let i = 0; i < capsuleCount; i += 1) {
-      /* Random point inside the jar; radius tightens through the shoulder. */
-      const y = 0.14 + Math.random() * 1.72;
-      const maxRadius = y > 1.5 ? Math.max(0.18, 0.66 - (y - 1.5) * 0.9) : 0.66;
+      const y = 0.14 + Math.random() * 1.76; /* tops out at 1.9, below the shoulder */
+      const maxRadius = 0.58;
       const angle = Math.random() * TWO_PI;
       const radius = Math.sqrt(Math.random()) * maxRadius;
       dummy.position.set(Math.cos(angle) * radius, y, Math.sin(angle) * radius);
@@ -431,25 +439,49 @@ class TamarinseBottleScene extends HTMLElement {
       envMapIntensity: 0.35,
     });
     const label = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.875, 0.875, 1.16, 72, 1, true),
+      new THREE.CylinderGeometry(0.775, 0.775, 1.25, 72, 1, true),
       labelMaterial
     );
-    label.position.y = 0.94;
+    label.position.y = 1.08;
     /* CylinderGeometry's UV seam (u=0) sits at +Z; the canvas art is centered
        at u=0.5, so half a turn brings it to face the camera. */
     label.rotation.y = Math.PI;
 
     group.add(glass, capBand, capDome, capsules, label);
-    group.position.y = -1.35; /* centers the ~2.7-unit jar on the origin */
+    group.position.y = -1.48; /* centers the ~2.96-unit jar on the origin */
     return group;
   }
 
-  /* Label art matched to the product photo: sage field, tamarind mark,
-     TAMARINSE wordmark, positioning line, capsule count. */
+  /* Label art matched to the product photo: sage field, real Tamarinse logo
+     (mark + wordmark), positioning line, capsule count. The logo bitmap
+     (data-logo URL) decodes async, so the label first paints with procedural
+     stand-in art and repaints the moment the real art is ready. */
   #drawLabel(THREE) {
     const canvas = document.createElement('canvas');
     canvas.width = 2048;
     canvas.height = 512;
+    this.#paintLabel(canvas, null);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = 4;
+
+    const logoUrl = this.getAttribute('data-logo');
+    if (logoUrl) {
+      const logo = new Image();
+      logo.onload = () => {
+        if (!this.#renderer) return; /* scene already torn down */
+        this.#paintLabel(canvas, logo);
+        texture.needsUpdate = true;
+        this.#renderFrame();
+      };
+      logo.src = logoUrl;
+    }
+
+    return texture;
+  }
+
+  #paintLabel(canvas, logo) {
     const ctx = canvas.getContext('2d');
 
     ctx.fillStyle = '#d9e5df';
@@ -458,42 +490,58 @@ class TamarinseBottleScene extends HTMLElement {
     const cx = canvas.width / 2;
     ctx.textAlign = 'center';
 
-    /* Tamarind pod mark: arc of dark seeds + a leaf stroke */
-    ctx.fillStyle = '#20261f';
-    const seeds = [
-      [-30, 8, 13],
-      [-8, 18, 14],
-      [16, 14, 13],
-      [34, 0, 11],
-    ];
-    for (const [dx, dy, r] of seeds) {
-      ctx.beginPath();
-      ctx.arc(cx + dx, 88 + dy, r, 0, TWO_PI);
-      ctx.fill();
-    }
-    ctx.strokeStyle = '#20261f';
-    ctx.lineWidth = 5;
-    ctx.beginPath();
-    ctx.arc(cx + 14, 60, 44, Math.PI * 0.9, Math.PI * 1.6);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.ellipse(cx + 52, 42, 16, 7, -0.7, 0, TWO_PI);
-    ctx.stroke();
+    if (logo) {
+      /* Real logo asset (893×290): tamarind mark occupies x 0–281,
+         wordmark ink occupies (321, 127) to (893, 188). Drawn as two crops
+         so they can be stacked vertically like the product label.
 
-    /* Wordmark */
-    ctx.fillStyle = '#171c19';
-    ctx.font = '500 62px "Helvetica Neue", Arial, sans-serif';
-    ctx.save();
-    ctx.letterSpacing = '20px';
-    ctx.fillText('TAMARINSE', cx + 10, 230);
-    ctx.restore();
+         The 2048px texture wraps the full 360° label, so only ~±40° (~455px)
+         faces the camera without wrapping out of view around the curve —
+         all art must stay inside that band or its edges get clipped. */
+      const markHeight = 112;
+      const markWidth = (281 / 290) * markHeight;
+      ctx.drawImage(logo, 0, 0, 281, 290, cx - markWidth / 2, 30, markWidth, markHeight);
+
+      const wordWidth = 440;
+      const wordHeight = (61 / 572) * wordWidth;
+      ctx.drawImage(logo, 321, 127, 572, 61, cx - wordWidth / 2, 192, wordWidth, wordHeight);
+    } else {
+      /* Procedural stand-in: seeds arc + typeset wordmark */
+      ctx.fillStyle = '#20261f';
+      const seeds = [
+        [-30, 8, 13],
+        [-8, 18, 14],
+        [16, 14, 13],
+        [34, 0, 11],
+      ];
+      for (const [dx, dy, r] of seeds) {
+        ctx.beginPath();
+        ctx.arc(cx + dx, 88 + dy, r, 0, TWO_PI);
+        ctx.fill();
+      }
+      ctx.strokeStyle = '#20261f';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.arc(cx + 14, 60, 44, Math.PI * 0.9, Math.PI * 1.6);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.ellipse(cx + 52, 42, 16, 7, -0.7, 0, TWO_PI);
+      ctx.stroke();
+
+      ctx.fillStyle = '#171c19';
+      ctx.font = '500 48px "Helvetica Neue", Arial, sans-serif';
+      ctx.save();
+      ctx.letterSpacing = '14px';
+      ctx.fillText('TAMARINSE', cx + 7, 226);
+      ctx.restore();
+    }
 
     /* Positioning line */
     ctx.fillStyle = 'rgba(23, 28, 25, 0.78)';
-    ctx.font = '600 24px "Helvetica Neue", Arial, sans-serif';
+    ctx.font = '600 21px "Helvetica Neue", Arial, sans-serif';
     ctx.save();
     ctx.letterSpacing = '3px';
-    ctx.fillText('ENVIRONMENTAL DEFENSE &', cx, 296);
+    ctx.fillText('ENVIRONMENTAL DEFENSE &', cx, 298);
     ctx.fillText('DETOX PATHWAY SUPPORT†', cx, 330);
     ctx.restore();
 
@@ -501,21 +549,16 @@ class TamarinseBottleScene extends HTMLElement {
     ctx.strokeStyle = 'rgba(23, 28, 25, 0.25)';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(cx - 120, 375);
-    ctx.lineTo(cx + 120, 375);
+    ctx.moveTo(cx - 110, 372);
+    ctx.lineTo(cx + 110, 372);
     ctx.stroke();
 
     ctx.fillStyle = 'rgba(23, 28, 25, 0.65)';
-    ctx.font = '500 22px "Helvetica Neue", Arial, sans-serif';
+    ctx.font = '500 18px "Helvetica Neue", Arial, sans-serif';
     ctx.save();
-    ctx.letterSpacing = '4px';
-    ctx.fillText('60 CAPSULES — DIETARY SUPPLEMENT', cx, 424);
+    ctx.letterSpacing = '2.5px';
+    ctx.fillText('60 CAPSULES — DIETARY SUPPLEMENT', cx, 420);
     ctx.restore();
-
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.colorSpace = THREE.SRGBColorSpace;
-    texture.anisotropy = 4;
-    return texture;
   }
 
   #bottlePeriodSeconds() {

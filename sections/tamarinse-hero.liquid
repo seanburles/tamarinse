@@ -12,7 +12,7 @@
 >
   <div class="tamarinse-hero__inner">
     <div class="tamarinse-hero__content">
-      <h1 class="tamarinse-hero__headline">{{ section.settings.headline }}</h1>
+      <h1 class="tamarinse-hero__headline">{{ section.settings.headline | replace: '™', '<sup class="tamarinse-hero__tm">™</sup>' }}</h1>
       <p class="tamarinse-hero__subheadline">{{ section.settings.subheadline }}</p>
       <div class="tamarinse-hero__actions">
         {%- if section.settings.primary_cta_label != blank -%}
@@ -62,6 +62,7 @@
     <tamarinse-bottle-scene
       class="tamarinse-hero__scene"
       data-environment="{{ 'brown_photostudio_02_1k.exr' | asset_url }}"
+      data-logo="{{ 'tamarinse-logo.png' | asset_url }}"
       aria-hidden="true"
     >
       <div class="tamarinse-hero__fallback">
@@ -132,14 +133,23 @@
     text-wrap: balance;
   }
 
+  .tamarinse-hero__tm {
+    font-size: 0.35em;
+    vertical-align: super;
+    line-height: 0;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+  }
+
   .tamarinse-hero__subheadline {
     font-family: var(--t-font-body);
     font-size: var(--t-type-small);
     line-height: var(--t-leading-body);
     color: var(--t-text-mid);
-    letter-spacing: 0.06em;
+    letter-spacing: 0.015em;
     margin: 0;
-    max-width: 34rem;
+    max-width: 30rem;
+    text-wrap: pretty;
   }
 
   .tamarinse-hero__actions {
@@ -153,14 +163,15 @@
   .tamarinse-hero__badges {
     display: flex;
     align-items: center;
-    gap: var(--t-space-md);
+    gap: var(--t-space-sm);
     margin-block-start: var(--t-space-md);
   }
 
   .tamarinse-hero__badge {
-    width: 56px;
-    height: 56px;
-    object-fit: contain;
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 50%;
   }
 
   .tamarinse-hero__scene {
@@ -251,6 +262,14 @@
       align-items: flex-start;
       text-align: left;
       flex: 1 1 50%;
+      min-width: 0;
+    }
+
+    /* The split layout leaves the copy ~50% of the row minus the bottle
+       column, so the display token's 5.5rem max never fits — "Microplastics™"
+       would overflow into the bottle. Cap the size to the column instead. */
+    .tamarinse-hero__headline {
+      font-size: clamp(2.75rem, 0.5rem + 5vw, 4.4rem);
     }
 
     .tamarinse-hero__actions {
