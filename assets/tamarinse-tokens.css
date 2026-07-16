@@ -33,9 +33,20 @@
   --t-white: #ffffff;
 
   /* ---- Type scale (fluid) ----
-     Families come from the theme font settings so the merchant keeps control. */
-  --t-font-heading: var(--font-heading--family, Georgia, serif);
-  --t-font-body: var(--font-body--family, system-ui, sans-serif);
+     Brand families (loaded in snippets/stylesheets.liquid):
+     Fraunces (variable serif, optical sizing) for headings,
+     Hanken Grotesk for everything else. */
+  --t-font-heading: 'Fraunces', Georgia, serif;
+  --t-font-body: 'Hanken Grotesk', system-ui, sans-serif;
+
+  /* Weight axis — the depth of the type system lives here, not in more colors.
+     Fraunces is variable (100–900) so intermediate stops are real, not faux. */
+  --t-weight-display: 540; /* hero / closing statements: substantial, not heavy */
+  --t-weight-heading: 580; /* section titles */
+  --t-weight-subheading: 560; /* card / step titles */
+  --t-weight-body: 400;
+  --t-weight-medium: 500;
+  --t-weight-semibold: 600; /* CTAs, eyebrows, selected states */
 
   --t-type-display: clamp(2.625rem, 1.2rem + 6vw, 5.5rem); /* hero / closing */
   --t-type-h2: clamp(2rem, 1rem + 4vw, 3.75rem); /* section titles */
@@ -84,6 +95,21 @@
   --t-photo-scrim: linear-gradient(to top, rgb(16 20 18 / 82%), rgb(16 20 18 / 12%) 55%);
 }
 
+/* Route the Horizon theme variables (header, footer, product, cart, core
+   sections) through the brand fonts. Horizon resolves its typography preset
+   variables (--font-h1--family etc.) at :root, so the override must win the
+   cascade there — :root:root out-specifies the theme's inline :root block. */
+:root:root {
+  --font-body--family: 'Hanken Grotesk', system-ui, sans-serif;
+  --font-body--weight: 400;
+  --font-subheading--family: 'Hanken Grotesk', system-ui, sans-serif;
+  --font-subheading--weight: 500;
+  --font-heading--family: 'Fraunces', Georgia, serif;
+  --font-heading--weight: var(--t-weight-heading);
+  --font-accent--family: 'Fraunces', Georgia, serif;
+  --font-accent--weight: var(--t-weight-semibold);
+}
+
 /* ---- Shared primitives used across Tamarinse sections ---- */
 
 .t-eyebrow {
@@ -91,7 +117,7 @@
   font-size: var(--t-type-eyebrow);
   letter-spacing: var(--t-tracking-eyebrow);
   text-transform: uppercase;
-  font-weight: 500;
+  font-weight: var(--t-weight-semibold);
 }
 
 .t-btn {
@@ -104,7 +130,7 @@
   border-radius: var(--t-radius-pill);
   font-family: var(--t-font-body);
   font-size: var(--t-type-body);
-  font-weight: 500;
+  font-weight: var(--t-weight-semibold);
   letter-spacing: 0.02em;
   text-decoration: none;
   cursor: pointer;
