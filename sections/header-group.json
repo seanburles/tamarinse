@@ -17,7 +17,29 @@
         "announcement_BxgCk9": {
           "type": "_announcement",
           "settings": {
-            "text": "Welcome to our store",
+            "text": "Free shipping on orders over $40",
+            "font": "var(--font-subheading--family)",
+            "font_size": "0.75rem",
+            "letter_spacing": "normal",
+            "case": "none"
+          },
+          "blocks": {}
+        },
+        "announcement_trust": {
+          "type": "_announcement",
+          "settings": {
+            "text": "USDA Organic • Made in USA • 3rd-Party Tested",
+            "font": "var(--font-subheading--family)",
+            "font_size": "0.75rem",
+            "letter_spacing": "normal",
+            "case": "none"
+          },
+          "blocks": {}
+        },
+        "announcement_guarantee": {
+          "type": "_announcement",
+          "settings": {
+            "text": "30-Day Money-Back Guarantee",
             "font": "var(--font-subheading--family)",
             "font_size": "0.75rem",
             "letter_spacing": "normal",
@@ -27,7 +49,9 @@
         }
       },
       "block_order": [
-        "announcement_BxgCk9"
+        "announcement_BxgCk9",
+        "announcement_trust",
+        "announcement_guarantee"
       ],
       "name": "t:names.announcement_bar",
       "settings": {

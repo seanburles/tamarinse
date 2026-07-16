@@ -55,14 +55,31 @@
     class="header-logo__image-container header-logo__image-container--original"
     data-testid="header-logo"
   >
-    {% render 'image',
-      image: settings.logo,
-      class: 'header-logo__image',
-      height: settings.logo_height,
-      alt_text_fallback: alt_text_fallback,
-      text_fallback: shop.name,
-      style: logo_style
-    %}
+    {% if settings.logo != blank %}
+      {% render 'image',
+        image: settings.logo,
+        class: 'header-logo__image',
+        height: settings.logo_height,
+        alt_text_fallback: alt_text_fallback,
+        text_fallback: shop.name,
+        style: logo_style
+      %}
+    {% else %}
+      {% comment %} Bundled Tamarinse wordmark (893x290) until a logo is set in theme settings {% endcomment %}
+      {% liquid
+        assign fallback_width = settings.logo_height | times: 3.08 | ceil
+        assign fallback_width_mobile = settings.logo_height_mobile | times: 3.08 | ceil
+        assign fallback_style = '--header-logo-image-width: ' | append: fallback_width | append: 'px; --header-logo-image-width-mobile: ' | append: fallback_width_mobile | append: 'px; --header-logo-image-height: ' | append: settings.logo_height | append: 'px; --header-logo-image-height-mobile: ' | append: settings.logo_height_mobile | append: 'px;'
+      %}
+      <img
+        src="{{ 'tamarinse-logo.png' | asset_url }}"
+        class="header-logo__image"
+        alt="{{ alt_text_fallback }}"
+        width="893"
+        height="290"
+        style="{{ fallback_style }}"
+      >
+    {% endif %}
   </span>
 
   {% if use_inverse_logo %}
