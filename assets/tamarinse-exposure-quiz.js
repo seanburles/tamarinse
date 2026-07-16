@@ -7,6 +7,12 @@
  * The weighted-sum logic is pure and lives in scoreExposure() so it stays
  * testable. Step transitions are CSS animations keyed off data-entering
  * (forward|back); reduced-motion users get instant swaps via the stylesheet.
+ *
+ * All listeners are DELEGATED on the custom element and every inner element
+ * is queried lazily. The theme dev server and Horizon's soft navigations
+ * morph section DOM in place — listeners bound to inner nodes (like the
+ * <form>) die when the node is swapped, and an unintercepted submit then
+ * triggers a full-page navigation (the "white screen slide" bug).
  */
 
 /**
@@ -26,55 +32,41 @@ export function scoreExposure(total, max, tiers) {
 }
 
 class TamarinseExposureQuiz extends HTMLElement {
-  #form = null;
-  #result = null;
-  #tierLabel = null;
-  #nextButton = null;
-  #backButton = null;
-  #progressLabel = null;
-  #progressBar = null;
-  #progressFill = null;
-  #steps = [];
   #current = 0;
 
   #onSubmit = (event) => {
     event.preventDefault();
-    if (this.#current >= this.#steps.length - 1) {
+    if (this.#current >= this.#steps().length - 1) {
       this.#showResult();
     } else {
       this.#goTo(this.#current + 1, 'forward');
     }
   };
 
-  #onBack = () => {
-    if (this.#current > 0) this.#goTo(this.#current - 1, 'back');
-  };
-
-  #onReset = (event) => {
-    event.preventDefault();
-    this.#reset();
+  #onClick = (event) => {
+    if (event.target.closest('[data-quiz-back]')) {
+      if (this.#current > 0) this.#goTo(this.#current - 1, 'back');
+    } else if (event.target.closest('[data-quiz-reset]')) {
+      event.preventDefault();
+      this.#reset();
+    }
   };
 
   connectedCallback() {
-    this.#form = this.querySelector('form');
-    this.#result = this.querySelector('[data-quiz-result]');
-    this.#tierLabel = this.querySelector('[data-quiz-tier]');
-    this.#nextButton = this.querySelector('[data-quiz-next]');
-    this.#backButton = this.querySelector('[data-quiz-back]');
-    this.#progressLabel = this.querySelector('[data-quiz-progress-label]');
-    this.#progressBar = this.querySelector('[data-quiz-progress-bar]');
-    this.#progressFill = this.querySelector('[data-quiz-progress-fill]');
-    this.#steps = Array.from(this.querySelectorAll('[data-quiz-step]'));
-
-    this.#form?.addEventListener('submit', this.#onSubmit);
-    this.#backButton?.addEventListener('click', this.#onBack);
-    this.querySelector('[data-quiz-reset]')?.addEventListener('click', this.#onReset);
-    this.#sync();
+    /* Delegated on the custom element itself: survives inner DOM morphs. */
+    this.addEventListener('submit', this.#onSubmit);
+    this.addEventListener('click', this.#onClick);
+    /* Children may not be parsed yet if this element was just inserted. */
+    queueMicrotask(() => this.#sync());
   }
 
   disconnectedCallback() {
-    this.#form?.removeEventListener('submit', this.#onSubmit);
-    this.#backButton?.removeEventListener('click', this.#onBack);
+    this.removeEventListener('submit', this.#onSubmit);
+    this.removeEventListener('click', this.#onClick);
+  }
+
+  #steps() {
+    return Array.from(this.querySelectorAll('[data-quiz-step]'));
   }
 
   #checkboxes() {
@@ -90,17 +82,18 @@ class TamarinseExposureQuiz extends HTMLElement {
   }
 
   #goTo(index, direction) {
-    this.#current = Math.min(Math.max(index, 0), this.#steps.length - 1);
+    this.#current = Math.min(Math.max(index, 0), this.#steps().length - 1);
     this.#sync(direction);
 
     /* Move focus to the question so keyboard/AT users land on the new screen. */
-    const question = this.#steps[this.#current]?.querySelector('legend');
+    const question = this.#steps()[this.#current]?.querySelector('legend');
     question?.focus({ preventScroll: true });
   }
 
   /** Reflect #current into visibility, progress, and button labels. */
   #sync(direction = null) {
-    this.#steps.forEach((step, index) => {
+    const steps = this.#steps();
+    steps.forEach((step, index) => {
       const active = index === this.#current;
       step.hidden = !active;
       if (active && direction) {
@@ -111,18 +104,22 @@ class TamarinseExposureQuiz extends HTMLElement {
     });
 
     const position = this.#current + 1;
-    const total = this.#steps.length;
-    if (this.#progressLabel) this.#progressLabel.textContent = `${position} of ${total}`;
-    this.#progressBar?.setAttribute('aria-valuenow', String(position));
-    if (this.#progressFill) this.#progressFill.style.width = `${(position / total) * 100}%`;
+    const total = steps.length;
+    const progressLabel = this.querySelector('[data-quiz-progress-label]');
+    if (progressLabel) progressLabel.textContent = `${position} of ${total}`;
+    this.querySelector('[data-quiz-progress-bar]')?.setAttribute('aria-valuenow', String(position));
+    const progressFill = this.querySelector('[data-quiz-progress-fill]');
+    if (progressFill) progressFill.style.width = `${(position / total) * 100}%`;
 
     const last = this.#current >= total - 1;
-    if (this.#nextButton) {
-      this.#nextButton.textContent = last
+    const nextButton = this.querySelector('[data-quiz-next]');
+    if (nextButton) {
+      nextButton.textContent = last
         ? this.getAttribute('data-submit-label') || 'See my result'
         : this.getAttribute('data-continue-label') || 'Continue';
     }
-    if (this.#backButton) this.#backButton.hidden = this.#current === 0;
+    const backButton = this.querySelector('[data-quiz-back]');
+    if (backButton) backButton.hidden = this.#current === 0;
   }
 
   #showResult() {
@@ -134,11 +131,13 @@ class TamarinseExposureQuiz extends HTMLElement {
     );
 
     const tier = scoreExposure(total, max, this.#tiers());
-    if (this.#tierLabel) this.#tierLabel.textContent = tier;
+    const tierLabel = this.querySelector('[data-quiz-tier]');
+    if (tierLabel) tierLabel.textContent = tier;
 
     this.setAttribute('data-state', 'result');
-    this.#result?.focus({ preventScroll: true });
-    this.#result?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const result = this.querySelector('[data-quiz-result]');
+    result?.focus({ preventScroll: true });
+    result?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   #reset() {

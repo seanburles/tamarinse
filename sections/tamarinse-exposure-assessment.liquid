@@ -48,7 +48,12 @@
         </span>
       </div>
 
-      <form novalidate>
+      {%- comment -%}
+        onsubmit guard: the quiz is JS-only, so a native submit is never
+        useful — it would GET-navigate the page (white-flash reload) if the
+        module listener is missing, e.g. mid hot-reload DOM morph in theme dev.
+      {%- endcomment -%}
+      <form novalidate onsubmit="return false">
         {%- for block in section.blocks -%}
           <fieldset
             class="tamarinse-quiz__step"
