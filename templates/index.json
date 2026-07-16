@@ -137,11 +137,15 @@
     },
     "advisory": {
       "type": "tamarinse-advisory",
-      "blocks": {
-        "m1": { "type": "member", "settings": { "name": "[Reuse existing bio]", "credentials": "[Credentials from Tamarinse.com]" } },
-        "m2": { "type": "member", "settings": { "name": "[Reuse existing bio]", "credentials": "[Credentials from Tamarinse.com]" } }
+      "settings": {
+        "title": "Recommended by experts."
       },
-      "block_order": ["m1", "m2"]
+      "blocks": {
+        "m1": { "type": "member", "settings": { "name": "Dr. Hubbard", "credentials": "Florida, USA", "portrait_asset": "tamarinse-advisor-hubbard.png" } },
+        "m2": { "type": "member", "settings": { "name": "Dr. Anita Gupta", "credentials": "California, USA", "portrait_asset": "tamarinse-advisor-gupta.png" } },
+        "m3": { "type": "member", "settings": { "name": "Dr. Jones", "credentials": "Maryland, USA", "portrait_asset": "tamarinse-advisor-jones.png" } }
+      },
+      "block_order": ["m1", "m2", "m3"]
     },
     "why": {
       "type": "tamarinse-why",
@@ -163,19 +167,29 @@
     },
     "reviews": {
       "type": "tamarinse-reviews",
+      "settings": {
+        "badge_rating": 4.8,
+        "badge_count": 4000,
+        "badge_source": "customer reviews"
+      },
       "blocks": {
-        "r1": { "type": "review", "settings": { "quote": "[Placeholder review — replace with client-approved copy before launch]", "name": "[Name]", "role": "Verified buyer", "rating": 5 } },
-        "r2": { "type": "review", "settings": { "quote": "[Placeholder review — replace with client-approved copy before launch]", "name": "[Name]", "role": "Physician review", "rating": 5 } },
-        "r3": { "type": "review", "settings": { "quote": "[Placeholder review — replace with client-approved copy before launch]", "name": "[Name]", "role": "Verified buyer", "rating": 4 } }
+        "r1": { "type": "review", "settings": { "quote": "Love that it's actually in a glass bottle. I've been trying to reduce unnecessary plastic exposure where I can, so seeing a supplement focused on modern environmental wellness packaged in glass immediately caught my attention. The ingredient list is transparent and the quality feels premium.", "name": "J.", "role": "Verified buyer", "rating": 5 } },
+        "r2": { "type": "review", "settings": { "quote": "Exactly what I've been looking for. I kept hearing people talk about tamarind whenever microplastics came up, but I couldn't find a product built around it. When I found Tamarinse, it immediately made sense. Clean ingredients, glass bottle, and a formula I can actually understand.", "name": "S.", "role": "Verified buyer", "rating": 5 } },
+        "r3": { "type": "review", "settings": { "quote": "The first supplement that actually feels different. Most supplements look exactly the same. Tamarinse stood out because it's built around tamarind and has a clear reason for existing. The formula, packaging, and overall brand feel thoughtful and intentional.", "name": "L.", "role": "Verified buyer", "rating": 5 } }
       },
       "block_order": ["r1", "r2", "r3"]
     },
     "faq": {
       "type": "tamarinse-faq",
       "blocks": {
-        "f1": { "type": "faq", "settings": { "question": "[Reuse existing FAQ from Tamarinse.com]", "answer": "<p>[Answer content pending — pull from current site]</p>" } }
+        "f1": { "type": "faq", "settings": { "question": "What is Tamarinse?", "answer": "<p>Tamarinse is the first premium supplement built around tamarind seed extract for daily environmental defense. Our formula combines five plant-based ingredients designed to support your body's natural detoxification pathways and digestive elimination. 60 capsules per bottle. 30-day supply.</p>" } },
+        "f2": { "type": "faq", "settings": { "question": "How do I take it?", "answer": "<p>Take 2 capsules daily with water, preferably with a meal. Consistency is key — Tamarinse is designed for daily long-term use, not a one-time cleanse.</p>" } },
+        "f3": { "type": "faq", "settings": { "question": "Is Tamarinse safe to take every day?", "answer": "<p>Yes. Every ingredient is USDA Organic, third-party tested, and manufactured in a cGMP certified, FDA registered facility in the USA. The activated charcoal is micro-dosed at 100mg specifically for safe daily use.</p>" } },
+        "f4": { "type": "faq", "settings": { "question": "Why tamarind?", "answer": "<p>Tamarind seed extract contains natural polysaccharides that are currently being studied by researchers worldwide for their ability to bind to microplastic particles in digestive environments. It is the most promising plant-based compound in the category — and the reason we built the entire brand around it.</p>" } },
+        "f5": { "type": "faq", "settings": { "question": "Why is the bottle made of glass?", "answer": "<p>We believe putting a microplastic defense supplement in a plastic bottle defeats the purpose. Our glass bottle is better for the product, better for the planet, and aligned with everything Tamarinse stands for.</p>" } },
+        "f6": { "type": "faq", "settings": { "question": "How long does shipping take?", "answer": "<p>Orders ship within 1-2 business days and typically arrive within 5-7 business days depending on your location.</p>" } }
       },
-      "block_order": ["f1"]
+      "block_order": ["f1", "f2", "f3", "f4", "f5", "f6"]
     },
     "closing": {
       "type": "tamarinse-closing"

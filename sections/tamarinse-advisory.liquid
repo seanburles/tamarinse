@@ -29,6 +29,22 @@
                   loading: 'lazy',
                   alt: block.settings.portrait.alt
               }}
+            {%- elsif block.settings.portrait_asset != blank -%}
+              {%- comment -%}
+                Bundled portrait (pulled from tamarinse.com) — templates can't
+                preset image_picker values, so ship the current site's photos
+                as theme assets until the client uploads their own. Dimensions
+                vary per asset; the CSS fixes the frame (4/5) so there's no
+                layout shift regardless.
+              {%- endcomment -%}
+              {% comment %}theme-check-disable ImgWidthAndHeight{% endcomment %}
+              <img
+                src="{{ block.settings.portrait_asset | asset_url }}"
+                class="tamarinse-advisory__portrait-image tamarinse-advisory__portrait-image--cutout"
+                loading="lazy"
+                alt="{{ block.settings.name | escape }}"
+              >
+              {% comment %}theme-check-enable ImgWidthAndHeight{% endcomment %}
             {%- else -%}
               <span class="tamarinse-advisory__portrait-placeholder" aria-hidden="true"></span>
             {%- endif -%}
@@ -102,6 +118,14 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  /* Bundled tamarinse.com portraits are cutout PNGs — contain + bottom-anchor
+     instead of cover so heads aren't cropped by the 4/5 frame. */
+  .tamarinse-advisory__portrait-image--cutout {
+    object-fit: contain;
+    object-position: center bottom;
+    padding-top: var(--t-space-md);
   }
 
   .tamarinse-advisory__portrait-placeholder {
@@ -182,6 +206,12 @@
         },
         {
           "type": "text",
+          "id": "portrait_asset",
+          "label": "Bundled portrait filename",
+          "info": "Fallback theme asset (from tamarinse.com) used when no portrait is picked. Leave blank to show the neutral placeholder."
+        },
+        {
+          "type": "text",
           "id": "name",
           "label": "Name"
         },
@@ -206,15 +236,25 @@
         {
           "type": "member",
           "settings": {
-            "name": "[Reuse existing bio]",
-            "credentials": "[Credentials from Tamarinse.com]"
+            "name": "Dr. Hubbard",
+            "credentials": "Florida, USA",
+            "portrait_asset": "tamarinse-advisor-hubbard.png"
           }
         },
         {
           "type": "member",
           "settings": {
-            "name": "[Reuse existing bio]",
-            "credentials": "[Credentials from Tamarinse.com]"
+            "name": "Dr. Anita Gupta",
+            "credentials": "California, USA",
+            "portrait_asset": "tamarinse-advisor-gupta.png"
+          }
+        },
+        {
+          "type": "member",
+          "settings": {
+            "name": "Dr. Jones",
+            "credentials": "Maryland, USA",
+            "portrait_asset": "tamarinse-advisor-jones.png"
           }
         }
       ]

@@ -1,10 +1,9 @@
 {% comment %}
   Reviews (MASTER_PROMPT #13) — luxury layout. Badge (rating/count/source) is
-  section settings; each review is an editable block. Per client-approved
-  direction (BUILD_GUIDE section 8): placeholder reviews ship as editable
-  customizer defaults, swappable for real reviews or a review-app feed with
-  no code change. Placeholder quote copy must come from/be approved by the
-  client — defaults here are clearly marked placeholders.
+  section settings; each review is an editable block, swappable for real
+  reviews or a review-app feed with no code change (BUILD_GUIDE section 8).
+  Default quotes and the 4.8/4,000+ badge are reused verbatim from the
+  client's published "What Our Customers Say" section on tamarinse.com.
 {% endcomment %}
 
 <section class="tamarinse-reviews t-on-light" id="TamarinseReviews-{{ section.id }}">
@@ -183,13 +182,13 @@
       "type": "number",
       "id": "badge_count",
       "label": "Review count",
-      "default": 0
+      "default": 4000
     },
     {
       "type": "text",
       "id": "badge_source",
       "label": "Source label",
-      "default": "Verified reviews",
+      "default": "customer reviews",
       "info": "Swap for the review platform name (Judge.me, Okendo, Loox) when a real feed is connected."
     }
   ],
@@ -233,8 +232,8 @@
         {
           "type": "review",
           "settings": {
-            "quote": "[Placeholder review — replace with client-approved copy before launch]",
-            "name": "[Name]",
+            "quote": "Love that it's actually in a glass bottle. I've been trying to reduce unnecessary plastic exposure where I can, so seeing a supplement focused on modern environmental wellness packaged in glass immediately caught my attention. The ingredient list is transparent and the quality feels premium.",
+            "name": "J.",
             "role": "Verified buyer",
             "rating": 5
           }
@@ -242,19 +241,19 @@
         {
           "type": "review",
           "settings": {
-            "quote": "[Placeholder review — replace with client-approved copy before launch]",
-            "name": "[Name]",
-            "role": "Physician review",
+            "quote": "Exactly what I've been looking for. I kept hearing people talk about tamarind whenever microplastics came up, but I couldn't find a product built around it. When I found Tamarinse, it immediately made sense. Clean ingredients, glass bottle, and a formula I can actually understand.",
+            "name": "S.",
+            "role": "Verified buyer",
             "rating": 5
           }
         },
         {
           "type": "review",
           "settings": {
-            "quote": "[Placeholder review — replace with client-approved copy before launch]",
-            "name": "[Name]",
+            "quote": "The first supplement that actually feels different. Most supplements look exactly the same. Tamarinse stood out because it's built around tamarind and has a clear reason for existing. The formula, packaging, and overall brand feel thoughtful and intentional.",
+            "name": "L.",
             "role": "Verified buyer",
-            "rating": 4
+            "rating": 5
           }
         }
       ]

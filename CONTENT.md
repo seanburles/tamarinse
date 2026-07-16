@@ -117,10 +117,16 @@ Microplastics aren't going away. Your daily defense starts with Tamarinse™.
 
 ---
 
+## Content Reused From Tamarinse.com (2026-07-16)
+
+Pulled verbatim from the live site (client's own published copy — brief says reuse existing content):
+
+- **FAQ** — all six published Q&As (What is Tamarinse / How do I take it / Safe daily / Why tamarind / Why glass / Shipping). Note: the first answer repeats the "five plant-based ingredients" line, same known discrepancy flagged below.
+- **Advisory board** — the site's "Recommended By Experts" trio: Dr. Hubbard (Florida, USA), Dr. Anita Gupta (California, USA), Dr. Jones (Maryland, USA), with their portraits bundled as theme assets (`tamarinse-advisor-*.png`). The site shows name + state only — no written bios/credentials exist there, so the bio fields stay empty until the client supplies them.
+- **Reviews** — the three quotes from the site's "What Our Customers Say" plus its 4.8/5 "4,000+ customer reviews" badge. These are attributed on the site only by initials (J / S / L). Flag: the review count/rating predates this storefront — confirm the client can substantiate it before launch.
+
 ## Not Yet Approved Copy (flag before writing)
 
 - **"Five plant-based ingredients" vs. six ingredients**: the Meet Tamarinse positioning line above says the formula "combines five plant-based ingredients," but the capsule reveal, ingredient science section, and `data/ingredients.json` all list six (Tamarind Seed Extract, Okra Polysaccharides, Fenugreek Extract, Activated Coconut Charcoal, Organic Chlorella, Milk Thistle Extract). Possibly intentional ("built around tamarind" + five others), but confirm with client which count is correct before this line ships — using the copy verbatim as-is until then.
-- The Problem section: statistics to display are not yet specified in the brief — need real, cited sources before these go live (avoid inventing figures).
-- Reviews section: client-approved strategy is artificial placeholder reviews (as editable customizer defaults) until real reviews arrive — see BUILD_GUIDE.md section 8. Placeholder quotes still need to be written/approved by the client; don't invent them silently in a template.
+- The Problem section: statistics to display are not yet specified in the brief and the current site publishes none — still need real, cited sources before these go live (avoid inventing figures).
 - "2026 Earth Prize winner" claim: verify documentation exists before publishing.
-- Medical Advisory Board bios: reusing existing content per brief — pull from current Tamarinse.com, don't draft new bios.
