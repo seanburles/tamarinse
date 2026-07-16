@@ -28,14 +28,17 @@ function onScroll() {
 function startListening() {
   if (listening) return;
   listening = true;
-  window.addEventListener('scroll', onScroll, { passive: true });
+  /* capture: true — Horizon scrolls .page-wrapper (not the window) on
+     desktop ≥990px (base.css), and scroll events don't bubble. Capturing on
+     window is the only way to hear every scroll container. */
+  window.addEventListener('scroll', onScroll, { passive: true, capture: true });
   window.addEventListener('resize', onScroll, { passive: true });
 }
 
 function stopListening() {
   if (!listening) return;
   listening = false;
-  window.removeEventListener('scroll', onScroll);
+  window.removeEventListener('scroll', onScroll, { capture: true });
   window.removeEventListener('resize', onScroll);
   if (rafId !== null) {
     cancelAnimationFrame(rafId);
