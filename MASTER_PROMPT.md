@@ -46,7 +46,7 @@ Base theme: **Horizon** (Shopify reference theme, wellness preset). See `BUILD_G
 - Type: Fraunces (variable serif, optical sizing) for headlines — editorial, not techy — and Hanken Grotesk for body copy, both loaded from Google Fonts. Weight is the depth axis: display ~540, section titles ~580, card titles ~560, eyebrows/CTAs 600, body 400. Generous line-height, generous whitespace — the copy should never feel dense.
 - Motion: restrained and purposeful. Every animation should be tied to scroll position or a clear user action — no decorative looping motion, no autoplay attention-grabbers. 20-30 second bottle rotation is the pace-setter for how "slow and deliberate" the rest of the motion language should feel.
 - Photography: large-format, immersive, one subject per screen in "The Problem" and "Everyday Exposure" sections — no collage/grid treatments there.
-- Icons: minimalist line icons only, consistent stroke weight, no filled/glyph-style icons mixed in.
+- Icons (rev. 2026-07-16): Phosphor duotone set (MIT, phosphoricons.com) — two-layer glyphs (20%-opacity fill under a solid foreground, both currentColor) rendered in the accent green inside a soft accent-tinted rounded chip. One family only; don't mix in single-stroke or filled glyph icons. Vendored inline in `snippets/tamarinse-quiz-icon.liquid` and `sections/tamarinse-quality-standards.liquid`.
 
 **Copy voice**: declarative, confident, unhurried. Short sentences. Avoid supplement-industry clichés ("supercharge," "detox blast"). Every health-related claim should read as measured ("designed to," "supports," "clinically studied") rather than absolute — keep the existing hedge language pattern from the current copy deck; don't tighten it into stronger claims for punchiness.
 

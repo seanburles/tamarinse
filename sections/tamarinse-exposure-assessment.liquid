@@ -304,10 +304,20 @@
     pointer-events: none;
   }
 
+  /* Icon chip: duotone glyph in the accent green on a soft tinted square —
+     the icons carry the accent so the cards read as tappable choices. */
   .tamarinse-quiz__option-icon {
     display: inline-flex;
-    color: var(--t-text-mid);
-    transition: color var(--t-dur-fast) var(--t-ease-out);
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--t-accent-tint);
+    color: var(--t-accent);
+    transition:
+      background-color var(--t-dur-fast) var(--t-ease-out),
+      color var(--t-dur-fast) var(--t-ease-out);
   }
 
   .tamarinse-quiz__option-label {
@@ -323,8 +333,10 @@
     background: var(--t-accent-tint);
   }
 
+  /* Selected card: the chip flips solid — instant read at a glance */
   .tamarinse-quiz__option:has(.tamarinse-quiz__checkbox:checked) .tamarinse-quiz__option-icon {
-    color: var(--t-accent);
+    background: var(--t-accent);
+    color: #fff;
   }
 
   .tamarinse-quiz__option:has(.tamarinse-quiz__checkbox:focus-visible) {
