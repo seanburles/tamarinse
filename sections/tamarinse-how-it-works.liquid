@@ -183,8 +183,8 @@
     background: var(--t-accent);
     color: #fff;
     font-family: var(--t-font-heading);
-    font-size: 0.8125rem;
-    font-weight: 600;
+    font-size: var(--t-type-eyebrow);
+    font-weight: var(--t-weight-semibold);
     letter-spacing: -0.01em;
     line-height: 1;
   }
@@ -225,6 +225,7 @@
     line-height: var(--t-leading-heading);
     font-weight: var(--t-weight-subheading);
     margin: var(--t-space-xs) 0 0;
+    text-wrap: balance;
   }
 
   .tamarinse-hiw__step-title sup {
@@ -237,6 +238,7 @@
     color: var(--t-text-mid);
     max-width: 32rem;
     margin: 0;
+    text-wrap: pretty;
   }
 
   .tamarinse-hiw__nav {
@@ -340,7 +342,7 @@
           "label": "Icon (when no image)",
           "info": "Shown as the card illustration when no image is uploaded.",
           "options": [
-            { "value": "exposure", "label": "Exposure (cloud)" },
+            { "value": "exposure", "label": "Exposure (droplet + particles)" },
             { "value": "activates", "label": "Activates (capsule)" },
             { "value": "binds", "label": "Binds (chain)" },
             { "value": "supports", "label": "Supports (shield)" },

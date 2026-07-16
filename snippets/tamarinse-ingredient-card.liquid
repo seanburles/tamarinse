@@ -58,13 +58,22 @@
             endif
           -%}
           <p class="t-eyebrow tamarinse-science__orgs-label">{{ orgs_label | default: 'Research Organizations' }}</p>
+          {%- liquid
+            # Long unlinked institution lists read as noise — show the first
+            # few and summarize the rest.
+            assign shown_max = 3
+            assign extra = orgs.size | minus: shown_max
+          -%}
           <p class="tamarinse-science__orgs">
-            {%- for org in orgs -%}
+            {%- for org in orgs limit: shown_max -%}
               {%- assign org_stripped = org | strip -%}
               {%- if org_stripped != blank -%}
                 <span>{{ org_stripped }}</span>
               {%- endif -%}
             {%- endfor -%}
+            {%- if extra > 0 -%}
+              <span class="tamarinse-science__orgs-more">and {{ extra }} more</span>
+            {%- endif -%}
           </p>
         {%- endif -%}
       </div>

@@ -11,7 +11,15 @@
     <h2 class="tamarinse-everyday__message">{{ section.settings.message }}</h2>
   </div>
   {%- for block in section.blocks -%}
-    <div class="tamarinse-everyday__panel{% if block.settings.image != blank %} tamarinse-everyday__panel--photo{% endif %}" {{ block.shopify_attributes }}>
+    {%- liquid
+      # A merchant-picked image wins; otherwise fall back to a bundled theme
+      # asset (image_picker settings cannot reference theme assets directly).
+      assign has_photo = false
+      if block.settings.image != blank or block.settings.asset_fallback != blank
+        assign has_photo = true
+      endif
+    -%}
+    <div class="tamarinse-everyday__panel{% if has_photo %} tamarinse-everyday__panel--photo{% endif %}" {{ block.shopify_attributes }}>
       {%- if block.settings.image != blank -%}
         <picture>
           {%- if block.settings.image_mobile != blank -%}
@@ -38,6 +46,15 @@
               alt: block.settings.image.alt
           }}
         </picture>
+      {%- elsif block.settings.asset_fallback != blank -%}
+        <img
+          src="{{ block.settings.asset_fallback | asset_url }}"
+          class="tamarinse-everyday__image"
+          alt=""
+          width="1820"
+          height="1024"
+          loading="lazy"
+        >
       {%- else -%}
         <div class="tamarinse-everyday__placeholder">
           <span>{{ block.settings.caption | default: 'Photography pending' }}</span>
@@ -155,6 +172,12 @@
           "type": "text",
           "id": "caption",
           "label": "Caption (optional)"
+        },
+        {
+          "type": "text",
+          "id": "asset_fallback",
+          "label": "Bundled photo filename",
+          "info": "Theme asset used until a real image is picked above (e.g. tamarinse-photo-lunch.jpg)."
         }
       ]
     }
@@ -165,9 +188,9 @@
       "name": "Everyday Exposure",
       "category": "Tamarinse",
       "blocks": [
-        { "type": "photo", "settings": { "caption": "Parents making lunch" } },
-        { "type": "photo", "settings": { "caption": "Coffee shops" } },
-        { "type": "photo", "settings": { "caption": "Takeout meals" } }
+        { "type": "photo", "settings": { "caption": "Parents making lunch", "asset_fallback": "tamarinse-photo-lunch.jpg" } },
+        { "type": "photo", "settings": { "caption": "Coffee shops", "asset_fallback": "tamarinse-photo-coffee.jpg" } },
+        { "type": "photo", "settings": { "caption": "Takeout meals", "asset_fallback": "tamarinse-photo-takeout.jpg" } }
       ]
     }
   ]

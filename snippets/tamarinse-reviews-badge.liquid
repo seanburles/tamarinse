@@ -9,15 +9,42 @@
 {% enddoc %}
 
 {%- if count != blank and count > 0 -%}
+  {%- liquid
+    # Fifth star fills fractionally so a 4.8 doesn't read as a fabricated 5.0.
+    assign whole_stars = rating | floor
+    assign fraction_pct = rating | minus: whole_stars | times: 100 | round
+    assign partial_index = whole_stars | plus: 1
+
+    # Thousands separator; round counts read as "at least" with a plus.
+    if count >= 1000
+      assign thousands = count | divided_by: 1000
+      assign remainder = count | modulo: 1000
+      assign rem_str = remainder | prepend: '000' | slice: -3, 3
+      assign count_label = thousands | append: ',' | append: rem_str
+      if remainder == 0
+        assign count_label = count_label | append: '+'
+      endif
+    else
+      assign count_label = count
+    endif
+  -%}
   <p class="tamarinse-reviews-badge">
     <span class="tamarinse-reviews-badge__stars" aria-hidden="true">
-      {%- assign rounded = rating | round -%}
       {%- for i in (1..5) -%}
-        <span class="tamarinse-reviews-badge__star{% if i > rounded %} tamarinse-reviews-badge__star--empty{% endif %}">&#9733;</span>
+        {%- if i <= whole_stars -%}
+          <span class="tamarinse-reviews-badge__star">&#9733;</span>
+        {%- elsif fraction_pct > 0 and i == partial_index -%}
+          <span class="tamarinse-reviews-badge__star tamarinse-reviews-badge__star--partial"
+            ><span class="tamarinse-reviews-badge__star-fill" style="width: {{ fraction_pct }}%;">&#9733;</span
+            ><span class="tamarinse-reviews-badge__star-base">&#9733;</span
+          ></span>
+        {%- else -%}
+          <span class="tamarinse-reviews-badge__star tamarinse-reviews-badge__star--empty">&#9733;</span>
+        {%- endif -%}
       {%- endfor -%}
     </span>
     <span class="tamarinse-reviews-badge__text">
-      {{ rating }} — {{ count }} {{ source }}
+      {{ rating }} out of 5 &middot; {{ count_label }} {{ source }}
     </span>
   </p>
 {%- endif -%}
@@ -38,6 +65,22 @@
 
   .tamarinse-reviews-badge__star--empty {
     opacity: 0.25;
+  }
+
+  .tamarinse-reviews-badge__star--partial {
+    position: relative;
+    display: inline-block;
+  }
+
+  .tamarinse-reviews-badge__star-base {
+    opacity: 0.25;
+  }
+
+  .tamarinse-reviews-badge__star-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    overflow: hidden;
+    white-space: nowrap;
   }
 
   .tamarinse-reviews-badge__text {

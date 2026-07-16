@@ -12,8 +12,16 @@
   {%- endif -%}
 
   {%- for block in section.blocks -%}
-    <div class="tamarinse-problem__panel{% if block.settings.image != blank %} tamarinse-problem__panel--photo{% endif %}" {{ block.shopify_attributes }}>
-      <div class="tamarinse-problem__media" aria-hidden="{% if block.settings.image == blank %}true{% else %}false{% endif %}">
+    {%- liquid
+      # A merchant-picked image wins; otherwise fall back to a bundled theme
+      # asset (image_picker settings cannot reference theme assets directly).
+      assign has_photo = false
+      if block.settings.image != blank or block.settings.asset_fallback != blank
+        assign has_photo = true
+      endif
+    -%}
+    <div class="tamarinse-problem__panel{% if has_photo %} tamarinse-problem__panel--photo{% endif %}" {{ block.shopify_attributes }}>
+      <div class="tamarinse-problem__media" aria-hidden="{% if has_photo %}false{% else %}true{% endif %}">
         {%- if block.settings.image != blank -%}
           <picture>
             {%- if block.settings.image_mobile != blank -%}
@@ -40,6 +48,15 @@
                 alt: block.settings.image.alt
             }}
           </picture>
+        {%- elsif block.settings.asset_fallback != blank -%}
+          <img
+            src="{{ block.settings.asset_fallback | asset_url }}"
+            class="tamarinse-problem__image"
+            alt=""
+            width="1820"
+            height="1024"
+            loading="lazy"
+          >
         {%- endif -%}
         <span class="tamarinse-problem__scrim"></span>
       </div>
@@ -168,6 +185,12 @@
           "type": "image_picker",
           "id": "image_mobile",
           "label": "Image (portrait crop, mobile)"
+        },
+        {
+          "type": "text",
+          "id": "asset_fallback",
+          "label": "Bundled photo filename",
+          "info": "Theme asset used until a real image is picked above (e.g. tamarinse-photo-containers.jpg)."
         }
       ]
     }
@@ -181,22 +204,25 @@
         {
           "type": "statistic",
           "settings": {
-            "statistic": "[Placeholder — statistic pending sourced citation]",
-            "source": "[Source to be confirmed]"
+            "statistic": "You could be ingesting up to a credit card's worth of plastic every week.",
+            "source": "WWF × University of Newcastle analysis, 2019 — verify before launch",
+            "asset_fallback": "tamarinse-photo-containers.jpg"
           }
         },
         {
           "type": "statistic",
           "settings": {
-            "statistic": "[Placeholder — statistic pending sourced citation]",
-            "source": "[Source to be confirmed]"
+            "statistic": "Microplastics were detected in the blood of nearly 8 in 10 people tested.",
+            "source": "Environment International, 2022 — verify before launch",
+            "asset_fallback": "tamarinse-photo-tap-water.jpg"
           }
         },
         {
           "type": "statistic",
           "settings": {
-            "statistic": "[Placeholder — statistic pending sourced citation]",
-            "source": "[Source to be confirmed]"
+            "statistic": "A single liter of bottled water can contain around 240,000 plastic particles.",
+            "source": "Proceedings of the National Academy of Sciences, 2024 — verify before launch",
+            "asset_fallback": "tamarinse-photo-bottled-water.jpg"
           }
         }
       ]

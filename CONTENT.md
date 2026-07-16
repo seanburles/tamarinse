@@ -103,11 +103,21 @@ Every ingredient in Tamarinse™ was selected for a specific purpose. Each ingre
 
 One subject per screen, full-bleed: plastic food containers, bottled water, drinking water, air, household plastics, children, everyday consumer products. (Statistics still pending sourcing — see below.)
 
+**Design-stage draft stats (2026-07-16)** — placed so the section can be designed; each is drawn from real published research but MUST be verified (and citations formatted per legal review) before launch:
+
+1. "You could be ingesting up to a credit card's worth of plastic every week." — WWF × University of Newcastle analysis, 2019. (Widely-reported figure; methodology has been disputed in later literature — confirm the client is comfortable using it.)
+2. "Microplastics were detected in the blood of nearly 8 in 10 people tested." — Leslie et al., Environment International, 2022 (plastic particles quantified in blood of 17 of 22 donors ≈ 77%).
+3. "A single liter of bottled water can contain around 240,000 plastic particles." — Qian et al., PNAS, 2024 (mean ~240k micro/nanoplastic particles per liter).
+
+**Design-stage photography (2026-07-16)**: `tamarinse-photo-containers.jpg`, `tamarinse-photo-tap-water.jpg`, `tamarinse-photo-bottled-water.jpg` are AI-generated stand-ins bundled as theme assets and wired via each block's "Bundled photo filename" setting. Replace with licensed/brand photography by picking images in the theme editor (merchant-picked images automatically win over the bundled files).
+
 ## Everyday Exposure — Section Message
 
 Exposure happens every day.
 
 **Imagery shot list (from client brief):** parents making lunch, office workers, coffee shops, airports, gym bags, plastic water bottles, takeout meals, grocery shopping.
+
+**Design-stage photography (2026-07-16)**: `tamarinse-photo-lunch.jpg`, `tamarinse-photo-coffee.jpg`, `tamarinse-photo-takeout.jpg` are AI-generated stand-ins bundled as theme assets (same swap mechanism as The Problem above).
 
 ## Closing Section
 
@@ -124,10 +134,10 @@ Pulled verbatim from the live site (client's own published copy — brief says r
 - **FAQ** — all six published Q&As (What is Tamarinse / How do I take it / Safe daily / Why tamarind / Why glass / Shipping). Note: the first answer repeats the "five plant-based ingredients" line, same known discrepancy flagged below.
 - **Advisory board** — the site's "Recommended By Experts" trio: Dr. Hubbard (Florida, USA), Dr. Anita Gupta (California, USA), Dr. Jones (Maryland, USA), with their portraits bundled as theme assets (`tamarinse-advisor-*.png`). The site shows name + state only — no written bios/credentials exist there, so the bio fields stay empty until the client supplies them.
 - **Reviews** — the three quotes from the site's "What Our Customers Say" plus its 4.8/5 "4,000+ customer reviews" badge. These are attributed on the site only by initials (J / S / L). Flag: the review count/rating predates this storefront — confirm the client can substantiate it before launch.
-- **Reviews (r4–r6: M.T. / D.R. / C.B.)** — invented placeholder reviews added to fill out the six-card grid for design review. These are NOT real customer quotes: replace with client-approved or platform-sourced reviews before launch (see the artificial-reviews compliance note above). Each is written with measured, non-health-outcome angles (routine fit, transparency, household adoption) and one 4-star entry for authenticity.
+- **Reviews (r4–r6: Maya T. / Dan R. / Claire B.)** — invented placeholder reviews added to fill out the six-card grid for design review. These are NOT real customer quotes: replace with client-approved or platform-sourced reviews before launch (see the artificial-reviews compliance note above). Each is written with measured, non-health-outcome angles (routine fit, transparency, household adoption) and one 4-star entry for authenticity.
 
 ## Not Yet Approved Copy (flag before writing)
 
 - **"Five plant-based ingredients" vs. six ingredients**: the Meet Tamarinse positioning line above says the formula "combines five plant-based ingredients," but the capsule reveal, ingredient science section, and `data/ingredients.json` all list six (Tamarind Seed Extract, Okra Polysaccharides, Fenugreek Extract, Activated Coconut Charcoal, Organic Chlorella, Milk Thistle Extract). Possibly intentional ("built around tamarind" + five others), but confirm with client which count is correct before this line ships — using the copy verbatim as-is until then.
-- The Problem section: statistics to display are not yet specified in the brief and the current site publishes none — still need real, cited sources before these go live (avoid inventing figures).
+- The Problem section: statistics to display are not yet specified in the brief and the current site publishes none. Design-stage draft stats (see The Problem section above) are drawn from real published research but each source citation currently renders with a "verify before launch" suffix — verify, reformat, and remove that suffix before going live.
 - "2026 Earth Prize winner" claim: verify documentation exists before publishing.

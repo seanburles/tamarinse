@@ -4,7 +4,7 @@
 
 <section class="tamarinse-closing" id="TamarinseClosing-{{ section.id }}">
   <div class="tamarinse-closing__inner">
-    <h2 class="tamarinse-closing__headline">{{ section.settings.headline }}</h2>
+    <h2 class="tamarinse-closing__headline">{{ section.settings.headline | replace: '™', '<sup class="tamarinse-closing__tm">™</sup>' }}</h2>
     {%- if section.settings.cta_label != blank -%}
       <a class="t-btn t-btn--accent" href="{{ section.settings.cta_link | default: routes.all_products_collection_url }}">
         {{- section.settings.cta_label -}}
@@ -41,6 +41,15 @@
     margin: 0;
     max-width: 16ch;
     text-wrap: balance;
+  }
+
+  /* Matches the hero's ™ treatment so the mark reads consistently site-wide */
+  .tamarinse-closing__tm {
+    font-size: 0.35em;
+    vertical-align: super;
+    line-height: 0;
+    font-weight: 400;
+    letter-spacing: -0.02em;
   }
 {% endstylesheet %}
 

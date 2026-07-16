@@ -51,7 +51,7 @@
   --t-type-display: clamp(2.625rem, 1.2rem + 6vw, 5.5rem); /* hero / closing */
   --t-type-h2: clamp(2rem, 1rem + 4vw, 3.75rem); /* section titles */
   --t-type-h3: clamp(1.5rem, 1.1rem + 1.8vw, 2.25rem); /* card / step titles */
-  --t-type-body-lg: clamp(1.0625rem, 1rem + 0.4vw, 1.3125rem);
+  --t-type-body-lg: clamp(1.125rem, 1rem + 0.4vw, 1.3125rem);
   --t-type-body: 1rem;
   --t-type-small: 0.875rem;
   --t-type-eyebrow: 0.8125rem;
@@ -111,6 +111,18 @@
 }
 
 /* ---- Shared primitives used across Tamarinse sections ---- */
+
+/* Horizon's base styles set overflow-wrap: break-word globally, which lets
+   display headings break mid-word — e.g. splitting "microplastics" from its
+   trailing "?" onto an orphan line. Our heading sizes are fluid and fit their
+   containers, so whole-word wrapping is always safe here. */
+[class^='tamarinse-'] h1,
+[class^='tamarinse-'] h2,
+[class*=' tamarinse-'] h1,
+[class*=' tamarinse-'] h2 {
+  overflow-wrap: normal;
+  word-break: normal;
+}
 
 .t-eyebrow {
   font-family: var(--t-font-body);

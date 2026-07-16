@@ -90,19 +90,46 @@
 
           connectedCallback() {
             this.depth = Number(this.getAttribute('data-trigger-depth')) || 0.25;
+            /* Horizon scrolls .page-wrapper on desktop (html is overflow:
+               hidden there) and the document on mobile — listen to both. */
             window.addEventListener('scroll', this.#onScroll, { passive: true });
+            this.pageWrapper = document.querySelector('.page-wrapper');
+            this.pageWrapper?.addEventListener('scroll', this.#onScroll, { passive: true });
             this.addEventListener('change', this.#onPlanChange);
+
+            /* The closing section carries its own full-size CTA; showing the
+               bar's Add to Cart directly beneath it doubles the ask. */
+            const closing = document.querySelector('.tamarinse-closing');
+            if (closing && 'IntersectionObserver' in window) {
+              this.closingVisible = false;
+              this.closingObserver = new IntersectionObserver(
+                (entries) => {
+                  this.closingVisible = entries[0].isIntersecting;
+                  this.#update();
+                },
+                { threshold: 0.35 }
+              );
+              this.closingObserver.observe(closing);
+            }
             this.#update();
           }
 
           disconnectedCallback() {
             window.removeEventListener('scroll', this.#onScroll);
+            this.pageWrapper?.removeEventListener('scroll', this.#onScroll);
             this.removeEventListener('change', this.#onPlanChange);
+            this.closingObserver?.disconnect();
           }
 
           #update() {
-            const max = document.documentElement.scrollHeight - innerHeight;
-            const visible = max > 0 && scrollY / max >= this.depth;
+            const pw = this.pageWrapper;
+            const usePw = pw && pw.scrollHeight > pw.clientHeight && pw.scrollTop > 0;
+            const top = usePw ? pw.scrollTop : Math.max(scrollY, pw?.scrollTop || 0);
+            const max = Math.max(
+              document.documentElement.scrollHeight - innerHeight,
+              pw ? pw.scrollHeight - pw.clientHeight : 0
+            );
+            const visible = max > 0 && top / max >= this.depth && !this.closingVisible;
             this.toggleAttribute('data-visible', visible);
             this.setAttribute('aria-hidden', String(!visible));
             /* Keep controls out of the tab order while hidden */
