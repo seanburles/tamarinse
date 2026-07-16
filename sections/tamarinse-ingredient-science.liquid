@@ -48,7 +48,8 @@
               what_it_is: block.settings.what_it_is,
               why_we_chose_it: block.settings.why_we_chose_it,
               research_orgs: block.settings.research_orgs,
-              orgs_label: section.settings.orgs_label
+              orgs_label: section.settings.orgs_label,
+              image: block.settings.image
             -%}
           </div>
         {%- endfor -%}
@@ -129,6 +130,18 @@
     background: var(--t-card);
     border: 1px solid var(--t-border);
     border-radius: var(--t-radius-sm);
+  }
+
+  .tamarinse-ingredient-card__media {
+    display: flex;
+    justify-content: center;
+  }
+
+  .tamarinse-ingredient-card__photo {
+    width: auto;
+    max-width: 100%;
+    height: 140px;
+    object-fit: contain;
   }
 
   .tamarinse-ingredient-card__name {
@@ -315,6 +328,12 @@
           "type": "text",
           "id": "name",
           "label": "Name"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Photo",
+          "info": "Tamarind, okra, fenugreek, and milk thistle fall back to bundled photography when empty."
         },
         {
           "type": "textarea",

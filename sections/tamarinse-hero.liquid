@@ -32,6 +32,31 @@
           </a>
         {%- endif -%}
       </div>
+
+      {%- if section.settings.show_badges -%}
+        <div class="tamarinse-hero__badges">
+          {%- if section.settings.badge_1 != blank
+            or section.settings.badge_2 != blank
+            or section.settings.badge_3 != blank
+          -%}
+            {%- assign badges = 'badge_1,badge_2,badge_3' | split: ',' -%}
+            {%- for key in badges -%}
+              {%- if section.settings[key] != blank -%}
+                {{
+                  section.settings[key]
+                  | image_url: width: 160
+                  | image_tag: class: 'tamarinse-hero__badge', loading: 'lazy', alt: section.settings[key].alt
+                }}
+              {%- endif -%}
+            {%- endfor -%}
+          {%- else -%}
+            {%- comment -%} Bundled certification badges (tamarinse.com) {%- endcomment -%}
+            <img src="{{ 'tamarinse-badge-usda.png' | asset_url }}" class="tamarinse-hero__badge" alt="USDA Organic" width="400" height="400" loading="lazy">
+            <img src="{{ 'tamarinse-badge-usa.png' | asset_url }}" class="tamarinse-hero__badge" alt="Made in USA" width="400" height="400" loading="lazy">
+            <img src="{{ 'tamarinse-badge-gmp.png' | asset_url }}" class="tamarinse-hero__badge" alt="Good Manufacturing Practice certified" width="400" height="400" loading="lazy">
+          {%- endif -%}
+        </div>
+      {%- endif -%}
     </div>
 
     <tamarinse-bottle-scene
@@ -51,13 +76,13 @@
               alt: section.settings.fallback_image.alt
           }}
         {%- else -%}
-          {%- comment -%} Bundled product photo until a merchant image is picked {%- endcomment -%}
+          {%- comment -%} Bundled product photo (tamarinse.com) until a merchant image is picked {%- endcomment -%}
           <img
-            src="{{ 'tamarinse-bottle-photo.png' | asset_url }}"
+            src="{{ 'tamarinse-bottle-photo-hires.jpg' | asset_url }}"
             class="tamarinse-hero__fallback-image"
             alt="Tamarinse™ bottle"
-            width="800"
-            height="1012"
+            width="1290"
+            height="1632"
           >
         {%- endif -%}
       </div>
@@ -123,6 +148,19 @@
     justify-content: center;
     gap: var(--t-space-xs);
     margin-block-start: var(--t-space-sm);
+  }
+
+  .tamarinse-hero__badges {
+    display: flex;
+    align-items: center;
+    gap: var(--t-space-md);
+    margin-block-start: var(--t-space-md);
+  }
+
+  .tamarinse-hero__badge {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
   }
 
   .tamarinse-hero__scene {
@@ -262,6 +300,32 @@
       "type": "url",
       "id": "secondary_cta_link",
       "label": "Secondary button link"
+    },
+    {
+      "type": "header",
+      "content": "Trust badges"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_badges",
+      "label": "Show certification badges",
+      "default": true,
+      "info": "USDA Organic, Made in USA, and GMP badges are bundled; pick images below to replace them."
+    },
+    {
+      "type": "image_picker",
+      "id": "badge_1",
+      "label": "Badge 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "badge_2",
+      "label": "Badge 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "badge_3",
+      "label": "Badge 3"
     },
     {
       "type": "header",

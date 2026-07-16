@@ -15,9 +15,9 @@
  *
  * Model: clear glass jar with a brushed-silver cap, tan capsules inside, and
  * the pale-sage Tamarinse label — procedurally matched to the client's
- * product photo (assets/tamarinse-bottle-photo.png). If a real GLB ever
- * lands, swap it in inside #buildBottle() keeping the label facing +Z at
- * rotation 0 so LABEL_FORWARD stays valid.
+ * product photo (assets/tamarinse-bottle-photo-hires.jpg). If a real GLB
+ * ever lands, swap it in inside #buildBottle() keeping the label facing +Z
+ * at rotation 0 so LABEL_FORWARD stays valid.
  */
 
 import {

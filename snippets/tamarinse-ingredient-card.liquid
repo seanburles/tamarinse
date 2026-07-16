@@ -9,9 +9,48 @@
   @param {string} research_orgs - newline- or comma-separated list (blocks) —
     metaobject callers pass the joined list value the same way
   @param {string} orgs_label
+  @param {object} [image] - optional merchant-picked ingredient photo
+
+  When no image is picked, known ingredients fall back to the bundled
+  photography pulled from tamarinse.com (client-approved source).
 {% enddoc %}
 
+{%- liquid
+  assign photo_asset = ''
+  if image == blank
+    if name contains 'Tamarind'
+      assign photo_asset = 'tamarinse-ingredient-tamarind.jpg'
+    elsif name contains 'Okra'
+      assign photo_asset = 'tamarinse-ingredient-okra.jpg'
+    elsif name contains 'Fenugreek'
+      assign photo_asset = 'tamarinse-ingredient-fenugreek.jpg'
+    elsif name contains 'Milk Thistle'
+      assign photo_asset = 'tamarinse-ingredient-milk-thistle.jpg'
+    endif
+  endif
+-%}
+
 <article class="tamarinse-ingredient-card">
+  {%- if image != blank -%}
+    <div class="tamarinse-ingredient-card__media">
+      {{
+        image
+        | image_url: width: 800
+        | image_tag: widths: '400, 800', class: 'tamarinse-ingredient-card__photo', loading: 'lazy', alt: image.alt
+      }}
+    </div>
+  {%- elsif photo_asset != blank -%}
+    <div class="tamarinse-ingredient-card__media">
+      <img
+        src="{{ photo_asset | asset_url }}"
+        class="tamarinse-ingredient-card__photo"
+        alt="{{ name | escape }}"
+        width="800"
+        height="540"
+        loading="lazy"
+      >
+    </div>
+  {%- endif -%}
   <h3 class="tamarinse-ingredient-card__name">{{ name }}</h3>
   <div class="tamarinse-ingredient-card__body">
     <p class="tamarinse-ingredient-card__what">{{ what_it_is }}</p>
