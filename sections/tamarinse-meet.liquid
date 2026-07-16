@@ -18,10 +18,14 @@
             alt: section.settings.image.alt
         }}
       {%- else -%}
-        <div class="tamarinse-meet__placeholder" aria-hidden="true">
-          <span class="tamarinse-meet__placeholder-cap"></span>
-          <span class="tamarinse-meet__placeholder-label">TAMARINSE</span>
-        </div>
+        <img
+          src="{{ 'tamarinse-bottle-photo.png' | asset_url }}"
+          class="tamarinse-meet__image"
+          alt="Tamarinse™ bottle"
+          width="800"
+          height="1012"
+          loading="lazy"
+        >
       {%- endif -%}
     </div>
     <div class="tamarinse-meet__content">
@@ -40,7 +44,7 @@
 {% stylesheet %}
   .tamarinse-meet {
     display: block;
-    background: var(--t-ink);
+    background: var(--t-tint);
     color: var(--t-text-hi);
     padding: var(--t-space-section) var(--t-space-md);
   }
@@ -61,49 +65,14 @@
   .tamarinse-meet__image {
     width: 100%;
     height: auto;
+    mix-blend-mode: multiply;
     transition: transform var(--t-dur-slow) var(--t-ease-out);
   }
 
   @media (hover: hover) {
-    .tamarinse-meet__media:hover .tamarinse-meet__image,
-    .tamarinse-meet__media:hover .tamarinse-meet__placeholder {
+    .tamarinse-meet__media:hover .tamarinse-meet__image {
       transform: translateY(-8px);
     }
-  }
-
-  .tamarinse-meet__placeholder {
-    position: relative;
-    width: clamp(140px, 30vw, 210px);
-    height: clamp(300px, 60vw, 460px);
-    margin-inline: auto;
-    background: linear-gradient(160deg, #2c1c13, #1a100a 70%);
-    border-radius: 22px 22px 30px 30px;
-    display: grid;
-    place-items: center;
-    transition: transform var(--t-dur-slow) var(--t-ease-out);
-    box-shadow:
-      inset 8px 0 24px rgb(247 245 240 / 6%),
-      inset -12px 0 28px rgb(0 0 0 / 45%);
-  }
-
-  .tamarinse-meet__placeholder-cap {
-    position: absolute;
-    top: -30px;
-    width: 46%;
-    height: 40px;
-    background: #0b0b0c;
-    border-radius: 8px 8px 2px 2px;
-  }
-
-  .tamarinse-meet__placeholder-label {
-    width: 86%;
-    padding: 2.4em 0.4em;
-    background: var(--t-cream);
-    color: var(--t-ink);
-    text-align: center;
-    font-size: 0.8rem;
-    letter-spacing: 0.32em;
-    text-indent: 0.32em;
   }
 
   .tamarinse-meet__content {

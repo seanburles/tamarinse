@@ -5,37 +5,32 @@
   Everything custom references these variables — never hardcode a hex
   or a magic duration inside a section stylesheet.
 
-  Style contract (MASTER_PROMPT.md):
-  - near-black base, warm off-white, ONE restrained accent live per section
-  - motion is slow, scroll-tied, purposeful; the 20-30s bottle rotation
-    sets the pace for everything else
-  - mobile-first: these tokens are viewport-agnostic; type uses clamp()
+  Direction (client, 2026-07-16): light, bright, modern. Warm white pages,
+  pale sage tint panels (matched to the bottle label), deep sage accent,
+  silver/tan product cues. Motion stays slow, scroll-tied, purposeful.
+  Mobile-first: tokens are viewport-agnostic; type uses clamp().
 */
 
 :root {
   /* ---- Palette ---- */
-  --t-ink: #0b0b0c; /* near-black base */
-  --t-ink-soft: #141416; /* raised surfaces on dark */
-  --t-ink-border: rgb(247 245 240 / 12%);
-  --t-cream: #f7f5f0; /* warm off-white */
-  --t-cream-dim: #edeae2; /* raised surfaces on light */
-  --t-cream-border: rgb(11 11 12 / 12%);
-  --t-terracotta: #a85638; /* accent 1 — muted terracotta */
-  --t-terracotta-deep: #8a4127;
-  --t-olive: #66663f; /* accent 2 — deep olive (never in the same section as terracotta) */
+  --t-bg: #fdfcfa; /* warm white page background */
+  --t-surface: #f3f2ed; /* raised neutral surfaces */
+  --t-card: #ffffff; /* cards */
+  --t-tint: #e8efeb; /* pale sage panels — matched to the bottle label */
+  --t-border: rgb(20 24 22 / 10%);
 
-  /* text emphasis on dark */
-  --t-text-hi: var(--t-cream);
-  --t-text-mid: rgb(247 245 240 / 72%);
-  --t-text-low: rgb(247 245 240 / 52%);
-  /* text emphasis on light */
-  --t-text-hi-inverse: var(--t-ink);
-  --t-text-mid-inverse: rgb(11 11 12 / 72%);
-  --t-text-low-inverse: rgb(11 11 12 / 52%);
+  --t-ink: #161a18; /* primary text, near-black with a green cast */
+  --t-text-hi: var(--t-ink);
+  --t-text-mid: rgb(22 26 24 / 70%);
+  --t-text-low: rgb(22 26 24 / 48%);
+
+  --t-accent: #46695e; /* deep sage — the one live accent */
+  --t-accent-deep: #35544a;
+  --t-accent-2: #9a8a68; /* capsule tan, sparingly (never with accent in one element) */
+  --t-white: #ffffff;
 
   /* ---- Type scale (fluid) ----
-     Families come from the theme font settings so the merchant keeps control:
-     headings = refined serif, body = neutral grotesk (set in theme settings). */
+     Families come from the theme font settings so the merchant keeps control. */
   --t-font-heading: var(--font-heading--family, Georgia, serif);
   --t-font-body: var(--font-body--family, system-ui, sans-serif);
 
@@ -73,12 +68,17 @@
 
   /* ---- Interaction ---- */
   --t-touch-target: 44px; /* hard minimum for every interactive element */
-  --t-radius-sm: 4px;
+  --t-radius-sm: 6px;
   --t-radius-pill: 999px;
 
   /* ---- Layout ---- */
   --t-content-max: 68rem;
   --t-copy-max: 38rem; /* measure for body copy */
+
+  /* ---- Imagery overlays (photo panels keep white text over a dark scrim) ---- */
+  --t-photo-text: #ffffff;
+  --t-photo-text-mid: rgb(255 255 255 / 78%);
+  --t-photo-scrim: linear-gradient(to top, rgb(16 20 18 / 82%), rgb(16 20 18 / 12%) 55%);
 }
 
 /* ---- Shared primitives used across Tamarinse sections ---- */
@@ -118,42 +118,31 @@
 }
 
 .t-btn--primary {
-  background: var(--t-cream);
-  color: var(--t-ink);
+  background: var(--t-ink);
+  color: var(--t-white);
 }
 
 .t-btn--primary:hover {
-  background: var(--t-cream-dim);
+  background: #2a302d;
 }
 
 .t-btn--accent {
-  background: var(--t-terracotta);
-  color: var(--t-cream);
+  background: var(--t-accent);
+  color: var(--t-white);
 }
 
 .t-btn--accent:hover {
-  background: var(--t-terracotta-deep);
+  background: var(--t-accent-deep);
 }
 
 .t-btn--ghost {
   background: transparent;
   color: var(--t-text-hi);
-  border-color: var(--t-ink-border);
+  border-color: rgb(22 26 24 / 22%);
 }
 
 .t-btn--ghost:hover {
   border-color: var(--t-text-mid);
-}
-
-/* light-surface variants */
-.t-on-light .t-btn--primary {
-  background: var(--t-ink);
-  color: var(--t-cream);
-}
-
-.t-on-light .t-btn--ghost {
-  color: var(--t-text-hi-inverse);
-  border-color: var(--t-cream-border);
 }
 
 @media (prefers-reduced-motion: reduce) {

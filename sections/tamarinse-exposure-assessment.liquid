@@ -77,8 +77,8 @@
 {% stylesheet %}
   .tamarinse-quiz {
     display: block;
-    background: var(--t-cream);
-    color: var(--t-text-hi-inverse);
+    background: var(--t-tint);
+    color: var(--t-text-hi);
     padding: var(--t-space-section) var(--t-space-md);
   }
 
@@ -93,7 +93,7 @@
   }
 
   .tamarinse-quiz__eyebrow {
-    color: var(--t-terracotta);
+    color: var(--t-accent);
     margin: 0 0 var(--t-space-sm);
   }
 
@@ -109,7 +109,7 @@
   .tamarinse-quiz__intro {
     font-size: var(--t-type-body-lg);
     line-height: var(--t-leading-body);
-    color: var(--t-text-mid-inverse);
+    color: var(--t-text-mid);
     margin: 0;
   }
 
@@ -128,8 +128,8 @@
     gap: var(--t-space-sm);
     min-height: var(--t-touch-target);
     padding: var(--t-space-sm) var(--t-space-md);
-    background: rgb(255 255 255 / 55%);
-    border: 1px solid var(--t-cream-border);
+    background: var(--t-card);
+    border: 1px solid var(--t-border);
     border-radius: var(--t-radius-sm);
     cursor: pointer;
     transition:
@@ -138,7 +138,7 @@
   }
 
   .tamarinse-quiz__question:hover {
-    border-color: var(--t-text-low-inverse);
+    border-color: var(--t-text-low);
   }
 
   .tamarinse-quiz__checkbox {
@@ -157,7 +157,7 @@
     flex: none;
     width: 22px;
     height: 22px;
-    border: 1px solid var(--t-text-low-inverse);
+    border: 1px solid var(--t-text-low);
     border-radius: 50%;
     position: relative;
     transition:
@@ -166,27 +166,27 @@
   }
 
   .tamarinse-quiz__checkbox:checked ~ .tamarinse-quiz__check {
-    background: var(--t-terracotta);
-    border-color: var(--t-terracotta);
+    background: var(--t-accent);
+    border-color: var(--t-accent);
   }
 
   .tamarinse-quiz__checkbox:checked ~ .tamarinse-quiz__check::after {
     content: '';
     position: absolute;
     inset: 6px 5px 7px;
-    border: solid var(--t-cream);
+    border: solid var(--t-white);
     border-width: 0 0 2px 2px;
     transform: rotate(-45deg);
   }
 
   .tamarinse-quiz__checkbox:focus-visible ~ .tamarinse-quiz__check {
-    outline: 2px solid var(--t-terracotta);
+    outline: 2px solid var(--t-accent);
     outline-offset: 3px;
   }
 
   .tamarinse-quiz__question:has(.tamarinse-quiz__checkbox:checked) {
-    background: rgb(168 86 56 / 7%);
-    border-color: var(--t-terracotta);
+    background: rgb(70 105 94 / 8%);
+    border-color: var(--t-accent);
   }
 
   .tamarinse-quiz__footer {
@@ -199,7 +199,7 @@
 
   .tamarinse-quiz__selected {
     font-size: var(--t-type-small);
-    color: var(--t-text-low-inverse);
+    color: var(--t-text-low);
     margin: 0;
   }
 
@@ -207,8 +207,9 @@
     display: none;
     margin-block-start: var(--t-space-xl);
     padding: var(--t-space-lg);
-    background: var(--t-ink);
+    background: var(--t-card);
     color: var(--t-text-hi);
+    border: 1px solid var(--t-border);
     border-radius: var(--t-radius-sm);
     outline: none;
   }
@@ -225,7 +226,7 @@
   }
 
   .tamarinse-quiz__result-line strong {
-    color: var(--t-terracotta);
+    color: var(--t-accent);
     font-weight: 400;
   }
 

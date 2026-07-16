@@ -42,7 +42,7 @@ Base theme: **Horizon** (Shopify reference theme, wellness preset). See `BUILD_G
 **Positioning**: closer to Apple / Seed / Aesop than a traditional supplement brand. Clean, scientific, luxurious, intentional. Every section educates and builds credibility before it asks for the sale.
 
 **Design tokens** (starting point — refine once brand assets/photography are in hand):
-- Palette: near-black base (`#0B0B0C` or similar), warm off-white (`#F7F5F0`), one restrained accent pulled from the tamarind/earth palette (muted terracotta or deep olive) — no more than one accent color live at a time per section.
+- Palette (client direction 2026-07-16 — light/bright/modern, matched to the bottle label): warm white base (`#FDFCFA`), pale sage tint panels (`#E8EFEB`, pulled from the label), near-black ink text (`#161A18`), one restrained accent — deep sage (`#46695E`) — with capsule tan (`#9A8A68`) as a sparing secondary. No more than one accent color live at a time per section. The earlier near-black luxury palette is superseded; tokens live in `assets/tamarinse-tokens.css`.
 - Type: a refined serif or high-contrast sans for headlines (editorial, not techy), a neutral grotesk for body copy. Generous line-height, generous whitespace — the copy should never feel dense.
 - Motion: restrained and purposeful. Every animation should be tied to scroll position or a clear user action — no decorative looping motion, no autoplay attention-grabbers. 20-30 second bottle rotation is the pace-setter for how "slow and deliberate" the rest of the motion language should feel.
 - Photography: large-format, immersive, one subject per screen in "The Problem" and "Everyday Exposure" sections — no collage/grid treatments there.

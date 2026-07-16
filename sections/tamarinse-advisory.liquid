@@ -47,7 +47,7 @@
 {% stylesheet %}
   .tamarinse-advisory {
     display: block;
-    background: var(--t-ink);
+    background: var(--t-bg);
     color: var(--t-text-hi);
     padding: var(--t-space-section) var(--t-space-md);
   }
@@ -91,8 +91,8 @@
 
   .tamarinse-advisory__portrait {
     aspect-ratio: 4 / 5;
-    background: var(--t-ink-soft);
-    border: 1px solid var(--t-ink-border);
+    background: var(--t-surface);
+    border: 1px solid var(--t-border);
     border-radius: var(--t-radius-sm);
     overflow: hidden;
     margin-block-end: var(--t-space-sm);
@@ -109,8 +109,8 @@
     width: 100%;
     height: 100%;
     background:
-      radial-gradient(circle at 50% 34%, rgb(247 245 240 / 10%) 0 18%, transparent 19%),
-      radial-gradient(ellipse at 50% 90%, rgb(247 245 240 / 8%) 0 42%, transparent 43%);
+      radial-gradient(circle at 50% 34%, rgb(22 26 24 / 8%) 0 18%, transparent 19%),
+      radial-gradient(ellipse at 50% 90%, rgb(22 26 24 / 6%) 0 42%, transparent 43%);
   }
 
   .tamarinse-advisory__name {
@@ -123,7 +123,7 @@
 
   .tamarinse-advisory__credentials {
     font-size: var(--t-type-small);
-    color: var(--t-terracotta);
+    color: var(--t-accent);
     letter-spacing: 0.06em;
     margin: 0 0 var(--t-space-xs);
   }

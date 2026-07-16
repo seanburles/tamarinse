@@ -13,10 +13,11 @@
  * - disposal: geometry/material/texture/renderer all released in
  *   disconnectedCallback. No leaks when scrolled past and back.
  *
- * Model: until the client supplies the real Draco-compressed GLB
- * (BUILD_GUIDE open decisions), a procedural placeholder bottle is built from
- * primitives with a canvas-drawn minimal label. Swap point is clearly marked
- * in #buildBottle().
+ * Model: clear glass jar with a brushed-silver cap, tan capsules inside, and
+ * the pale-sage Tamarinse label — procedurally matched to the client's
+ * product photo (assets/tamarinse-bottle-photo.png). If a real GLB ever
+ * lands, swap it in inside #buildBottle() keeping the label facing +Z at
+ * rotation 0 so LABEL_FORWARD stays valid.
  */
 
 import {
@@ -29,8 +30,7 @@ import {
 } from '@tamarinse/scroll-controller';
 
 const TWO_PI = Math.PI * 2;
-/* Rotation (radians) at which the label faces the camera. The procedural
-   label is drawn centered on +Z, so label-forward is 0. */
+/* Rotation (radians) at which the label faces the camera. */
 const LABEL_FORWARD = 0;
 /* Portion of the scroll range used to blend idle → locked. */
 const LOCK_START = 0.05;
@@ -42,6 +42,7 @@ class TamarinseBottleScene extends HTMLElement {
   #scene = null;
   #camera = null;
   #bottle = null;
+  #envTexture = null;
   #disposers = [];
   #rafId = null;
   #lastTime = 0;
@@ -92,26 +93,34 @@ class TamarinseBottleScene extends HTMLElement {
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(cappedPixelRatio());
     renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 0.92;
     renderer.domElement.classList.add('tamarinse-bottle-scene__canvas');
     this.#renderer = renderer;
 
     const scene = new THREE.Scene();
+    /* Transmission (glass) samples the backdrop, so the scene background must
+       match the page — an empty/transparent backdrop reads as black. */
+    scene.background = this.#pageBackground(THREE);
     this.#scene = scene;
 
-    /* Framing: bottle (~3 units tall) occupies just over half the viewport
-       height, centered slightly above middle so hero copy clears the base. */
+    /* Framing: jar (~3 units tall) sits slightly above center so hero copy
+       clears the base. */
     const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 50);
     camera.position.set(0, 0.2, 11);
     camera.lookAt(0, 0.2, 0);
     this.#camera = camera;
 
-    /* Studio lighting: soft key + rim (spec) + gentle fill. */
-    const key = new THREE.DirectionalLight(0xfff4e6, 2.6);
-    key.position.set(2.5, 3, 4);
-    const rim = new THREE.DirectionalLight(0xf7f5f0, 3.2);
-    rim.position.set(-3, 2, -4);
-    const fill = new THREE.HemisphereLight(0xf7f5f0, 0x1a120c, 0.9);
-    scene.add(key, rim, fill);
+    /* Bright studio environment — gives the glass its refraction detail and
+       the silver cap its reflections. */
+    this.#envTexture = this.#createEnvironment(THREE, renderer);
+    scene.environment = this.#envTexture;
+
+    /* Soft daylight key + fill for the matte label. */
+    const key = new THREE.DirectionalLight(0xffffff, 1.2);
+    key.position.set(2.5, 4, 4);
+    const fill = new THREE.HemisphereLight(0xffffff, 0xd8d4cc, 1.1);
+    scene.add(key, fill);
 
     this.#bottle = this.#buildBottle(THREE);
     scene.add(this.#bottle);
@@ -161,103 +170,221 @@ class TamarinseBottleScene extends HTMLElement {
     );
   }
 
+  #pageBackground(THREE) {
+    const color = new THREE.Color('#fdfcfa');
+    try {
+      const bodyColor = getComputedStyle(document.body).backgroundColor;
+      if (bodyColor && bodyColor !== 'rgba(0, 0, 0, 0)') color.setStyle(bodyColor);
+    } catch (error) {
+      /* keep default */
+    }
+    return color;
+  }
+
+  /* Hand-rolled bright "studio" captured with PMREM — a light box with two
+     window strips, enough for believable glass and brushed metal. */
+  #createEnvironment(THREE, renderer) {
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const envScene = new THREE.Scene();
+    envScene.background = new THREE.Color(0.92, 0.92, 0.9);
+
+    const panel = (width, height, intensity) => {
+      const material = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(intensity, intensity, intensity),
+      });
+      return new THREE.Mesh(new THREE.PlaneGeometry(width, height), material);
+    };
+
+    const left = panel(3, 8, 2.6);
+    left.position.set(-5, 2, 0);
+    left.rotation.y = Math.PI / 2;
+
+    const right = panel(3, 8, 1.4);
+    right.position.set(5, 2, 0);
+    right.rotation.y = -Math.PI / 2;
+
+    const top = panel(10, 10, 1.8);
+    top.position.set(0, 6, 0);
+    top.rotation.x = Math.PI / 2;
+
+    const back = panel(8, 6, 0.9);
+    back.position.set(0, 2, -6);
+
+    envScene.add(left, right, top, back);
+
+    const texture = pmrem.fromScene(envScene, 0.02).texture;
+    pmrem.dispose();
+    envScene.traverse((object) => {
+      if (object.geometry) object.geometry.dispose();
+      if (object.material) object.material.dispose();
+    });
+    return texture;
+  }
+
   /**
-   * Placeholder bottle built from primitives.
-   * REPLACE WITH GLB: when the client's Draco-compressed model lands, load it
-   * here via GLTFLoader/DRACOLoader (vendored the same way as three) and
-   * return the loaded scene instead. Keep the returned object's label facing
-   * +Z at rotation 0 so LABEL_FORWARD stays valid.
+   * Clear glass supplement jar matched to the product photo:
+   * silver two-tier cap, tan capsules inside, pale sage wrap label.
    */
   #buildBottle(THREE) {
     const group = new THREE.Group();
 
+    /* ---- Glass jar (lathe silhouette: base → wall → shoulder → neck) ---- */
     const glassMaterial = new THREE.MeshPhysicalMaterial({
-      color: 0x241610,
-      roughness: 0.18,
+      color: 0xffffff,
       metalness: 0,
-      clearcoat: 0.8,
-      clearcoatRoughness: 0.25,
+      roughness: 0.04,
+      transmission: 1,
+      thickness: 0.4,
+      ior: 1.5,
+      clearcoat: 1,
+      clearcoatRoughness: 0.05,
+      transparent: true,
+      envMapIntensity: 1.2,
     });
 
-    /* Bottle silhouette via lathe: base → straight wall → shoulder → neck. */
-    const profile = [];
-    const points = [
-      [0, 0],
-      [0.78, 0],
-      [0.84, 0.06],
-      [0.84, 1.72],
-      [0.8, 1.95],
-      [0.58, 2.18],
-      [0.42, 2.28],
-      [0.4, 2.5],
+    const profilePoints = [
+      [0.0, 0.02],
+      [0.6, 0.02],
+      [0.78, 0.08],
+      [0.85, 0.28],
+      [0.86, 1.5],
+      [0.82, 1.72],
+      [0.64, 1.92],
+      [0.5, 2.02],
+      [0.47, 2.24],
     ];
-    for (const [x, y] of points) profile.push(new THREE.Vector2(x, y));
-    const body = new THREE.Mesh(new THREE.LatheGeometry(profile, 64), glassMaterial);
+    const profile = profilePoints.map(([x, y]) => new THREE.Vector2(x, y));
+    const glass = new THREE.Mesh(new THREE.LatheGeometry(profile, 72), glassMaterial);
 
-    const capMaterial = new THREE.MeshStandardMaterial({
-      color: 0x0b0b0c,
-      roughness: 0.4,
-      metalness: 0.15,
+    /* ---- Silver cap: wide band + domed top ---- */
+    const silverMaterial = new THREE.MeshStandardMaterial({
+      color: 0xd9dadb,
+      metalness: 1,
+      roughness: 0.3,
+      envMapIntensity: 1.1,
     });
-    const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.46, 0.5, 48), capMaterial);
-    cap.position.y = 2.72;
+    const capBand = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.63, 0.42, 64), silverMaterial);
+    capBand.position.y = 2.42;
+    const capDome = new THREE.Mesh(new THREE.CylinderGeometry(0.56, 0.62, 0.14, 64), silverMaterial);
+    capDome.position.y = 2.7;
 
+    /* ---- Capsules inside (visible above and below the label) ---- */
+    const capsuleGeometry = new THREE.CapsuleGeometry(0.085, 0.2, 4, 10);
+    const capsuleMaterial = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      roughness: 0.6,
+      metalness: 0,
+      envMapIntensity: 0.4,
+    });
+    const capsuleCount = 120;
+    const capsules = new THREE.InstancedMesh(capsuleGeometry, capsuleMaterial, capsuleCount);
+    const dummy = new THREE.Object3D();
+    const shade = new THREE.Color();
+    const tanShades = [0x8f7a48, 0x83703f, 0x9c8752, 0x776437];
+    for (let i = 0; i < capsuleCount; i += 1) {
+      /* Random point inside the jar; radius tightens through the shoulder. */
+      const y = 0.14 + Math.random() * 1.72;
+      const maxRadius = y > 1.5 ? Math.max(0.18, 0.66 - (y - 1.5) * 0.9) : 0.66;
+      const angle = Math.random() * TWO_PI;
+      const radius = Math.sqrt(Math.random()) * maxRadius;
+      dummy.position.set(Math.cos(angle) * radius, y, Math.sin(angle) * radius);
+      dummy.rotation.set(Math.random() * TWO_PI, Math.random() * TWO_PI, Math.random() * TWO_PI);
+      dummy.updateMatrix();
+      capsules.setMatrixAt(i, dummy.matrix);
+      capsules.setColorAt(i, shade.setHex(tanShades[i % tanShades.length]));
+    }
+    capsules.instanceMatrix.needsUpdate = true;
+    if (capsules.instanceColor) capsules.instanceColor.needsUpdate = true;
+
+    /* ---- Label: pale sage wrap, sits just outside the glass ---- */
     const labelTexture = this.#drawLabel(THREE);
     const labelMaterial = new THREE.MeshStandardMaterial({
       map: labelTexture,
-      roughness: 0.65,
+      roughness: 0.75,
       metalness: 0,
+      envMapIntensity: 0.35,
     });
     const label = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.855, 0.855, 1.15, 64, 1, true),
+      new THREE.CylinderGeometry(0.875, 0.875, 1.16, 72, 1, true),
       labelMaterial
     );
-    label.position.y = 0.95;
-    /* CylinderGeometry's UV seam (u=0) sits at +Z; the canvas center is at
-       u=0.5 (theta=π), so half a turn brings it to face the camera. */
+    label.position.y = 0.94;
+    /* CylinderGeometry's UV seam (u=0) sits at +Z; the canvas art is centered
+       at u=0.5, so half a turn brings it to face the camera. */
     label.rotation.y = Math.PI;
 
-    group.add(body, cap, label);
+    group.add(glass, capBand, capDome, capsules, label);
     group.position.y = -0.45;
     return group;
   }
 
-  /* Minimal custom label per the brief — an aesthetic layout, not the
-     literal supplement-facts panel. */
+  /* Label art matched to the product photo: sage field, tamarind mark,
+     TAMARINSE wordmark, positioning line, capsule count. */
   #drawLabel(THREE) {
     const canvas = document.createElement('canvas');
     canvas.width = 2048;
     canvas.height = 512;
     const ctx = canvas.getContext('2d');
 
-    ctx.fillStyle = '#f7f5f0';
+    ctx.fillStyle = '#d9e5df';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    /* Label content occupies the front third, centered on the seam offset. */
     const cx = canvas.width / 2;
-    ctx.fillStyle = '#0b0b0c';
     ctx.textAlign = 'center';
 
-    ctx.font = '500 34px "Helvetica Neue", Arial, sans-serif';
-    ctx.save();
-    ctx.letterSpacing = '14px';
-    ctx.fillText('TAMARINSE', cx, 190);
-    ctx.restore();
-
-    ctx.font = '400 22px "Helvetica Neue", Arial, sans-serif';
-    ctx.fillStyle = 'rgba(11,11,12,0.66)';
-    ctx.fillText('Daily Defense Against Microplastics™', cx, 260);
-
-    ctx.strokeStyle = '#a85638';
-    ctx.lineWidth = 3;
+    /* Tamarind pod mark: arc of dark seeds + a leaf stroke */
+    ctx.fillStyle = '#20261f';
+    const seeds = [
+      [-30, 8, 13],
+      [-8, 18, 14],
+      [16, 14, 13],
+      [34, 0, 11],
+    ];
+    for (const [dx, dy, r] of seeds) {
+      ctx.beginPath();
+      ctx.arc(cx + dx, 88 + dy, r, 0, TWO_PI);
+      ctx.fill();
+    }
+    ctx.strokeStyle = '#20261f';
+    ctx.lineWidth = 5;
     ctx.beginPath();
-    ctx.moveTo(cx - 60, 310);
-    ctx.lineTo(cx + 60, 310);
+    ctx.arc(cx + 14, 60, 44, Math.PI * 0.9, Math.PI * 1.6);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(cx + 52, 42, 16, 7, -0.7, 0, TWO_PI);
     ctx.stroke();
 
-    ctx.font = '400 19px "Helvetica Neue", Arial, sans-serif';
-    ctx.fillStyle = 'rgba(11,11,12,0.55)';
-    ctx.fillText('60 CAPSULES — 30 DAY SUPPLY', cx, 370);
+    /* Wordmark */
+    ctx.fillStyle = '#171c19';
+    ctx.font = '500 62px "Helvetica Neue", Arial, sans-serif';
+    ctx.save();
+    ctx.letterSpacing = '20px';
+    ctx.fillText('TAMARINSE', cx + 10, 230);
+    ctx.restore();
+
+    /* Positioning line */
+    ctx.fillStyle = 'rgba(23, 28, 25, 0.78)';
+    ctx.font = '600 24px "Helvetica Neue", Arial, sans-serif';
+    ctx.save();
+    ctx.letterSpacing = '3px';
+    ctx.fillText('ENVIRONMENTAL DEFENSE &', cx, 296);
+    ctx.fillText('DETOX PATHWAY SUPPORT†', cx, 330);
+    ctx.restore();
+
+    /* Divider + capsule count */
+    ctx.strokeStyle = 'rgba(23, 28, 25, 0.25)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(cx - 120, 375);
+    ctx.lineTo(cx + 120, 375);
+    ctx.stroke();
+
+    ctx.fillStyle = 'rgba(23, 28, 25, 0.65)';
+    ctx.font = '500 22px "Helvetica Neue", Arial, sans-serif';
+    ctx.save();
+    ctx.letterSpacing = '4px';
+    ctx.fillText('60 CAPSULES — DIETARY SUPPLEMENT', cx, 424);
+    ctx.restore();
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
@@ -318,8 +445,7 @@ class TamarinseBottleScene extends HTMLElement {
     /* Blend the free-running idle rotation toward the nearest label-forward
        equivalent so the settle takes the shortest path. */
     const idle = this.#lockBase ?? this.#idleRotation;
-    let target = LABEL_FORWARD;
-    let deltaToLabel = (target - idle) % TWO_PI;
+    let deltaToLabel = (LABEL_FORWARD - idle) % TWO_PI;
     if (deltaToLabel > Math.PI) deltaToLabel -= TWO_PI;
     if (deltaToLabel < -Math.PI) deltaToLabel += TWO_PI;
 
@@ -349,6 +475,11 @@ class TamarinseBottleScene extends HTMLElement {
           }
         }
       });
+    }
+
+    if (this.#envTexture) {
+      this.#envTexture.dispose();
+      this.#envTexture = null;
     }
 
     if (this.#renderer) {

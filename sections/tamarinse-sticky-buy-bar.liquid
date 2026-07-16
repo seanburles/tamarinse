@@ -119,10 +119,11 @@
       position: fixed;
       inset: auto 0 0;
       z-index: 40;
-      background: rgb(11 11 12 / 92%);
+      background: rgb(253 252 250 / 90%);
       backdrop-filter: blur(12px);
       color: var(--t-text-hi);
-      border-block-start: 1px solid var(--t-ink-border);
+      border-block-start: 1px solid var(--t-border);
+      box-shadow: 0 -8px 30px rgb(22 26 24 / 6%);
       padding: var(--t-space-xs) var(--t-space-md) calc(var(--t-space-xs) + env(safe-area-inset-bottom));
       transform: translateY(105%);
       transition: transform var(--t-dur-med) var(--t-ease-out);
@@ -159,7 +160,7 @@
       height: 40px;
       object-fit: contain;
       border-radius: var(--t-radius-sm);
-      background: var(--t-ink-soft);
+      background: var(--t-surface);
       flex: none;
     }
 
@@ -195,19 +196,19 @@
       gap: var(--t-space-2xs);
       min-height: var(--t-touch-target);
       padding: 0 var(--t-space-sm);
-      border: 1px solid var(--t-ink-border);
+      border: 1px solid var(--t-border);
       border-radius: var(--t-radius-pill);
       font-size: var(--t-type-small);
       cursor: pointer;
     }
 
     .tamarinse-buybar__plan:has(input:checked) {
-      border-color: var(--t-terracotta);
-      color: var(--t-cream);
+      border-color: var(--t-accent);
+      color: var(--t-tint);
     }
 
     .tamarinse-buybar__plan input {
-      accent-color: var(--t-terracotta);
+      accent-color: var(--t-accent);
     }
 
     .tamarinse-buybar__add {

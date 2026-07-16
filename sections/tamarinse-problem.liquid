@@ -12,7 +12,7 @@
   {%- endif -%}
 
   {%- for block in section.blocks -%}
-    <div class="tamarinse-problem__panel" {{ block.shopify_attributes }}>
+    <div class="tamarinse-problem__panel{% if block.settings.image != blank %} tamarinse-problem__panel--photo{% endif %}" {{ block.shopify_attributes }}>
       <div class="tamarinse-problem__media" aria-hidden="{% if block.settings.image == blank %}true{% else %}false{% endif %}">
         {%- if block.settings.image != blank -%}
           <picture>
@@ -56,7 +56,7 @@
 {% stylesheet %}
   .tamarinse-problem {
     display: block;
-    background: var(--t-ink);
+    background: var(--t-bg);
     color: var(--t-text-hi);
   }
 
@@ -72,7 +72,7 @@
     position: absolute;
     inset: 0;
     overflow: hidden;
-    background: var(--t-ink-soft);
+    background: var(--t-surface);
   }
 
   .tamarinse-problem__image {
@@ -84,7 +84,19 @@
   .tamarinse-problem__scrim {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgb(11 11 12 / 88%), rgb(11 11 12 / 15%) 55%);
+  }
+
+  /* Photo panels: white copy over a dark scrim. Placeholder panels stay light. */
+  .tamarinse-problem__panel--photo .tamarinse-problem__scrim {
+    background: var(--t-photo-scrim);
+  }
+
+  .tamarinse-problem__panel--photo .tamarinse-problem__stat {
+    color: var(--t-photo-text);
+  }
+
+  .tamarinse-problem__panel--photo .tamarinse-problem__source {
+    color: var(--t-photo-text-mid);
   }
 
   .tamarinse-problem__figure {

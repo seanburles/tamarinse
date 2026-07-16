@@ -88,7 +88,7 @@
 {% stylesheet %}
   .tamarinse-capsule {
     display: block;
-    background: var(--t-ink);
+    background: var(--t-bg);
     color: var(--t-text-hi);
     height: calc(100svh + var(--capsule-scroll-length, 400vh));
     --capsule-separation: 0;
@@ -141,15 +141,15 @@
     display: block;
     width: clamp(90px, 18vw, 150px);
     height: clamp(110px, 22vw, 190px);
-    background: linear-gradient(150deg, #c8b9a4, #9c8a72 80%);
+    background: linear-gradient(150deg, #ddd2bc, #b6a888 80%);
     box-shadow:
-      inset 10px 0 22px rgb(247 245 240 / 22%),
-      inset -14px -6px 26px rgb(0 0 0 / 32%);
+      inset 10px 0 22px rgb(255 255 255 / 45%),
+      inset -14px -6px 26px rgb(22 26 24 / 18%);
   }
 
   .tamarinse-capsule__half--top .tamarinse-capsule__shell {
     border-radius: 999px 999px 14px 14px;
-    background: linear-gradient(150deg, #b3653f, #8a4127 80%);
+    background: linear-gradient(150deg, #c3b391, #9a8a68 80%);
   }
 
   .tamarinse-capsule__half--bottom .tamarinse-capsule__shell {
@@ -256,7 +256,7 @@
 
   .tamarinse-capsule__dot[data-active] {
     opacity: 1;
-    background: var(--t-terracotta);
+    background: var(--t-accent);
   }
 
   /* Reduced motion: static open capsule, everything visible, natural height */

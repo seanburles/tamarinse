@@ -28,13 +28,14 @@
               alt: section.settings.fallback_image.alt
           }}
         {%- else -%}
-          {%- comment -%} Placeholder bottle until brand render is uploaded {%- endcomment -%}
-          <div class="tamarinse-hero__fallback-bottle">
-            <span class="tamarinse-hero__fallback-cap"></span>
-            <span class="tamarinse-hero__fallback-label">
-              <span>TAMARINSE</span>
-            </span>
-          </div>
+          {%- comment -%} Bundled product photo until a merchant image is picked {%- endcomment -%}
+          <img
+            src="{{ 'tamarinse-bottle-photo.png' | asset_url }}"
+            class="tamarinse-hero__fallback-image"
+            alt="Tamarinse™ bottle"
+            width="800"
+            height="1012"
+          >
         {%- endif -%}
       </div>
     </tamarinse-bottle-scene>
@@ -72,7 +73,7 @@
 
 {% stylesheet %}
   .tamarinse-hero {
-    background: var(--t-ink);
+    background: var(--t-bg);
     color: var(--t-text-hi);
     /* Tall wrapper: the extra height is the scroll range for the label lock */
     height: calc(100svh + var(--hero-scroll-length, 120vh));
@@ -122,46 +123,10 @@
   }
 
   .tamarinse-hero__fallback-image {
-    max-height: 52svh;
+    max-height: 56svh;
     width: auto;
     object-fit: contain;
-  }
-
-  .tamarinse-hero__fallback-bottle {
-    position: relative;
-    width: clamp(120px, 22vw, 190px);
-    height: clamp(260px, 46svh, 420px);
-    background: linear-gradient(160deg, #2c1c13, #1a100a 70%);
-    border-radius: 22px 22px 30px 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow:
-      inset 8px 0 24px rgb(247 245 240 / 6%),
-      inset -12px 0 28px rgb(0 0 0 / 45%);
-  }
-
-  .tamarinse-hero__fallback-cap {
-    position: absolute;
-    top: -34px;
-    width: 46%;
-    height: 44px;
-    background: #0b0b0c;
-    border-radius: 8px 8px 2px 2px;
-  }
-
-  .tamarinse-hero__fallback-label {
-    width: 88%;
-    padding: 2.2em 0.5em;
-    background: var(--t-cream);
-    color: var(--t-ink);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--t-font-body);
-    font-size: 0.8rem;
-    letter-spacing: 0.32em;
-    text-indent: 0.32em;
+    mix-blend-mode: multiply; /* melts the photo's white backdrop into the page */
   }
 
   /* Legibility scrim: copy sits over the bottle's lower third */
@@ -170,7 +135,7 @@
     position: absolute;
     inset: auto 0 0;
     height: 52svh;
-    background: linear-gradient(to top, rgb(11 11 12 / 97%) 38%, transparent);
+    background: linear-gradient(to top, rgb(253 252 250 / 97%) 38%, transparent);
     pointer-events: none;
     z-index: 1;
   }
