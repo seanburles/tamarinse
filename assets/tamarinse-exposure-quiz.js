@@ -1,10 +1,12 @@
 /**
- * <tamarinse-exposure-quiz> — Exposure Assessment widget.
+ * <tamarinse-exposure-quiz> — stepped Exposure Assessment.
  *
- * Self-contained state machine: questions → weighted score → result tier.
- * Question list and weights come from the rendered DOM (section blocks),
- * never from a hardcoded array (BUILD_GUIDE section 4). The weighted-sum
- * logic itself is pure and lives in scoreExposure() so it stays testable.
+ * One question per screen with a slim progress bar, icon answer cards, and a
+ * single Continue CTA. Steps, options, and weights come from the rendered DOM
+ * (section blocks), never from a hardcoded array (BUILD_GUIDE section 4).
+ * The weighted-sum logic is pure and lives in scoreExposure() so it stays
+ * testable. Step transitions are CSS animations keyed off data-entering
+ * (forward|back); reduced-motion users get instant swaps via the stylesheet.
  */
 
 /**
@@ -24,16 +26,28 @@ export function scoreExposure(total, max, tiers) {
 }
 
 class TamarinseExposureQuiz extends HTMLElement {
-  #onChange = (event) => {
-    const target = event.target;
-    if (target instanceof HTMLInputElement && target.type === 'checkbox') {
-      this.#updateCount();
-    }
-  };
+  #form = null;
+  #result = null;
+  #tierLabel = null;
+  #nextButton = null;
+  #backButton = null;
+  #progressLabel = null;
+  #progressBar = null;
+  #progressFill = null;
+  #steps = [];
+  #current = 0;
 
   #onSubmit = (event) => {
     event.preventDefault();
-    this.#showResult();
+    if (this.#current >= this.#steps.length - 1) {
+      this.#showResult();
+    } else {
+      this.#goTo(this.#current + 1, 'forward');
+    }
+  };
+
+  #onBack = () => {
+    if (this.#current > 0) this.#goTo(this.#current - 1, 'back');
   };
 
   #onReset = (event) => {
@@ -45,23 +59,23 @@ class TamarinseExposureQuiz extends HTMLElement {
     this.#form = this.querySelector('form');
     this.#result = this.querySelector('[data-quiz-result]');
     this.#tierLabel = this.querySelector('[data-quiz-tier]');
-    this.#count = this.querySelector('[data-quiz-count]');
+    this.#nextButton = this.querySelector('[data-quiz-next]');
+    this.#backButton = this.querySelector('[data-quiz-back]');
+    this.#progressLabel = this.querySelector('[data-quiz-progress-label]');
+    this.#progressBar = this.querySelector('[data-quiz-progress-bar]');
+    this.#progressFill = this.querySelector('[data-quiz-progress-fill]');
+    this.#steps = Array.from(this.querySelectorAll('[data-quiz-step]'));
 
-    this.#form?.addEventListener('change', this.#onChange);
     this.#form?.addEventListener('submit', this.#onSubmit);
+    this.#backButton?.addEventListener('click', this.#onBack);
     this.querySelector('[data-quiz-reset]')?.addEventListener('click', this.#onReset);
-    this.#updateCount();
+    this.#sync();
   }
 
   disconnectedCallback() {
-    this.#form?.removeEventListener('change', this.#onChange);
     this.#form?.removeEventListener('submit', this.#onSubmit);
+    this.#backButton?.removeEventListener('click', this.#onBack);
   }
-
-  #form = null;
-  #result = null;
-  #tierLabel = null;
-  #count = null;
 
   #checkboxes() {
     return Array.from(this.querySelectorAll('input[type="checkbox"][data-weight]'));
@@ -75,10 +89,40 @@ class TamarinseExposureQuiz extends HTMLElement {
     }
   }
 
-  #updateCount() {
-    if (!this.#count) return;
-    const checked = this.#checkboxes().filter((box) => box.checked).length;
-    this.#count.textContent = String(checked);
+  #goTo(index, direction) {
+    this.#current = Math.min(Math.max(index, 0), this.#steps.length - 1);
+    this.#sync(direction);
+
+    /* Move focus to the question so keyboard/AT users land on the new screen. */
+    const question = this.#steps[this.#current]?.querySelector('legend');
+    question?.focus({ preventScroll: true });
+  }
+
+  /** Reflect #current into visibility, progress, and button labels. */
+  #sync(direction = null) {
+    this.#steps.forEach((step, index) => {
+      const active = index === this.#current;
+      step.hidden = !active;
+      if (active && direction) {
+        step.setAttribute('data-entering', direction);
+      } else {
+        step.removeAttribute('data-entering');
+      }
+    });
+
+    const position = this.#current + 1;
+    const total = this.#steps.length;
+    if (this.#progressLabel) this.#progressLabel.textContent = `${position} of ${total}`;
+    this.#progressBar?.setAttribute('aria-valuenow', String(position));
+    if (this.#progressFill) this.#progressFill.style.width = `${(position / total) * 100}%`;
+
+    const last = this.#current >= total - 1;
+    if (this.#nextButton) {
+      this.#nextButton.textContent = last
+        ? this.getAttribute('data-submit-label') || 'See my result'
+        : this.getAttribute('data-continue-label') || 'Continue';
+    }
+    if (this.#backButton) this.#backButton.hidden = this.#current === 0;
   }
 
   #showResult() {
@@ -93,14 +137,14 @@ class TamarinseExposureQuiz extends HTMLElement {
     if (this.#tierLabel) this.#tierLabel.textContent = tier;
 
     this.setAttribute('data-state', 'result');
-    this.#result?.focus({ preventScroll: false });
+    this.#result?.focus({ preventScroll: true });
     this.#result?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   #reset() {
     for (const box of this.#checkboxes()) box.checked = false;
     this.removeAttribute('data-state');
-    this.#updateCount();
+    this.#goTo(0, 'back');
   }
 }
 

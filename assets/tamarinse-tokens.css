@@ -5,27 +5,30 @@
   Everything custom references these variables — never hardcode a hex
   or a magic duration inside a section stylesheet.
 
-  Direction (client, 2026-07-16): light, bright, modern. Warm white pages,
-  pale sage tint panels (matched to the bottle label), deep sage accent,
-  silver/tan product cues. Motion stays slow, scroll-tied, purposeful.
+  Direction (client, 2026-07-16, rev. 2): confident, clean, minimal — Seed /
+  Ritual / AG1 energy, not clinical and not soft-wellness. Warm cream pages
+  (never stark white), warm near-black ink, and ONE bold saturated accent
+  (deep green) reserved strictly for CTAs, selected states, and key
+  highlights. Motion: subtle entrance animations on load; no scroll-pinning.
   Mobile-first: tokens are viewport-agnostic; type uses clamp().
 */
 
 :root {
   /* ---- Palette ---- */
-  --t-bg: #fdfcfa; /* warm white page background */
-  --t-surface: #f3f2ed; /* raised neutral surfaces */
+  --t-bg: #faf6ee; /* warm cream page background */
+  --t-surface: #f2ecdf; /* raised warm surfaces */
   --t-card: #ffffff; /* cards */
-  --t-tint: #e8efeb; /* pale sage panels — matched to the bottle label */
-  --t-border: rgb(20 24 22 / 10%);
+  --t-tint: #f3eee2; /* warm sand panels for section contrast */
+  --t-border: rgb(26 22 14 / 10%);
 
-  --t-ink: #161a18; /* primary text, near-black with a green cast */
+  --t-ink: #191712; /* primary text, warm near-black */
   --t-text-hi: var(--t-ink);
-  --t-text-mid: rgb(22 26 24 / 70%);
-  --t-text-low: rgb(22 26 24 / 48%);
+  --t-text-mid: rgb(25 23 18 / 70%);
+  --t-text-low: rgb(25 23 18 / 48%);
 
-  --t-accent: #46695e; /* deep sage — the one live accent */
-  --t-accent-deep: #35544a;
+  --t-accent: #0d7a3f; /* bold saturated green — CTAs and selected states ONLY */
+  --t-accent-deep: #095a2e;
+  --t-accent-tint: rgb(13 122 63 / 8%); /* selected-card fill */
   --t-accent-2: #9a8a68; /* capsule tan, sparingly (never with accent in one element) */
   --t-white: #ffffff;
 
@@ -123,7 +126,7 @@
 }
 
 .t-btn--primary:hover {
-  background: #2a302d;
+  background: #322e26;
 }
 
 .t-btn--accent {
@@ -138,11 +141,16 @@
 .t-btn--ghost {
   background: transparent;
   color: var(--t-text-hi);
-  border-color: rgb(22 26 24 / 22%);
+  border-color: rgb(25 23 18 / 22%);
 }
 
 .t-btn--ghost:hover {
   border-color: var(--t-text-mid);
+}
+
+/* Full-width decision CTA (quiz steps, mobile buy actions) */
+.t-btn--block {
+  width: 100%;
 }
 
 @media (prefers-reduced-motion: reduce) {

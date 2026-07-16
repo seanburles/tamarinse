@@ -46,7 +46,10 @@ class TamarinseBottleScene extends HTMLElement {
   #disposers = [];
   #rafId = null;
   #lastTime = 0;
-  #idleRotation = 0.6; /* start slightly off-label so the settle is visible */
+  #elapsed = 0;
+  /* Static hero: gentle sway around label-forward instead of full rotation,
+     so the label never turns its blank back to the visitor. */
+  #idleRotation = LABEL_FORWARD;
   #scrollBlend = 0;
   #lockBase = null;
   #visible = false;
@@ -104,17 +107,19 @@ class TamarinseBottleScene extends HTMLElement {
     scene.background = this.#pageBackground(THREE);
     this.#scene = scene;
 
-    /* Framing: jar (~3 units tall) sits slightly above center so hero copy
-       clears the base. */
+    /* Framing: the element is a contained stage now (not full-viewport),
+       so center the jar and fill ~70% of the frame height. */
     const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 50);
-    camera.position.set(0, 0.2, 11);
-    camera.lookAt(0, 0.2, 0);
+    camera.position.set(0, 0, 8);
+    camera.lookAt(0, 0, 0);
     this.#camera = camera;
 
     /* Bright studio environment — gives the glass its refraction detail and
-       the silver cap its reflections. */
+       the silver cap its reflections. Procedural panels render immediately;
+       if a studio HDRI is configured it swaps in once decoded. */
     this.#envTexture = this.#createEnvironment(THREE, renderer);
     scene.environment = this.#envTexture;
+    this.#loadEnvironmentMap(THREE, renderer);
 
     /* Soft daylight key + fill for the matte label. */
     const key = new THREE.DirectionalLight(0xffffff, 1.2);
@@ -171,14 +176,49 @@ class TamarinseBottleScene extends HTMLElement {
   }
 
   #pageBackground(THREE) {
-    const color = new THREE.Color('#fdfcfa');
+    const color = new THREE.Color('#faf6ee');
     try {
-      const bodyColor = getComputedStyle(document.body).backgroundColor;
-      if (bodyColor && bodyColor !== 'rgba(0, 0, 0, 0)') color.setStyle(bodyColor);
+      /* Walk up to the nearest ancestor that actually paints a background so
+         the canvas blends into its section, not the (possibly white) body. */
+      let node = this.parentElement;
+      while (node) {
+        const bg = getComputedStyle(node).backgroundColor;
+        if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
+          color.setStyle(bg);
+          break;
+        }
+        node = node.parentElement;
+      }
     } catch (error) {
       /* keep default */
     }
     return color;
+  }
+
+  /* Optional studio HDRI (data-environment URL, .exr). Loaded lazily so the
+     first frame never waits on a ~1MB texture; swaps the procedural env. */
+  async #loadEnvironmentMap(THREE, renderer) {
+    const url = this.getAttribute('data-environment');
+    if (!url) return;
+    try {
+      const { EXRLoader } = await import('@tamarinse/exr-loader');
+      const equirect = await new EXRLoader().loadAsync(url);
+      if (!this.#scene || !this.#renderer) {
+        equirect.dispose();
+        return;
+      }
+      const pmrem = new THREE.PMREMGenerator(renderer);
+      const env = pmrem.fromEquirectangular(equirect).texture;
+      equirect.dispose();
+      pmrem.dispose();
+      const previous = this.#envTexture;
+      this.#scene.environment = env;
+      this.#envTexture = env;
+      previous?.dispose();
+      this.#renderFrame();
+    } catch (error) {
+      /* keep the procedural environment */
+    }
   }
 
   /* Hand-rolled bright "studio" captured with PMREM — a light box with two
@@ -314,7 +354,7 @@ class TamarinseBottleScene extends HTMLElement {
     label.rotation.y = Math.PI;
 
     group.add(glass, capBand, capDome, capsules, label);
-    group.position.y = -0.45;
+    group.position.y = -1.35; /* centers the ~2.7-unit jar on the origin */
     return group;
   }
 
@@ -420,7 +460,9 @@ class TamarinseBottleScene extends HTMLElement {
       this.#lastTime = now;
 
       if (this.#scrollBlend < 1) {
-        this.#idleRotation = (this.#idleRotation + delta * (TWO_PI / this.#bottlePeriodSeconds())) % TWO_PI;
+        this.#elapsed += delta;
+        const phase = (this.#elapsed / this.#bottlePeriodSeconds()) * TWO_PI;
+        this.#idleRotation = LABEL_FORWARD + Math.sin(phase) * 0.42;
         this.#lockBase = null;
       } else if (this.#lockBase === null) {
         this.#lockBase = this.#idleRotation;

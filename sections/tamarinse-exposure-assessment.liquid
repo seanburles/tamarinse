@@ -1,9 +1,10 @@
 {% comment %}
-  Exposure Assessment (MASTER_PROMPT #3, CONTENT.md question set).
-  "Select all that apply" checklist per the approved copy. Each question is a
-  block (text + weight) so the client can add/remove/reword and re-weight
-  without a deploy. Scoring is a pure weighted sum in
-  tamarinse-exposure-quiz.js; tier thresholds are section settings.
+  Exposure Assessment — stepped flow (client redesign 2026-07-16).
+  One question per screen, slim progress bar ("3 of 5"), icon-led answer
+  cards, and a single full-width Continue CTA. Each block is one screen with
+  up to six answer options (label + icon + weight) so the client can reword,
+  re-icon, and re-weight without a deploy. Scoring stays a pure weighted sum
+  in tamarinse-exposure-quiz.js; tier thresholds are section settings.
   Client-stated goal: a typical respondent lands on "High".
 {% endcomment %}
 
@@ -17,9 +18,11 @@
 {%- endcapture -%}
 
 <tamarinse-exposure-quiz
-  class="tamarinse-quiz t-on-light"
+  class="tamarinse-quiz"
   id="TamarinseQuiz-{{ section.id }}"
   data-tiers="{{ tiers_json | strip | escape }}"
+  data-continue-label="{{ section.settings.continue_label | escape }}"
+  data-submit-label="{{ section.settings.submit_label | escape }}"
 >
   <div class="tamarinse-quiz__inner">
     <header class="tamarinse-quiz__header">
@@ -28,27 +31,70 @@
       <p class="tamarinse-quiz__intro">{{ section.settings.intro }}</p>
     </header>
 
-    <form novalidate>
-      <fieldset class="tamarinse-quiz__questions">
-        <legend class="visually-hidden">{{ section.settings.intro }}</legend>
-        {%- for block in section.blocks -%}
-          <label class="tamarinse-quiz__question" {{ block.shopify_attributes }}>
-            <input
-              type="checkbox"
-              class="tamarinse-quiz__checkbox"
-              data-weight="{{ block.settings.weight }}"
-            >
-            <span class="tamarinse-quiz__question-text">{{ block.settings.question }}</span>
-            <span class="tamarinse-quiz__check" aria-hidden="true"></span>
-          </label>
-        {%- endfor -%}
-      </fieldset>
-
-      <div class="tamarinse-quiz__footer">
-        <p class="tamarinse-quiz__selected"><span data-quiz-count>0</span> selected</p>
-        <button type="submit" class="t-btn t-btn--primary">{{ section.settings.submit_label }}</button>
+    <div class="tamarinse-quiz__panel" data-quiz-panel>
+      <div class="tamarinse-quiz__progress">
+        <span class="tamarinse-quiz__progress-label" data-quiz-progress-label aria-live="polite">
+          1 of {{ section.blocks.size }}
+        </span>
+        <span
+          class="tamarinse-quiz__progress-track"
+          role="progressbar"
+          aria-valuemin="1"
+          aria-valuemax="{{ section.blocks.size }}"
+          aria-valuenow="1"
+          data-quiz-progress-bar
+        >
+          <span class="tamarinse-quiz__progress-fill" data-quiz-progress-fill></span>
+        </span>
       </div>
-    </form>
+
+      <form novalidate>
+        {%- for block in section.blocks -%}
+          <fieldset
+            class="tamarinse-quiz__step"
+            data-quiz-step
+            {% unless forloop.first %}
+              hidden
+            {% endunless %}
+            {{ block.shopify_attributes }}
+          >
+            <legend class="tamarinse-quiz__question" tabindex="-1">{{ block.settings.question }}</legend>
+            {%- if block.settings.hint != blank -%}
+              <p class="tamarinse-quiz__hint">{{ block.settings.hint }}</p>
+            {%- endif -%}
+            <div class="tamarinse-quiz__options">
+              {%- for i in (1..6) -%}
+                {%- assign label_key = 'option' | append: i | append: '_label' -%}
+                {%- assign icon_key = 'option' | append: i | append: '_icon' -%}
+                {%- assign weight_key = 'option' | append: i | append: '_weight' -%}
+                {%- if block.settings[label_key] != blank -%}
+                  <label class="tamarinse-quiz__option">
+                    <input
+                      type="checkbox"
+                      class="tamarinse-quiz__checkbox"
+                      data-weight="{{ block.settings[weight_key] | default: 1 }}"
+                    >
+                    <span class="tamarinse-quiz__option-icon">
+                      {%- render 'tamarinse-quiz-icon', icon: block.settings[icon_key] -%}
+                    </span>
+                    <span class="tamarinse-quiz__option-label">{{ block.settings[label_key] }}</span>
+                  </label>
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+          </fieldset>
+        {%- endfor -%}
+
+        <div class="tamarinse-quiz__nav">
+          <button type="submit" class="t-btn t-btn--accent t-btn--block" data-quiz-next>
+            {{- section.settings.continue_label -}}
+          </button>
+          <button type="button" class="tamarinse-quiz__back" data-quiz-back hidden>
+            {{- section.settings.back_label -}}
+          </button>
+        </div>
+      </form>
+    </div>
 
     <div class="tamarinse-quiz__result" data-quiz-result tabindex="-1">
       <p class="tamarinse-quiz__result-line">
@@ -83,17 +129,17 @@
   }
 
   .tamarinse-quiz__inner {
-    max-width: var(--t-content-max);
+    max-width: 44rem;
     margin-inline: auto;
   }
 
   .tamarinse-quiz__header {
-    max-width: var(--t-copy-max);
-    margin-block-end: var(--t-space-xl);
+    text-align: center;
+    margin-block-end: var(--t-space-lg);
   }
 
   .tamarinse-quiz__eyebrow {
-    color: var(--t-accent);
+    color: var(--t-text-low);
     margin: 0 0 var(--t-space-sm);
   }
 
@@ -110,34 +156,140 @@
     font-size: var(--t-type-body-lg);
     line-height: var(--t-leading-body);
     color: var(--t-text-mid);
-    margin: 0;
+    max-width: var(--t-copy-max);
+    margin-inline: auto;
+    margin-block: 0;
   }
 
-  .tamarinse-quiz__questions {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--t-space-xs);
-    border: 0;
-    padding: 0;
-    margin: 0;
+  /* ---- Card panel: one decision per screen ---- */
+  .tamarinse-quiz__panel {
+    background: var(--t-card);
+    border: 1px solid var(--t-border);
+    border-radius: 16px;
+    padding: var(--t-space-md);
+    box-shadow: 0 14px 40px rgb(26 22 14 / 5%);
   }
 
-  .tamarinse-quiz__question {
+  .tamarinse-quiz[data-state='result'] .tamarinse-quiz__panel {
+    display: none;
+  }
+
+  /* ---- Progress ---- */
+  .tamarinse-quiz__progress {
     display: flex;
     align-items: center;
     gap: var(--t-space-sm);
-    min-height: var(--t-touch-target);
-    padding: var(--t-space-sm) var(--t-space-md);
-    background: var(--t-card);
-    border: 1px solid var(--t-border);
-    border-radius: var(--t-radius-sm);
-    cursor: pointer;
-    transition:
-      border-color var(--t-dur-fast) var(--t-ease-out),
-      background-color var(--t-dur-fast) var(--t-ease-out);
+    margin-block-end: var(--t-space-lg);
   }
 
-  .tamarinse-quiz__question:hover {
+  .tamarinse-quiz__progress-label {
+    flex: none;
+    font-size: var(--t-type-small);
+    font-variant-numeric: tabular-nums;
+    color: var(--t-text-low);
+  }
+
+  .tamarinse-quiz__progress-track {
+    flex: 1;
+    height: 4px;
+    border-radius: var(--t-radius-pill);
+    background: var(--t-surface);
+    overflow: hidden;
+  }
+
+  .tamarinse-quiz__progress-fill {
+    display: block;
+    height: 100%;
+    width: 0%;
+    border-radius: inherit;
+    background: var(--t-accent);
+    transition: width var(--t-dur-med) var(--t-ease-out);
+  }
+
+  /* ---- Steps ---- */
+  .tamarinse-quiz__step {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    min-height: 19rem;
+  }
+
+  .tamarinse-quiz__step[data-entering='forward'] {
+    animation: tamarinse-quiz-step-forward 360ms var(--t-ease-out) both;
+  }
+
+  .tamarinse-quiz__step[data-entering='back'] {
+    animation: tamarinse-quiz-step-back 360ms var(--t-ease-out) both;
+  }
+
+  @keyframes tamarinse-quiz-step-forward {
+    from {
+      opacity: 0;
+      transform: translateX(28px);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes tamarinse-quiz-step-back {
+    from {
+      opacity: 0;
+      transform: translateX(-28px);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .tamarinse-quiz__question {
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-h3);
+    line-height: var(--t-leading-heading);
+    font-weight: 400;
+    padding: 0;
+    margin: 0 0 var(--t-space-2xs);
+    outline: none;
+    text-wrap: balance;
+  }
+
+  .tamarinse-quiz__hint {
+    font-size: var(--t-type-small);
+    color: var(--t-text-low);
+    margin: 0 0 var(--t-space-md);
+  }
+
+  /* ---- Icon answer cards ---- */
+  .tamarinse-quiz__options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--t-space-xs);
+    margin-block-start: var(--t-space-md);
+  }
+
+  .tamarinse-quiz__option {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--t-space-xs);
+    min-height: var(--t-touch-target);
+    padding: var(--t-space-sm);
+    background: var(--t-card);
+    border: 1px solid var(--t-border);
+    border-radius: 12px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      border-color var(--t-dur-fast) var(--t-ease-out),
+      background-color var(--t-dur-fast) var(--t-ease-out),
+      box-shadow var(--t-dur-fast) var(--t-ease-out);
+  }
+
+  .tamarinse-quiz__option:hover {
     border-color: var(--t-text-low);
   }
 
@@ -147,71 +299,65 @@
     pointer-events: none;
   }
 
-  .tamarinse-quiz__question-text {
-    flex: 1;
+  .tamarinse-quiz__option-icon {
+    display: inline-flex;
+    color: var(--t-text-mid);
+    transition: color var(--t-dur-fast) var(--t-ease-out);
+  }
+
+  .tamarinse-quiz__option-label {
     font-size: var(--t-type-body);
-    line-height: var(--t-leading-body);
+    line-height: 1.35;
+    font-weight: 500;
   }
 
-  .tamarinse-quiz__check {
-    flex: none;
-    width: 22px;
-    height: 22px;
-    border: 1px solid var(--t-text-low);
-    border-radius: 50%;
-    position: relative;
-    transition:
-      background-color var(--t-dur-fast) var(--t-ease-out),
-      border-color var(--t-dur-fast) var(--t-ease-out);
-  }
-
-  .tamarinse-quiz__checkbox:checked ~ .tamarinse-quiz__check {
-    background: var(--t-accent);
+  /* Selected: bold accent border + tinted fill — the accent's one job here */
+  .tamarinse-quiz__option:has(.tamarinse-quiz__checkbox:checked) {
     border-color: var(--t-accent);
+    box-shadow: inset 0 0 0 1px var(--t-accent);
+    background: var(--t-accent-tint);
   }
 
-  .tamarinse-quiz__checkbox:checked ~ .tamarinse-quiz__check::after {
-    content: '';
-    position: absolute;
-    inset: 6px 5px 7px;
-    border: solid var(--t-white);
-    border-width: 0 0 2px 2px;
-    transform: rotate(-45deg);
+  .tamarinse-quiz__option:has(.tamarinse-quiz__checkbox:checked) .tamarinse-quiz__option-icon {
+    color: var(--t-accent);
   }
 
-  .tamarinse-quiz__checkbox:focus-visible ~ .tamarinse-quiz__check {
+  .tamarinse-quiz__option:has(.tamarinse-quiz__checkbox:focus-visible) {
     outline: 2px solid var(--t-accent);
     outline-offset: 3px;
   }
 
-  .tamarinse-quiz__question:has(.tamarinse-quiz__checkbox:checked) {
-    background: rgb(70 105 94 / 8%);
-    border-color: var(--t-accent);
-  }
-
-  .tamarinse-quiz__footer {
+  /* ---- Navigation ---- */
+  .tamarinse-quiz__nav {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    gap: var(--t-space-sm);
+    gap: var(--t-space-2xs);
     margin-block-start: var(--t-space-lg);
   }
 
-  .tamarinse-quiz__selected {
+  .tamarinse-quiz__back {
+    background: none;
+    border: none;
+    color: var(--t-text-mid);
     font-size: var(--t-type-small);
-    color: var(--t-text-low);
-    margin: 0;
+    text-decoration: underline;
+    cursor: pointer;
+    min-height: var(--t-touch-target);
+    padding: 0 var(--t-space-sm);
   }
 
+  /* ---- Result ---- */
   .tamarinse-quiz__result {
     display: none;
-    margin-block-start: var(--t-space-xl);
     padding: var(--t-space-lg);
     background: var(--t-card);
     color: var(--t-text-hi);
     border: 1px solid var(--t-border);
-    border-radius: var(--t-radius-sm);
+    border-radius: 16px;
+    box-shadow: 0 14px 40px rgb(26 22 14 / 5%);
     outline: none;
+    animation: tamarinse-quiz-step-forward 360ms var(--t-ease-out) both;
   }
 
   .tamarinse-quiz[data-state='result'] .tamarinse-quiz__result {
@@ -227,7 +373,7 @@
 
   .tamarinse-quiz__result-line strong {
     color: var(--t-accent);
-    font-weight: 400;
+    font-weight: 500;
   }
 
   .tamarinse-quiz__result-text {
@@ -256,9 +402,26 @@
     padding: 0 var(--t-space-xs);
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .tamarinse-quiz__step[data-entering='forward'],
+    .tamarinse-quiz__step[data-entering='back'],
+    .tamarinse-quiz__result {
+      animation: none;
+    }
+  }
+
   @media screen and (min-width: 750px) {
-    .tamarinse-quiz__questions {
-      grid-template-columns: 1fr 1fr;
+    .tamarinse-quiz__panel {
+      padding: var(--t-space-lg);
+    }
+
+    .tamarinse-quiz__options {
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--t-space-sm);
+    }
+
+    .tamarinse-quiz__option {
+      padding: var(--t-space-md) var(--t-space-sm);
     }
   }
 {% endstylesheet %}
@@ -292,13 +455,25 @@
       "type": "text",
       "id": "intro",
       "label": "Intro",
-      "default": "How exposed are you to microplastics in your daily life? Select all that apply:"
+      "default": "A 60-second check on your daily routines."
+    },
+    {
+      "type": "text",
+      "id": "continue_label",
+      "label": "Continue button label",
+      "default": "Continue"
     },
     {
       "type": "text",
       "id": "submit_label",
-      "label": "Submit button label",
+      "label": "Final step button label",
       "default": "See my result"
+    },
+    {
+      "type": "text",
+      "id": "back_label",
+      "label": "Back link label",
+      "default": "Back"
     },
     {
       "type": "header",
@@ -395,7 +570,7 @@
   "blocks": [
     {
       "type": "question",
-      "name": "Question",
+      "name": "Question screen",
       "settings": [
         {
           "type": "text",
@@ -403,14 +578,197 @@
           "label": "Question"
         },
         {
-          "type": "range",
-          "id": "weight",
-          "label": "Weight",
-          "min": 1,
-          "max": 5,
-          "step": 1,
-          "default": 1
-        }
+          "type": "text",
+          "id": "hint",
+          "label": "Hint",
+          "default": "Select all that apply"
+        },
+        {
+          "type": "header",
+          "content": "Option 1"
+        },
+        { "type": "text", "id": "option1_label", "label": "Label" },
+        {
+          "type": "select",
+          "id": "option1_icon",
+          "label": "Icon",
+          "options": [
+            { "value": "bottle", "label": "Water bottle" },
+            { "value": "cup", "label": "To-go cup" },
+            { "value": "shaker", "label": "Shaker bottle" },
+            { "value": "teabag", "label": "Tea bag" },
+            { "value": "jar", "label": "Glass jar" },
+            { "value": "container", "label": "Food container" },
+            { "value": "microwave", "label": "Microwave" },
+            { "value": "bag", "label": "Plastic bag" },
+            { "value": "pan", "label": "Frying pan" },
+            { "value": "board", "label": "Cutting board" },
+            { "value": "takeout", "label": "Takeout box" },
+            { "value": "package", "label": "Packaged food" },
+            { "value": "fish", "label": "Fish" },
+            { "value": "shirt", "label": "Shirt" },
+            { "value": "receipt", "label": "Receipt" },
+            { "value": "droplet", "label": "Water drop" },
+            { "value": "none", "label": "None of these" }
+          ],
+          "default": "bottle"
+        },
+        { "type": "range", "id": "option1_weight", "label": "Weight", "min": 0, "max": 5, "step": 1, "default": 1 },
+        {
+          "type": "header",
+          "content": "Option 2"
+        },
+        { "type": "text", "id": "option2_label", "label": "Label" },
+        {
+          "type": "select",
+          "id": "option2_icon",
+          "label": "Icon",
+          "options": [
+            { "value": "bottle", "label": "Water bottle" },
+            { "value": "cup", "label": "To-go cup" },
+            { "value": "shaker", "label": "Shaker bottle" },
+            { "value": "teabag", "label": "Tea bag" },
+            { "value": "jar", "label": "Glass jar" },
+            { "value": "container", "label": "Food container" },
+            { "value": "microwave", "label": "Microwave" },
+            { "value": "bag", "label": "Plastic bag" },
+            { "value": "pan", "label": "Frying pan" },
+            { "value": "board", "label": "Cutting board" },
+            { "value": "takeout", "label": "Takeout box" },
+            { "value": "package", "label": "Packaged food" },
+            { "value": "fish", "label": "Fish" },
+            { "value": "shirt", "label": "Shirt" },
+            { "value": "receipt", "label": "Receipt" },
+            { "value": "droplet", "label": "Water drop" },
+            { "value": "none", "label": "None of these" }
+          ],
+          "default": "cup"
+        },
+        { "type": "range", "id": "option2_weight", "label": "Weight", "min": 0, "max": 5, "step": 1, "default": 1 },
+        {
+          "type": "header",
+          "content": "Option 3"
+        },
+        { "type": "text", "id": "option3_label", "label": "Label" },
+        {
+          "type": "select",
+          "id": "option3_icon",
+          "label": "Icon",
+          "options": [
+            { "value": "bottle", "label": "Water bottle" },
+            { "value": "cup", "label": "To-go cup" },
+            { "value": "shaker", "label": "Shaker bottle" },
+            { "value": "teabag", "label": "Tea bag" },
+            { "value": "jar", "label": "Glass jar" },
+            { "value": "container", "label": "Food container" },
+            { "value": "microwave", "label": "Microwave" },
+            { "value": "bag", "label": "Plastic bag" },
+            { "value": "pan", "label": "Frying pan" },
+            { "value": "board", "label": "Cutting board" },
+            { "value": "takeout", "label": "Takeout box" },
+            { "value": "package", "label": "Packaged food" },
+            { "value": "fish", "label": "Fish" },
+            { "value": "shirt", "label": "Shirt" },
+            { "value": "receipt", "label": "Receipt" },
+            { "value": "droplet", "label": "Water drop" },
+            { "value": "none", "label": "None of these" }
+          ],
+          "default": "container"
+        },
+        { "type": "range", "id": "option3_weight", "label": "Weight", "min": 0, "max": 5, "step": 1, "default": 1 },
+        {
+          "type": "header",
+          "content": "Option 4"
+        },
+        { "type": "text", "id": "option4_label", "label": "Label" },
+        {
+          "type": "select",
+          "id": "option4_icon",
+          "label": "Icon",
+          "options": [
+            { "value": "bottle", "label": "Water bottle" },
+            { "value": "cup", "label": "To-go cup" },
+            { "value": "shaker", "label": "Shaker bottle" },
+            { "value": "teabag", "label": "Tea bag" },
+            { "value": "jar", "label": "Glass jar" },
+            { "value": "container", "label": "Food container" },
+            { "value": "microwave", "label": "Microwave" },
+            { "value": "bag", "label": "Plastic bag" },
+            { "value": "pan", "label": "Frying pan" },
+            { "value": "board", "label": "Cutting board" },
+            { "value": "takeout", "label": "Takeout box" },
+            { "value": "package", "label": "Packaged food" },
+            { "value": "fish", "label": "Fish" },
+            { "value": "shirt", "label": "Shirt" },
+            { "value": "receipt", "label": "Receipt" },
+            { "value": "droplet", "label": "Water drop" },
+            { "value": "none", "label": "None of these" }
+          ],
+          "default": "none"
+        },
+        { "type": "range", "id": "option4_weight", "label": "Weight", "min": 0, "max": 5, "step": 1, "default": 0 },
+        {
+          "type": "header",
+          "content": "Option 5"
+        },
+        { "type": "text", "id": "option5_label", "label": "Label" },
+        {
+          "type": "select",
+          "id": "option5_icon",
+          "label": "Icon",
+          "options": [
+            { "value": "bottle", "label": "Water bottle" },
+            { "value": "cup", "label": "To-go cup" },
+            { "value": "shaker", "label": "Shaker bottle" },
+            { "value": "teabag", "label": "Tea bag" },
+            { "value": "jar", "label": "Glass jar" },
+            { "value": "container", "label": "Food container" },
+            { "value": "microwave", "label": "Microwave" },
+            { "value": "bag", "label": "Plastic bag" },
+            { "value": "pan", "label": "Frying pan" },
+            { "value": "board", "label": "Cutting board" },
+            { "value": "takeout", "label": "Takeout box" },
+            { "value": "package", "label": "Packaged food" },
+            { "value": "fish", "label": "Fish" },
+            { "value": "shirt", "label": "Shirt" },
+            { "value": "receipt", "label": "Receipt" },
+            { "value": "droplet", "label": "Water drop" },
+            { "value": "none", "label": "None of these" }
+          ],
+          "default": "none"
+        },
+        { "type": "range", "id": "option5_weight", "label": "Weight", "min": 0, "max": 5, "step": 1, "default": 0 },
+        {
+          "type": "header",
+          "content": "Option 6"
+        },
+        { "type": "text", "id": "option6_label", "label": "Label" },
+        {
+          "type": "select",
+          "id": "option6_icon",
+          "label": "Icon",
+          "options": [
+            { "value": "bottle", "label": "Water bottle" },
+            { "value": "cup", "label": "To-go cup" },
+            { "value": "shaker", "label": "Shaker bottle" },
+            { "value": "teabag", "label": "Tea bag" },
+            { "value": "jar", "label": "Glass jar" },
+            { "value": "container", "label": "Food container" },
+            { "value": "microwave", "label": "Microwave" },
+            { "value": "bag", "label": "Plastic bag" },
+            { "value": "pan", "label": "Frying pan" },
+            { "value": "board", "label": "Cutting board" },
+            { "value": "takeout", "label": "Takeout box" },
+            { "value": "package", "label": "Packaged food" },
+            { "value": "fish", "label": "Fish" },
+            { "value": "shirt", "label": "Shirt" },
+            { "value": "receipt", "label": "Receipt" },
+            { "value": "droplet", "label": "Water drop" },
+            { "value": "none", "label": "None of these" }
+          ],
+          "default": "none"
+        },
+        { "type": "range", "id": "option6_weight", "label": "Weight", "min": 0, "max": 5, "step": 1, "default": 0 }
       ]
     }
   ],
@@ -419,21 +777,54 @@
       "name": "Tamarinse Exposure Quiz",
       "category": "Tamarinse",
       "blocks": [
-        { "type": "question", "settings": { "question": "Drink bottled water regularly?", "weight": 2 } },
-        { "type": "question", "settings": { "question": "Heat food in plastic containers?", "weight": 2 } },
-        { "type": "question", "settings": { "question": "Store leftovers in plastic containers?", "weight": 1 } },
-        { "type": "question", "settings": { "question": "Frequently order takeout or food delivery?", "weight": 1 } },
-        { "type": "question", "settings": { "question": "Drink coffee with plastic lids?", "weight": 1 } },
-        { "type": "question", "settings": { "question": "Use non-stick cookware?", "weight": 1 } },
-        { "type": "question", "settings": { "question": "Use plastic cutting boards?", "weight": 1 } },
-        { "type": "question", "settings": { "question": "Drink from protein shaker bottles or plastic water bottles daily?", "weight": 2 } },
-        { "type": "question", "settings": { "question": "Brew tea using tea bags?", "weight": 1 } },
-        { "type": "question", "settings": { "question": "Eat seafood two or more times per week?", "weight": 1 } },
-        { "type": "question", "settings": { "question": "Frequently eat processed or packaged foods?", "weight": 1 } },
-        { "type": "question", "settings": { "question": "Microwave food in its original plastic packaging?", "weight": 2 } },
-        { "type": "question", "settings": { "question": "Use plastic food storage bags or plastic wrap regularly?", "weight": 1 } },
-        { "type": "question", "settings": { "question": "Wear synthetic athletic clothing (polyester, nylon, or spandex) several times a week?", "weight": 1 } },
-        { "type": "question", "settings": { "question": "Handle thermal paper receipts several times per week?", "weight": 1 } }
+        {
+          "type": "question",
+          "settings": {
+            "question": "What do you drink from most days?",
+            "option1_label": "Bottled water", "option1_icon": "bottle", "option1_weight": 3,
+            "option2_label": "Coffee with a plastic lid", "option2_icon": "cup", "option2_weight": 2,
+            "option3_label": "Shaker or plastic bottles", "option3_icon": "shaker", "option3_weight": 2,
+            "option4_label": "Tea from tea bags", "option4_icon": "teabag", "option4_weight": 1,
+            "option5_label": "Mostly glass or steel", "option5_icon": "jar", "option5_weight": 0
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "How do you store and reheat food?",
+            "option1_label": "Plastic containers", "option1_icon": "container", "option1_weight": 2,
+            "option2_label": "Microwave in plastic packaging", "option2_icon": "microwave", "option2_weight": 3,
+            "option3_label": "Plastic bags or cling wrap", "option3_icon": "bag", "option3_weight": 1,
+            "option4_label": "Mostly glass containers", "option4_icon": "jar", "option4_weight": 0
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "What's in your kitchen rotation?",
+            "option1_label": "Non-stick cookware", "option1_icon": "pan", "option1_weight": 2,
+            "option2_label": "Plastic cutting boards", "option2_icon": "board", "option2_weight": 2,
+            "option3_label": "Neither of these", "option3_icon": "none", "option3_weight": 0
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "How do you usually eat?",
+            "option1_label": "Takeout or delivery often", "option1_icon": "takeout", "option1_weight": 2,
+            "option2_label": "Processed or packaged foods", "option2_icon": "package", "option2_weight": 2,
+            "option3_label": "Seafood twice a week or more", "option3_icon": "fish", "option3_weight": 1
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "And day to day?",
+            "option1_label": "Synthetic workout clothing", "option1_icon": "shirt", "option1_weight": 1,
+            "option2_label": "Paper receipts at work", "option2_icon": "receipt", "option2_weight": 1,
+            "option3_label": "Neither of these", "option3_icon": "none", "option3_weight": 0
+          }
+        }
       ]
     }
   ]

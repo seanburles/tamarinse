@@ -1,52 +1,23 @@
 {% comment %}
-  Tamarinse Hero — full-bleed, centered rotating 3D bottle.
-  Tall wrapper pins a full-viewport stage; the shared scroll controller maps
-  wrapper progress to the bottle's label-forward lock (MASTER_PROMPT sections
-  1-2). All copy is editable; defaults come from CONTENT.md.
+  Tamarinse Hero — static, confident opener (client rev. 2026-07-16).
+  No scroll-pinning or scrubbing: one full-viewport screen, copy beside the
+  slowly rotating 3D bottle, with a single staggered entrance animation on
+  load. All copy is editable; defaults come from CONTENT.md.
 {% endcomment %}
 
-<div
+<section
   class="tamarinse-hero"
   id="TamarinseHero-{{ section.id }}"
-  style="--hero-scroll-length: {{ section.settings.scroll_length }}vh; --t-bottle-period: {{ section.settings.rotation_seconds }}s;"
+  style="--t-bottle-period: {{ section.settings.rotation_seconds }}s;"
 >
-  <div class="tamarinse-hero__sticky">
-    <tamarinse-bottle-scene
-      class="tamarinse-hero__scene"
-      data-scroll-root=".tamarinse-hero"
-      aria-hidden="true"
-    >
-      <div class="tamarinse-hero__fallback">
-        {%- if section.settings.fallback_image != blank -%}
-          {{
-            section.settings.fallback_image
-            | image_url: width: 1200
-            | image_tag:
-              widths: '600, 900, 1200',
-              sizes: '(min-width: 750px) 40vw, 70vw',
-              class: 'tamarinse-hero__fallback-image',
-              alt: section.settings.fallback_image.alt
-          }}
-        {%- else -%}
-          {%- comment -%} Bundled product photo until a merchant image is picked {%- endcomment -%}
-          <img
-            src="{{ 'tamarinse-bottle-photo.png' | asset_url }}"
-            class="tamarinse-hero__fallback-image"
-            alt="Tamarinse™ bottle"
-            width="800"
-            height="1012"
-          >
-        {%- endif -%}
-      </div>
-    </tamarinse-bottle-scene>
-
+  <div class="tamarinse-hero__inner">
     <div class="tamarinse-hero__content">
       <h1 class="tamarinse-hero__headline">{{ section.settings.headline }}</h1>
       <p class="tamarinse-hero__subheadline">{{ section.settings.subheadline }}</p>
       <div class="tamarinse-hero__actions">
         {%- if section.settings.primary_cta_label != blank -%}
           <a
-            class="t-btn t-btn--primary"
+            class="t-btn t-btn--accent"
             href="{{ section.settings.primary_cta_link | default: routes.all_products_collection_url }}"
           >
             {{- section.settings.primary_cta_label -}}
@@ -63,91 +34,68 @@
       </div>
     </div>
 
-    <div class="tamarinse-hero__scroll-hint" aria-hidden="true">
-      <span class="tamarinse-hero__scroll-hint-line"></span>
-    </div>
+    <tamarinse-bottle-scene
+      class="tamarinse-hero__scene"
+      data-environment="{{ 'brown_photostudio_02_1k.exr' | asset_url }}"
+      aria-hidden="true"
+    >
+      <div class="tamarinse-hero__fallback">
+        {%- if section.settings.fallback_image != blank -%}
+          {{
+            section.settings.fallback_image
+            | image_url: width: 1200
+            | image_tag:
+              widths: '600, 900, 1200',
+              sizes: '(min-width: 750px) 44vw, 78vw',
+              class: 'tamarinse-hero__fallback-image',
+              alt: section.settings.fallback_image.alt
+          }}
+        {%- else -%}
+          {%- comment -%} Bundled product photo until a merchant image is picked {%- endcomment -%}
+          <img
+            src="{{ 'tamarinse-bottle-photo.png' | asset_url }}"
+            class="tamarinse-hero__fallback-image"
+            alt="Tamarinse™ bottle"
+            width="800"
+            height="1012"
+          >
+        {%- endif -%}
+      </div>
+    </tamarinse-bottle-scene>
   </div>
-</div>
+</section>
 
 <script src="{{ 'tamarinse-bottle-scene.js' | asset_url }}" type="module"></script>
 
 {% stylesheet %}
   .tamarinse-hero {
+    display: block;
     background: var(--t-bg);
     color: var(--t-text-hi);
-    /* Tall wrapper: the extra height is the scroll range for the label lock */
-    height: calc(100svh + var(--hero-scroll-length, 120vh));
-  }
-
-  .tamarinse-hero__sticky {
-    position: sticky;
-    top: 0;
-    height: 100svh;
-    overflow: hidden;
+    min-height: calc(100svh - var(--header-height, 64px));
+    padding: var(--t-space-lg) var(--t-space-md) var(--t-space-xl);
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: flex-end;
-    padding: var(--t-space-lg) var(--t-space-md) calc(var(--t-space-xl) + env(safe-area-inset-bottom));
-    text-align: center;
   }
 
-  .tamarinse-hero__scene {
-    position: absolute;
-    inset: 0;
-    display: block;
-    z-index: 0;
-  }
-
-  .tamarinse-hero__scene canvas {
-    position: absolute;
-    inset: 0;
+  .tamarinse-hero__inner {
     width: 100%;
-    height: 100%;
-    display: block;
-  }
-
-  /* Fallback bottle: shown until WebGL activates, and permanently on
-     low-tier devices */
-  .tamarinse-hero__fallback {
-    position: absolute;
-    inset: 0;
+    max-width: var(--t-content-max);
+    margin-inline: auto;
     display: flex;
+    flex-direction: column-reverse;
     align-items: center;
-    justify-content: center;
-    transition: opacity var(--t-dur-slow) var(--t-ease-out);
-  }
-
-  .tamarinse-hero__scene[data-webgl-active] .tamarinse-hero__fallback {
-    opacity: 0;
-  }
-
-  .tamarinse-hero__fallback-image {
-    max-height: 56svh;
-    width: auto;
-    object-fit: contain;
-    mix-blend-mode: multiply; /* melts the photo's white backdrop into the page */
-  }
-
-  /* Legibility scrim: copy sits over the bottle's lower third */
-  .tamarinse-hero__sticky::after {
-    content: '';
-    position: absolute;
-    inset: auto 0 0;
-    height: 52svh;
-    background: linear-gradient(to top, rgb(253 252 250 / 97%) 38%, transparent);
-    pointer-events: none;
-    z-index: 1;
+    gap: var(--t-space-lg);
   }
 
   .tamarinse-hero__content {
-    position: relative;
-    z-index: 2;
-    max-width: var(--t-copy-max);
     display: flex;
     flex-direction: column;
     align-items: center;
+    text-align: center;
+    max-width: var(--t-copy-max);
     gap: var(--t-space-sm);
+    animation: tamarinse-hero-rise 900ms var(--t-ease-out) both;
   }
 
   .tamarinse-hero__headline {
@@ -177,51 +125,93 @@
     margin-block-start: var(--t-space-sm);
   }
 
-  .tamarinse-hero__scroll-hint {
-    position: absolute;
-    bottom: calc(var(--t-space-sm) + env(safe-area-inset-bottom));
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 2;
-  }
-
-  .tamarinse-hero__scroll-hint-line {
+  .tamarinse-hero__scene {
+    position: relative;
     display: block;
-    width: 1px;
-    height: 34px;
-    background: linear-gradient(to bottom, transparent, var(--t-text-low));
-    animation: tamarinse-hero-hint 2.6s var(--t-ease-in-out) infinite;
-    transform-origin: top;
+    width: min(78vw, 340px);
+    aspect-ratio: 4 / 5;
+    animation: tamarinse-hero-fade 1100ms var(--t-ease-out) 150ms both;
   }
 
-  @keyframes tamarinse-hero-hint {
-    0%,
-    100% {
-      transform: scaleY(0.55);
-      opacity: 0.4;
+  .tamarinse-hero__scene canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Fallback bottle: shown until WebGL activates, and permanently on
+     low-tier devices */
+  .tamarinse-hero__fallback {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity var(--t-dur-slow) var(--t-ease-out);
+  }
+
+  .tamarinse-hero__scene[data-webgl-active] .tamarinse-hero__fallback {
+    opacity: 0;
+  }
+
+  .tamarinse-hero__fallback-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    mix-blend-mode: multiply; /* melts the photo's white backdrop into the page */
+  }
+
+  @keyframes tamarinse-hero-rise {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
     }
 
-    50% {
-      transform: scaleY(1);
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes tamarinse-hero-fade {
+    from {
+      opacity: 0;
+    }
+
+    to {
       opacity: 1;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .tamarinse-hero {
-      /* No scroll story: hero is a single static viewport */
-      height: 100svh;
-    }
-
-    .tamarinse-hero__scroll-hint-line {
+    .tamarinse-hero__content,
+    .tamarinse-hero__scene {
       animation: none;
     }
   }
 
-  @media screen and (min-width: 750px) {
-    .tamarinse-hero__sticky {
-      justify-content: flex-end;
-      padding-block-end: var(--t-space-2xl);
+  @media screen and (min-width: 990px) {
+    .tamarinse-hero__inner {
+      flex-direction: row;
+      justify-content: space-between;
+      gap: var(--t-space-xl);
+    }
+
+    .tamarinse-hero__content {
+      align-items: flex-start;
+      text-align: left;
+      flex: 1 1 50%;
+    }
+
+    .tamarinse-hero__actions {
+      justify-content: flex-start;
+    }
+
+    .tamarinse-hero__scene {
+      flex: 0 0 auto;
+      width: min(38vw, 460px);
     }
   }
 {% endstylesheet %}
@@ -292,17 +282,6 @@
       "step": 1,
       "unit": "s",
       "default": 24
-    },
-    {
-      "type": "range",
-      "id": "scroll_length",
-      "label": "Label-reveal scroll distance",
-      "min": 60,
-      "max": 200,
-      "step": 10,
-      "unit": "vh",
-      "default": 120,
-      "info": "How far the visitor scrolls while the bottle settles label-forward."
     }
   ],
   "presets": [

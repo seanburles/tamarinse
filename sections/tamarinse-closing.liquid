@@ -6,7 +6,7 @@
   <div class="tamarinse-closing__inner">
     <h2 class="tamarinse-closing__headline">{{ section.settings.headline }}</h2>
     {%- if section.settings.cta_label != blank -%}
-      <a class="t-btn t-btn--primary" href="{{ section.settings.cta_link | default: routes.all_products_collection_url }}">
+      <a class="t-btn t-btn--accent" href="{{ section.settings.cta_link | default: routes.all_products_collection_url }}">
         {{- section.settings.cta_label -}}
       </a>
     {%- endif -%}

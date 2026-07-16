@@ -16,9 +16,9 @@ Base theme: **Horizon** (Shopify reference theme, wellness preset). See `BUILD_G
 
 ## Content Organization (Homepage, in visual order)
 
-1. **Hero** — full-bleed, centered rotating 3D bottle (WebGL spec below). Headline: "Daily Defense Against Microplastics™." Subhead: physician formulated / USDA organic / clinically studied / made in USA. Primary CTA "Shop Tamarinse™," secondary "How It Works."
-2. **Label reveal** — on initial scroll, bottle rotates until label faces forward, then locks. Label design should be a custom minimal layout, not the literal supplement-facts panel.
-3. **Exposure Assessment** — 12-15 question interactive quiz, weighted scoring into Low/Moderate/High/Very High exposure result, transitions into product intro. Self-contained widget, no WebGL dependency.
+1. **Hero** (rev. 2026-07-16) — static, confident opener: bold headline beside the slowly rotating 3D bottle (WebGL spec below), one subtle entrance animation on load, **no scroll-pinning or scroll-scrubbing**. Headline: "Daily Defense Against Microplastics™." Subhead: physician formulated / USDA organic / clinically studied / made in USA. Primary CTA "Shop Tamarinse™" (accent fill), secondary "How It Works."
+2. **Label reveal** — superseded by the static hero (rev. 2026-07-16): the bottle opens label-forward and drifts; no scroll-locked reveal.
+3. **Exposure Assessment** (rev. 2026-07-16) — stepped quiz: one question per screen, slim progress bar ("3 of 5"), icon-led answer cards in a responsive grid (selected = bold accent border + tinted fill), soft slide transitions, one full-width accent "Continue" CTA per screen. Weighted scoring into Low/Moderate/High/Very High. Self-contained widget, no WebGL dependency.
 4. **The Problem** — full-screen immersive photography, one statistic per screen, minimal copy.
 5. **Meet Tamarinse** — large static bottle render, subtle hover animation, physician-formulated positioning statement.
 6. **Interactive Capsule** — signature scroll-driven sequence: capsule separates → delayed-release explanation → six ingredients reveal one at a time → capsule closes.
@@ -42,7 +42,7 @@ Base theme: **Horizon** (Shopify reference theme, wellness preset). See `BUILD_G
 **Positioning**: closer to Apple / Seed / Aesop than a traditional supplement brand. Clean, scientific, luxurious, intentional. Every section educates and builds credibility before it asks for the sale.
 
 **Design tokens** (starting point — refine once brand assets/photography are in hand):
-- Palette (client direction 2026-07-16 — light/bright/modern, matched to the bottle label): warm white base (`#FDFCFA`), pale sage tint panels (`#E8EFEB`, pulled from the label), near-black ink text (`#161A18`), one restrained accent — deep sage (`#46695E`) — with capsule tan (`#9A8A68`) as a sparing secondary. No more than one accent color live at a time per section. The earlier near-black luxury palette is superseded; tokens live in `assets/tamarinse-tokens.css`.
+- Palette (client direction 2026-07-16, rev. 2 — confident/clean/minimal, Seed/Ritual/AG1 energy, not clinical and not soft-wellness): warm cream base (`#FAF6EE`, never stark white), warm sand panels (`#F3EEE2`), warm near-black ink text (`#191712`), and ONE bold saturated accent — deep green (`#0D7A3F`) — reserved strictly for CTAs, selected states, and key highlights. Capsule tan (`#9A8A68`) is a sparing secondary (review stars). Earlier palettes (near-black luxury; pale sage) are superseded; tokens live in `assets/tamarinse-tokens.css`.
 - Type: a refined serif or high-contrast sans for headlines (editorial, not techy), a neutral grotesk for body copy. Generous line-height, generous whitespace — the copy should never feel dense.
 - Motion: restrained and purposeful. Every animation should be tied to scroll position or a clear user action — no decorative looping motion, no autoplay attention-grabbers. 20-30 second bottle rotation is the pace-setter for how "slow and deliberate" the rest of the motion language should feel.
 - Photography: large-format, immersive, one subject per screen in "The Problem" and "Everyday Exposure" sections — no collage/grid treatments there.
@@ -76,7 +76,7 @@ Horizon's own architecture is mobile-first — don't fight it with desktop-first
 - Isolated custom element (`<tamarinse-bottle-scene>`), registered once, mounted only when the hero section is near/in viewport (IntersectionObserver-gated), fully disposed (geometry/material/texture/renderer) on `disconnectedCallback` — this must not leak memory as users scroll past and back.
 - Three.js scene: single GLB bottle model (Draco-compressed, target <1-2MB), studio-style lighting (soft key + rim light), transparent/gradient background so it composites over the hero section's own background.
 - Idle state: continuous Y-axis rotation, one full rotation per 20-30 seconds, `requestAnimationFrame`-driven with delta-time so rotation speed is frame-rate independent.
-- Scroll-linked state: on scroll past hero threshold, transition rotation from continuous to scroll-mapped (GSAP ScrollTrigger `scrub`), easing the bottle to a fixed label-forward rotation and locking it there for the remainder of that scroll range.
+- No scroll-linked state (rev. 2026-07-16): the bottle opens label-forward and idles from there; scroll-scrubbing was removed with the static hero.
 - Performance: cap pixel ratio at 2, pause the render loop entirely (don't just hide the canvas) when the canvas is out of viewport, and provide a static PNG fallback bottle image for reduced-motion preference / low-end device detection.
 - Respect `prefers-reduced-motion`: skip the continuous idle rotation and jump straight to the static label-forward pose.
 

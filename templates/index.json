@@ -12,30 +12,70 @@
         "subheadline": "Physician Formulated • USDA Organic • Clinically Studied Ingredients. Made in the USA",
         "primary_cta_label": "Shop Tamarinse™",
         "secondary_cta_label": "How It Works",
-        "rotation_seconds": 24,
-        "scroll_length": 120
+        "rotation_seconds": 24
       }
     },
     "quiz": {
       "type": "tamarinse-exposure-assessment",
-      "blocks": {
-        "q1": { "type": "question", "settings": { "question": "Drink bottled water regularly?", "weight": 2 } },
-        "q2": { "type": "question", "settings": { "question": "Heat food in plastic containers?", "weight": 2 } },
-        "q3": { "type": "question", "settings": { "question": "Store leftovers in plastic containers?", "weight": 1 } },
-        "q4": { "type": "question", "settings": { "question": "Frequently order takeout or food delivery?", "weight": 1 } },
-        "q5": { "type": "question", "settings": { "question": "Drink coffee with plastic lids?", "weight": 1 } },
-        "q6": { "type": "question", "settings": { "question": "Use non-stick cookware?", "weight": 1 } },
-        "q7": { "type": "question", "settings": { "question": "Use plastic cutting boards?", "weight": 1 } },
-        "q8": { "type": "question", "settings": { "question": "Drink from protein shaker bottles or plastic water bottles daily?", "weight": 2 } },
-        "q9": { "type": "question", "settings": { "question": "Brew tea using tea bags?", "weight": 1 } },
-        "q10": { "type": "question", "settings": { "question": "Eat seafood two or more times per week?", "weight": 1 } },
-        "q11": { "type": "question", "settings": { "question": "Frequently eat processed or packaged foods?", "weight": 1 } },
-        "q12": { "type": "question", "settings": { "question": "Microwave food in its original plastic packaging?", "weight": 2 } },
-        "q13": { "type": "question", "settings": { "question": "Use plastic food storage bags or plastic wrap regularly?", "weight": 1 } },
-        "q14": { "type": "question", "settings": { "question": "Wear synthetic athletic clothing (polyester, nylon, or spandex) several times a week?", "weight": 1 } },
-        "q15": { "type": "question", "settings": { "question": "Handle thermal paper receipts several times per week?", "weight": 1 } }
+      "settings": {
+        "intro": "A 60-second check on your daily routines."
       },
-      "block_order": ["q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8", "q9", "q10", "q11", "q12", "q13", "q14", "q15"]
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "What do you drink from most days?",
+            "hint": "Select all that apply",
+            "option1_label": "Bottled water", "option1_icon": "bottle", "option1_weight": 3,
+            "option2_label": "Coffee with a plastic lid", "option2_icon": "cup", "option2_weight": 2,
+            "option3_label": "Shaker or plastic bottles", "option3_icon": "shaker", "option3_weight": 2,
+            "option4_label": "Tea from tea bags", "option4_icon": "teabag", "option4_weight": 1,
+            "option5_label": "Mostly glass or steel", "option5_icon": "jar", "option5_weight": 0
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "How do you store and reheat food?",
+            "hint": "Select all that apply",
+            "option1_label": "Plastic containers", "option1_icon": "container", "option1_weight": 2,
+            "option2_label": "Microwave in plastic packaging", "option2_icon": "microwave", "option2_weight": 3,
+            "option3_label": "Plastic bags or cling wrap", "option3_icon": "bag", "option3_weight": 1,
+            "option4_label": "Mostly glass containers", "option4_icon": "jar", "option4_weight": 0
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "What's in your kitchen rotation?",
+            "hint": "Select all that apply",
+            "option1_label": "Non-stick cookware", "option1_icon": "pan", "option1_weight": 2,
+            "option2_label": "Plastic cutting boards", "option2_icon": "board", "option2_weight": 2,
+            "option3_label": "Neither of these", "option3_icon": "none", "option3_weight": 0
+          }
+        },
+        "q4": {
+          "type": "question",
+          "settings": {
+            "question": "How do you usually eat?",
+            "hint": "Select all that apply",
+            "option1_label": "Takeout or delivery often", "option1_icon": "takeout", "option1_weight": 2,
+            "option2_label": "Processed or packaged foods", "option2_icon": "package", "option2_weight": 2,
+            "option3_label": "Seafood twice a week or more", "option3_icon": "fish", "option3_weight": 1
+          }
+        },
+        "q5": {
+          "type": "question",
+          "settings": {
+            "question": "And day to day?",
+            "hint": "Select all that apply",
+            "option1_label": "Synthetic workout clothing", "option1_icon": "shirt", "option1_weight": 1,
+            "option2_label": "Paper receipts at work", "option2_icon": "receipt", "option2_weight": 1,
+            "option3_label": "Neither of these", "option3_icon": "none", "option3_weight": 0
+          }
+        }
+      },
+      "block_order": ["q1", "q2", "q3", "q4", "q5"]
     },
     "problem": {
       "type": "tamarinse-problem",
