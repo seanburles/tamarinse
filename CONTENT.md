@@ -124,6 +124,7 @@ Pulled verbatim from the live site (client's own published copy — brief says r
 - **FAQ** — all six published Q&As (What is Tamarinse / How do I take it / Safe daily / Why tamarind / Why glass / Shipping). Note: the first answer repeats the "five plant-based ingredients" line, same known discrepancy flagged below.
 - **Advisory board** — the site's "Recommended By Experts" trio: Dr. Hubbard (Florida, USA), Dr. Anita Gupta (California, USA), Dr. Jones (Maryland, USA), with their portraits bundled as theme assets (`tamarinse-advisor-*.png`). The site shows name + state only — no written bios/credentials exist there, so the bio fields stay empty until the client supplies them.
 - **Reviews** — the three quotes from the site's "What Our Customers Say" plus its 4.8/5 "4,000+ customer reviews" badge. These are attributed on the site only by initials (J / S / L). Flag: the review count/rating predates this storefront — confirm the client can substantiate it before launch.
+- **Reviews (r4–r6: M.T. / D.R. / C.B.)** — invented placeholder reviews added to fill out the six-card grid for design review. These are NOT real customer quotes: replace with client-approved or platform-sourced reviews before launch (see the artificial-reviews compliance note above). Each is written with measured, non-health-outcome angles (routine fit, transparency, household adoption) and one 4-star entry for authenticity.
 
 ## Not Yet Approved Copy (flag before writing)
 
