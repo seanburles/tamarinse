@@ -104,11 +104,11 @@
     "how_it_works": {
       "type": "tamarinse-how-it-works",
       "blocks": {
-        "s1": { "type": "step", "settings": { "title": "Exposure", "text": "Every day, you're exposed to microplastics and other unwanted compounds through food, water, beverages, packaging, and the environment." } },
-        "s2": { "type": "step", "settings": { "title": "Activates", "text": "The delayed-release capsule is designed to bypass stomach acid before releasing the Tamarinse™ blend where it's intended to work." } },
-        "s3": { "type": "step", "settings": { "title": "Binds", "text": "The proprietary blend forms a natural fiber matrix that helps bind targeted compounds within the digestive tract." } },
-        "s4": { "type": "step", "settings": { "title": "Supports", "text": "Clinically studied plant-based ingredients work together to support healthy digestive function and the body's natural elimination processes." } },
-        "s5": { "type": "step", "settings": { "title": "Naturally Eliminates", "text": "Bound compounds are carried through the digestive system and eliminated naturally rather than remaining available for absorption.", "footnote_marker": true } }
+        "s1": { "type": "step", "settings": { "title": "Exposure", "icon": "exposure", "text": "Every day, you're exposed to microplastics and other unwanted compounds through food, water, beverages, packaging, and the environment." } },
+        "s2": { "type": "step", "settings": { "title": "Activates", "icon": "activates", "text": "The delayed-release capsule is designed to bypass stomach acid before releasing the Tamarinse™ blend where it's intended to work." } },
+        "s3": { "type": "step", "settings": { "title": "Binds", "icon": "binds", "text": "The proprietary blend forms a natural fiber matrix that helps bind targeted compounds within the digestive tract." } },
+        "s4": { "type": "step", "settings": { "title": "Supports", "icon": "supports", "text": "Clinically studied plant-based ingredients work together to support healthy digestive function and the body's natural elimination processes." } },
+        "s5": { "type": "step", "settings": { "title": "Naturally Eliminates", "icon": "eliminates", "text": "Bound compounds are carried through the digestive system and eliminated naturally rather than remaining available for absorption.", "footnote_marker": true } }
       },
       "block_order": ["s1", "s2", "s3", "s4", "s5"]
     },

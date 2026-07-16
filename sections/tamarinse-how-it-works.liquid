@@ -27,7 +27,10 @@
                   alt: block.settings.image.alt
               }}
             {%- else -%}
-              <span class="tamarinse-hiw__step-number" aria-hidden="true">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
+              <span class="tamarinse-hiw__step-badge" aria-hidden="true">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
+              <span class="tamarinse-hiw__step-glyph" aria-hidden="true">
+                {%- render 'tamarinse-hiw-icon', icon: block.settings.icon -%}
+              </span>
             {%- endif -%}
           </div>
           <h3 class="tamarinse-hiw__step-title">
@@ -149,8 +152,11 @@
   }
 
   .tamarinse-hiw__step-media {
-    aspect-ratio: 4 / 3;
-    background: var(--t-surface);
+    position: relative;
+    aspect-ratio: 5 / 4;
+    background:
+      radial-gradient(circle at 30% 70%, rgb(13 122 63 / 6%) 0%, transparent 60%),
+      linear-gradient(160deg, var(--t-surface) 0%, rgb(13 122 63 / 4%) 100%);
     border: 1px solid var(--t-border);
     border-radius: var(--t-radius-sm);
     display: grid;
@@ -164,10 +170,53 @@
     object-fit: cover;
   }
 
-  .tamarinse-hiw__step-number {
+  .tamarinse-hiw__step-badge {
+    position: absolute;
+    top: var(--t-space-sm);
+    left: var(--t-space-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--t-accent);
+    color: #fff;
     font-family: var(--t-font-heading);
-    font-size: var(--t-type-display);
-    color: var(--t-text-low);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+
+  .tamarinse-hiw__step-glyph {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--t-accent);
+  }
+
+  .tamarinse-hiw__step-glyph::before {
+    content: '';
+    position: absolute;
+    width: clamp(120px, 28vw, 180px);
+    height: clamp(120px, 28vw, 180px);
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgb(13 122 63 / 5%) 0%,
+      rgb(13 122 63 / 2%) 60%,
+      transparent 100%
+    );
+    border: 1px solid rgb(13 122 63 / 6%);
+  }
+
+  .tamarinse-hiw__step-glyph .tamarinse-hiw-icon {
+    position: relative;
+    width: clamp(72px, 16vw, 100px);
+    height: clamp(72px, 16vw, 100px);
+    opacity: 0.9;
   }
 
   .tamarinse-hiw__step-title {
@@ -286,6 +335,20 @@
           "label": "Text"
         },
         {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon (when no image)",
+          "info": "Shown as the card illustration when no image is uploaded.",
+          "options": [
+            { "value": "exposure", "label": "Exposure (cloud)" },
+            { "value": "activates", "label": "Activates (capsule)" },
+            { "value": "binds", "label": "Binds (chain)" },
+            { "value": "supports", "label": "Supports (shield)" },
+            { "value": "eliminates", "label": "Eliminates (leaf)" }
+          ],
+          "default": "exposure"
+        },
+        {
           "type": "image_picker",
           "id": "image",
           "label": "Illustration"
@@ -309,6 +372,7 @@
           "type": "step",
           "settings": {
             "title": "Exposure",
+            "icon": "exposure",
             "text": "Every day, you're exposed to microplastics and other unwanted compounds through food, water, beverages, packaging, and the environment."
           }
         },
@@ -316,6 +380,7 @@
           "type": "step",
           "settings": {
             "title": "Activates",
+            "icon": "activates",
             "text": "The delayed-release capsule is designed to bypass stomach acid before releasing the Tamarinse™ blend where it's intended to work."
           }
         },
@@ -323,6 +388,7 @@
           "type": "step",
           "settings": {
             "title": "Binds",
+            "icon": "binds",
             "text": "The proprietary blend forms a natural fiber matrix that helps bind targeted compounds within the digestive tract."
           }
         },
@@ -330,6 +396,7 @@
           "type": "step",
           "settings": {
             "title": "Supports",
+            "icon": "supports",
             "text": "Clinically studied plant-based ingredients work together to support healthy digestive function and the body's natural elimination processes."
           }
         },
@@ -337,6 +404,7 @@
           "type": "step",
           "settings": {
             "title": "Naturally Eliminates",
+            "icon": "eliminates",
             "text": "Bound compounds are carried through the digestive system and eliminated naturally rather than remaining available for absorption.",
             "footnote_marker": true
           }

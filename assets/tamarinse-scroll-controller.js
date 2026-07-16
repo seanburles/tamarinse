@@ -15,6 +15,22 @@ const subscriptions = new Set();
 let listening = false;
 let rafId = null;
 
+/** Horizon scrolls .page-wrapper (not the window) on desktop ≥990px.
+ *  We listen on both so animations work at every breakpoint. */
+function getScrollTarget() {
+  return document.querySelector('.page-wrapper') || window;
+}
+
+/** When .page-wrapper is the overflow container, IntersectionObservers
+ *  must use it as root instead of the viewport (root: null) so their
+ *  intersection calculations account for the wrapper's scroll position. */
+function getObserverRoot() {
+  const wrapper = document.querySelector('.page-wrapper');
+  if (!wrapper) return null;
+  const ov = getComputedStyle(wrapper).overflowY;
+  return (ov === 'auto' || ov === 'scroll') ? wrapper : null;
+}
+
 function onScroll() {
   if (rafId !== null) return;
   rafId = requestAnimationFrame(() => {
@@ -28,9 +44,8 @@ function onScroll() {
 function startListening() {
   if (listening) return;
   listening = true;
-  /* capture: true — Horizon scrolls .page-wrapper (not the window) on
-     desktop ≥990px (base.css), and scroll events don't bubble. Capturing on
-     window is the only way to hear every scroll container. */
+  const target = getScrollTarget();
+  target.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('scroll', onScroll, { passive: true, capture: true });
   window.addEventListener('resize', onScroll, { passive: true });
 }
@@ -38,6 +53,8 @@ function startListening() {
 function stopListening() {
   if (!listening) return;
   listening = false;
+  const target = getScrollTarget();
+  target.removeEventListener('scroll', onScroll);
   window.removeEventListener('scroll', onScroll, { capture: true });
   window.removeEventListener('resize', onScroll);
   if (rafId !== null) {
@@ -110,7 +127,7 @@ export function onScrollProgress(element, callback, options = {}) {
         }
       }
     },
-    { rootMargin: options.margin || '0px' }
+    { root: getObserverRoot(), rootMargin: options.margin || '0px' }
   );
 
   subscriptions.add(sub);
@@ -142,7 +159,7 @@ export function onNearViewport(element, callback, margin = '100% 0px') {
         }
       }
     },
-    { rootMargin: margin }
+    { root: getObserverRoot(), rootMargin: margin }
   );
   observer.observe(element);
   return () => observer.disconnect();
@@ -161,7 +178,7 @@ export function onVisibilityChange(element, callback) {
     for (const entry of entries) {
       callback(entry.isIntersecting);
     }
-  });
+  }, { root: getObserverRoot() });
   observer.observe(element);
   return () => observer.disconnect();
 }
