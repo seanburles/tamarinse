@@ -1,0 +1,204 @@
+{% comment %}
+  Meet Tamarinse (MASTER_PROMPT #5) — large static bottle render, subtle
+  hover animation, physician-formulated positioning statement (CONTENT.md).
+{% endcomment %}
+
+<section class="tamarinse-meet" id="TamarinseMeet-{{ section.id }}">
+  <div class="tamarinse-meet__inner">
+    <div class="tamarinse-meet__media">
+      {%- if section.settings.image != blank -%}
+        {{
+          section.settings.image
+          | image_url: width: 1400
+          | image_tag:
+            widths: '600, 900, 1200, 1400',
+            sizes: '(min-width: 750px) 44vw, 86vw',
+            class: 'tamarinse-meet__image',
+            loading: 'lazy',
+            alt: section.settings.image.alt
+        }}
+      {%- else -%}
+        <div class="tamarinse-meet__placeholder" aria-hidden="true">
+          <span class="tamarinse-meet__placeholder-cap"></span>
+          <span class="tamarinse-meet__placeholder-label">TAMARINSE</span>
+        </div>
+      {%- endif -%}
+    </div>
+    <div class="tamarinse-meet__content">
+      <p class="t-eyebrow tamarinse-meet__eyebrow">{{ section.settings.eyebrow }}</p>
+      <h2 class="tamarinse-meet__title">{{ section.settings.title }}</h2>
+      <p class="tamarinse-meet__text">{{ section.settings.text }}</p>
+      {%- if section.settings.cta_label != blank -%}
+        <a class="t-btn t-btn--ghost" href="{{ section.settings.cta_link | default: routes.all_products_collection_url }}">
+          {{- section.settings.cta_label -}}
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .tamarinse-meet {
+    display: block;
+    background: var(--t-ink);
+    color: var(--t-text-hi);
+    padding: var(--t-space-section) var(--t-space-md);
+  }
+
+  .tamarinse-meet__inner {
+    max-width: var(--t-content-max);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--t-space-xl);
+    align-items: center;
+  }
+
+  .tamarinse-meet__media {
+    width: min(86vw, 420px);
+  }
+
+  .tamarinse-meet__image {
+    width: 100%;
+    height: auto;
+    transition: transform var(--t-dur-slow) var(--t-ease-out);
+  }
+
+  @media (hover: hover) {
+    .tamarinse-meet__media:hover .tamarinse-meet__image,
+    .tamarinse-meet__media:hover .tamarinse-meet__placeholder {
+      transform: translateY(-8px);
+    }
+  }
+
+  .tamarinse-meet__placeholder {
+    position: relative;
+    width: clamp(140px, 30vw, 210px);
+    height: clamp(300px, 60vw, 460px);
+    margin-inline: auto;
+    background: linear-gradient(160deg, #2c1c13, #1a100a 70%);
+    border-radius: 22px 22px 30px 30px;
+    display: grid;
+    place-items: center;
+    transition: transform var(--t-dur-slow) var(--t-ease-out);
+    box-shadow:
+      inset 8px 0 24px rgb(247 245 240 / 6%),
+      inset -12px 0 28px rgb(0 0 0 / 45%);
+  }
+
+  .tamarinse-meet__placeholder-cap {
+    position: absolute;
+    top: -30px;
+    width: 46%;
+    height: 40px;
+    background: #0b0b0c;
+    border-radius: 8px 8px 2px 2px;
+  }
+
+  .tamarinse-meet__placeholder-label {
+    width: 86%;
+    padding: 2.4em 0.4em;
+    background: var(--t-cream);
+    color: var(--t-ink);
+    text-align: center;
+    font-size: 0.8rem;
+    letter-spacing: 0.32em;
+    text-indent: 0.32em;
+  }
+
+  .tamarinse-meet__content {
+    max-width: var(--t-copy-max);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--t-space-sm);
+  }
+
+  .tamarinse-meet__eyebrow {
+    color: var(--t-text-low);
+    margin: 0;
+  }
+
+  .tamarinse-meet__title {
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-h2);
+    line-height: var(--t-leading-heading);
+    font-weight: 400;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .tamarinse-meet__text {
+    font-size: var(--t-type-body-lg);
+    line-height: var(--t-leading-body);
+    color: var(--t-text-mid);
+    margin: 0 0 var(--t-space-sm);
+  }
+
+  @media screen and (min-width: 990px) {
+    .tamarinse-meet__inner {
+      flex-direction: row;
+      justify-content: center;
+      gap: var(--t-space-2xl);
+    }
+
+    .tamarinse-meet__content {
+      text-align: left;
+      align-items: flex-start;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Tamarinse Meet",
+  "tag": "section",
+  "class": "tamarinse-meet-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Bottle render"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Meet Tamarinse™"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Physician formulated. Built for modern exposure."
+    },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Text",
+      "default": "Tamarinse is the first premium supplement built around tamarind seed extract for daily environmental defense. Our formula combines five plant-based ingredients designed to support your body's natural detoxification pathways and digestive elimination. 60 capsules per bottle. 30-day supply."
+    },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "Button label",
+      "default": "Shop Tamarinse™"
+    },
+    {
+      "type": "url",
+      "id": "cta_link",
+      "label": "Button link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Tamarinse Meet",
+      "category": "Tamarinse"
+    }
+  ]
+}
+{% endschema %}

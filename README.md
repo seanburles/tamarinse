@@ -8,6 +8,7 @@ Start here, then read in this order:
 4. **`data/ingredients.json`** — shared ingredient/research-org data, referenced across the capsule sequence, ingredient science section, and product page.
 5. **`shopify.theme.toml`** — pins every CLI command to the Tamarinse Dev Horizon theme. Never edit this to point at the live theme.
 6. **`.cursor/rules/tamarinse.mdc`** — always-loaded agent context in Cursor; encodes the non-negotiables from the docs above so they don't need re-explaining each session.
+7. **`docs/Tamarinse-Website-Client-Brief.pdf`** — the original client brief. The working docs above already incorporate it; kept for reference/traceability. Where the brief and BUILD_GUIDE/CONTENT disagree (e.g. artificial reviews, question count), the working docs' flagged positions win until the client confirms otherwise.
 
 ## Quick start
 

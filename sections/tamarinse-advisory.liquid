@@ -1,0 +1,224 @@
+{% comment %}
+  Medical Advisory Board (MASTER_PROMPT #10) — premium trust layout.
+  Bios/credentials are reused from existing content per the brief (pull from
+  current Tamarinse.com; block defaults are structural placeholders only).
+{% endcomment %}
+
+<section class="tamarinse-advisory" id="TamarinseAdvisory-{{ section.id }}">
+  <div class="tamarinse-advisory__inner">
+    <header class="tamarinse-advisory__header">
+      <p class="t-eyebrow tamarinse-advisory__eyebrow">{{ section.settings.eyebrow }}</p>
+      <h2 class="tamarinse-advisory__title">{{ section.settings.title }}</h2>
+      {%- if section.settings.intro != blank -%}
+        <p class="tamarinse-advisory__intro">{{ section.settings.intro }}</p>
+      {%- endif -%}
+    </header>
+
+    <div class="tamarinse-advisory__grid">
+      {%- for block in section.blocks -%}
+        <article class="tamarinse-advisory__member" {{ block.shopify_attributes }}>
+          <div class="tamarinse-advisory__portrait">
+            {%- if block.settings.portrait != blank -%}
+              {{
+                block.settings.portrait
+                | image_url: width: 900
+                | image_tag:
+                  widths: '450, 600, 900',
+                  sizes: '(min-width: 750px) 30vw, 86vw',
+                  class: 'tamarinse-advisory__portrait-image',
+                  loading: 'lazy',
+                  alt: block.settings.portrait.alt
+              }}
+            {%- else -%}
+              <span class="tamarinse-advisory__portrait-placeholder" aria-hidden="true"></span>
+            {%- endif -%}
+          </div>
+          <h3 class="tamarinse-advisory__name">{{ block.settings.name }}</h3>
+          <p class="tamarinse-advisory__credentials">{{ block.settings.credentials }}</p>
+          {%- if block.settings.bio != blank -%}
+            <p class="tamarinse-advisory__bio">{{ block.settings.bio }}</p>
+          {%- endif -%}
+        </article>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .tamarinse-advisory {
+    display: block;
+    background: var(--t-ink);
+    color: var(--t-text-hi);
+    padding: var(--t-space-section) var(--t-space-md);
+  }
+
+  .tamarinse-advisory__inner {
+    max-width: var(--t-content-max);
+    margin-inline: auto;
+  }
+
+  .tamarinse-advisory__header {
+    max-width: var(--t-copy-max);
+    margin-block-end: var(--t-space-xl);
+  }
+
+  .tamarinse-advisory__eyebrow {
+    color: var(--t-text-low);
+    margin: 0 0 var(--t-space-sm);
+  }
+
+  .tamarinse-advisory__title {
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-h2);
+    line-height: var(--t-leading-heading);
+    font-weight: 400;
+    margin: 0 0 var(--t-space-sm);
+    text-wrap: balance;
+  }
+
+  .tamarinse-advisory__intro {
+    font-size: var(--t-type-body-lg);
+    line-height: var(--t-leading-body);
+    color: var(--t-text-mid);
+    margin: 0;
+  }
+
+  .tamarinse-advisory__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--t-space-xl) var(--t-space-md);
+  }
+
+  .tamarinse-advisory__portrait {
+    aspect-ratio: 4 / 5;
+    background: var(--t-ink-soft);
+    border: 1px solid var(--t-ink-border);
+    border-radius: var(--t-radius-sm);
+    overflow: hidden;
+    margin-block-end: var(--t-space-sm);
+  }
+
+  .tamarinse-advisory__portrait-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .tamarinse-advisory__portrait-placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background:
+      radial-gradient(circle at 50% 34%, rgb(247 245 240 / 10%) 0 18%, transparent 19%),
+      radial-gradient(ellipse at 50% 90%, rgb(247 245 240 / 8%) 0 42%, transparent 43%);
+  }
+
+  .tamarinse-advisory__name {
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-h3);
+    line-height: var(--t-leading-heading);
+    font-weight: 400;
+    margin: 0 0 var(--t-space-2xs);
+  }
+
+  .tamarinse-advisory__credentials {
+    font-size: var(--t-type-small);
+    color: var(--t-terracotta);
+    letter-spacing: 0.06em;
+    margin: 0 0 var(--t-space-xs);
+  }
+
+  .tamarinse-advisory__bio {
+    font-size: var(--t-type-body);
+    line-height: var(--t-leading-body);
+    color: var(--t-text-mid);
+    margin: 0;
+  }
+
+  @media screen and (min-width: 750px) {
+    .tamarinse-advisory__grid {
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Tamarinse Advisory Board",
+  "tag": "section",
+  "class": "tamarinse-advisory-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Medical Advisory Board"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Guided by physicians."
+    },
+    {
+      "type": "textarea",
+      "id": "intro",
+      "label": "Intro",
+      "info": "Reuse existing advisory board content from Tamarinse.com — don't draft new bios (CONTENT.md)."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "member",
+      "name": "Board member",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "portrait",
+          "label": "Portrait"
+        },
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Name"
+        },
+        {
+          "type": "text",
+          "id": "credentials",
+          "label": "Credentials"
+        },
+        {
+          "type": "textarea",
+          "id": "bio",
+          "label": "Bio"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Tamarinse Advisory Board",
+      "category": "Tamarinse",
+      "blocks": [
+        {
+          "type": "member",
+          "settings": {
+            "name": "[Reuse existing bio]",
+            "credentials": "[Credentials from Tamarinse.com]"
+          }
+        },
+        {
+          "type": "member",
+          "settings": {
+            "name": "[Reuse existing bio]",
+            "credentials": "[Credentials from Tamarinse.com]"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

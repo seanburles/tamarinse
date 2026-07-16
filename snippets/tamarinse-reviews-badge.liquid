@@ -1,0 +1,46 @@
+{% doc %}
+  Reviews badge — rating + count + source label, fully data-driven
+  (BUILD_GUIDE section 4). Renders nothing when count is zero/blank so an
+  empty store never shows a fabricated-looking badge.
+
+  @param {number} rating
+  @param {number} count
+  @param {string} source
+{% enddoc %}
+
+{%- if count != blank and count > 0 -%}
+  <p class="tamarinse-reviews-badge">
+    <span class="tamarinse-reviews-badge__stars" aria-hidden="true">
+      {%- assign rounded = rating | round -%}
+      {%- for i in (1..5) -%}
+        <span class="tamarinse-reviews-badge__star{% if i > rounded %} tamarinse-reviews-badge__star--empty{% endif %}">&#9733;</span>
+      {%- endfor -%}
+    </span>
+    <span class="tamarinse-reviews-badge__text">
+      {{ rating }} — {{ count }} {{ source }}
+    </span>
+  </p>
+{%- endif -%}
+
+{% stylesheet %}
+  .tamarinse-reviews-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--t-space-xs);
+    margin: 0;
+    font-size: var(--t-type-small);
+  }
+
+  .tamarinse-reviews-badge__stars {
+    color: var(--t-terracotta);
+    letter-spacing: 0.15em;
+  }
+
+  .tamarinse-reviews-badge__star--empty {
+    opacity: 0.25;
+  }
+
+  .tamarinse-reviews-badge__text {
+    color: var(--t-text-low-inverse);
+  }
+{% endstylesheet %}

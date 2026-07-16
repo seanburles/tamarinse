@@ -1,0 +1,81 @@
+{% comment %}
+  Closing Section (MASTER_PROMPT #16) — large typography, final CTA.
+{% endcomment %}
+
+<section class="tamarinse-closing" id="TamarinseClosing-{{ section.id }}">
+  <div class="tamarinse-closing__inner">
+    <h2 class="tamarinse-closing__headline">{{ section.settings.headline }}</h2>
+    {%- if section.settings.cta_label != blank -%}
+      <a class="t-btn t-btn--primary" href="{{ section.settings.cta_link | default: routes.all_products_collection_url }}">
+        {{- section.settings.cta_label -}}
+      </a>
+    {%- endif -%}
+  </div>
+</section>
+
+{% stylesheet %}
+  .tamarinse-closing {
+    display: block;
+    background: var(--t-ink);
+    color: var(--t-text-hi);
+    padding: var(--t-space-section) var(--t-space-md);
+    min-height: 80svh;
+    display: flex;
+    align-items: center;
+  }
+
+  .tamarinse-closing__inner {
+    max-width: var(--t-content-max);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--t-space-lg);
+  }
+
+  .tamarinse-closing__headline {
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-display);
+    line-height: var(--t-leading-tight);
+    font-weight: 400;
+    margin: 0;
+    max-width: 16ch;
+    text-wrap: balance;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Tamarinse Closing",
+  "tag": "section",
+  "class": "tamarinse-closing-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "textarea",
+      "id": "headline",
+      "label": "Headline",
+      "default": "Microplastics aren't going away. Your daily defense starts with Tamarinse™."
+    },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "Button label",
+      "default": "Shop Tamarinse™"
+    },
+    {
+      "type": "url",
+      "id": "cta_link",
+      "label": "Button link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Tamarinse Closing",
+      "category": "Tamarinse"
+    }
+  ]
+}
+{% endschema %}

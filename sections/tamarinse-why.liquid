@@ -1,0 +1,212 @@
+{% comment %}
+  Why Tamarinse™ (MASTER_PROMPT #11) — three pillars, revealed on scroll with
+  a restrained stagger (scroll-tied entrance only, no looping motion).
+{% endcomment %}
+
+<section class="tamarinse-why" id="TamarinseWhy-{{ section.id }}">
+  <div class="tamarinse-why__inner">
+    <header class="tamarinse-why__header">
+      <p class="t-eyebrow tamarinse-why__eyebrow">{{ section.settings.eyebrow }}</p>
+      <h2 class="tamarinse-why__title">{{ section.settings.title }}</h2>
+    </header>
+    <div class="tamarinse-why__pillars">
+      {%- for block in section.blocks -%}
+        <div class="tamarinse-why__pillar" style="--pillar-index: {{ forloop.index0 }};" {{ block.shopify_attributes }}>
+          <span class="tamarinse-why__pillar-index" aria-hidden="true">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
+          <h3 class="tamarinse-why__pillar-title">{{ block.settings.title }}</h3>
+          <p class="tamarinse-why__pillar-text">{{ block.settings.text }}</p>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+<script type="module">
+  if (!customElements.get('tamarinse-reveal-observer')) {
+    /* Lightweight: sections opt-in via .tamarinse-why__pillar; observer adds
+       data-revealed once, then disconnects. */
+    customElements.define('tamarinse-reveal-observer', class extends HTMLElement {});
+  }
+  for (const section of document.querySelectorAll('.tamarinse-why:not([data-reveal-bound])')) {
+    section.setAttribute('data-reveal-bound', '');
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.setAttribute('data-revealed', '');
+            observer.unobserve(entry.target);
+          }
+        }
+      },
+      { threshold: 0.35 }
+    );
+    for (const pillar of section.querySelectorAll('.tamarinse-why__pillar')) {
+      observer.observe(pillar);
+    }
+  }
+</script>
+
+{% stylesheet %}
+  .tamarinse-why {
+    display: block;
+    background: var(--t-ink);
+    color: var(--t-text-hi);
+    padding: var(--t-space-section) var(--t-space-md);
+  }
+
+  .tamarinse-why__inner {
+    max-width: var(--t-content-max);
+    margin-inline: auto;
+  }
+
+  .tamarinse-why__header {
+    max-width: var(--t-copy-max);
+    margin-block-end: var(--t-space-xl);
+  }
+
+  .tamarinse-why__eyebrow {
+    color: var(--t-text-low);
+    margin: 0 0 var(--t-space-sm);
+  }
+
+  .tamarinse-why__title {
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-h2);
+    line-height: var(--t-leading-heading);
+    font-weight: 400;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .tamarinse-why__pillars {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--t-space-lg);
+  }
+
+  .tamarinse-why__pillar {
+    padding-block-start: var(--t-space-md);
+    border-block-start: 1px solid var(--t-ink-border);
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity var(--t-dur-slow) var(--t-ease-out),
+      transform var(--t-dur-slow) var(--t-ease-out);
+    transition-delay: calc(var(--pillar-index) * 140ms);
+  }
+
+  .tamarinse-why__pillar[data-revealed] {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .tamarinse-why__pillar-index {
+    font-size: var(--t-type-small);
+    color: var(--t-terracotta);
+    letter-spacing: 0.1em;
+  }
+
+  .tamarinse-why__pillar-title {
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-h3);
+    line-height: var(--t-leading-heading);
+    font-weight: 400;
+    margin: var(--t-space-xs) 0;
+  }
+
+  .tamarinse-why__pillar-text {
+    font-size: var(--t-type-body);
+    line-height: var(--t-leading-body);
+    color: var(--t-text-mid);
+    margin: 0;
+    max-width: 30rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tamarinse-why__pillar {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+
+  @media screen and (min-width: 750px) {
+    .tamarinse-why__pillars {
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--t-space-md);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Tamarinse Why",
+  "tag": "section",
+  "class": "tamarinse-why-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Why Tamarinse™"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Three reasons this works differently."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "pillar",
+      "name": "Pillar",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 3,
+  "presets": [
+    {
+      "name": "Tamarinse Why",
+      "category": "Tamarinse",
+      "blocks": [
+        {
+          "type": "pillar",
+          "settings": {
+            "title": "Daily Defense",
+            "text": "Designed for everyday environmental exposure."
+          }
+        },
+        {
+          "type": "pillar",
+          "settings": {
+            "title": "Clean Ingredients",
+            "text": "Plant-based, physician formulated, and clinically studied."
+          }
+        },
+        {
+          "type": "pillar",
+          "settings": {
+            "title": "Smarter Delivery",
+            "text": "Delayed-release technology helps deliver ingredients where they're intended to work."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

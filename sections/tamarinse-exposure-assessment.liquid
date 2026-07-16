@@ -1,0 +1,440 @@
+{% comment %}
+  Exposure Assessment (MASTER_PROMPT #3, CONTENT.md question set).
+  "Select all that apply" checklist per the approved copy. Each question is a
+  block (text + weight) so the client can add/remove/reword and re-weight
+  without a deploy. Scoring is a pure weighted sum in
+  tamarinse-exposure-quiz.js; tier thresholds are section settings.
+  Client-stated goal: a typical respondent lands on "High".
+{% endcomment %}
+
+{%- capture tiers_json -%}
+  [
+    {"tier": {{ section.settings.tier_low | json }}, "threshold": 0},
+    {"tier": {{ section.settings.tier_moderate | json }}, "threshold": {{ section.settings.threshold_moderate | divided_by: 100.0 }}},
+    {"tier": {{ section.settings.tier_high | json }}, "threshold": {{ section.settings.threshold_high | divided_by: 100.0 }}},
+    {"tier": {{ section.settings.tier_very_high | json }}, "threshold": {{ section.settings.threshold_very_high | divided_by: 100.0 }}}
+  ]
+{%- endcapture -%}
+
+<tamarinse-exposure-quiz
+  class="tamarinse-quiz t-on-light"
+  id="TamarinseQuiz-{{ section.id }}"
+  data-tiers="{{ tiers_json | strip | escape }}"
+>
+  <div class="tamarinse-quiz__inner">
+    <header class="tamarinse-quiz__header">
+      <p class="t-eyebrow tamarinse-quiz__eyebrow">{{ section.settings.eyebrow }}</p>
+      <h2 class="tamarinse-quiz__title">{{ section.settings.title }}</h2>
+      <p class="tamarinse-quiz__intro">{{ section.settings.intro }}</p>
+    </header>
+
+    <form novalidate>
+      <fieldset class="tamarinse-quiz__questions">
+        <legend class="visually-hidden">{{ section.settings.intro }}</legend>
+        {%- for block in section.blocks -%}
+          <label class="tamarinse-quiz__question" {{ block.shopify_attributes }}>
+            <input
+              type="checkbox"
+              class="tamarinse-quiz__checkbox"
+              data-weight="{{ block.settings.weight }}"
+            >
+            <span class="tamarinse-quiz__question-text">{{ block.settings.question }}</span>
+            <span class="tamarinse-quiz__check" aria-hidden="true"></span>
+          </label>
+        {%- endfor -%}
+      </fieldset>
+
+      <div class="tamarinse-quiz__footer">
+        <p class="tamarinse-quiz__selected"><span data-quiz-count>0</span> selected</p>
+        <button type="submit" class="t-btn t-btn--primary">{{ section.settings.submit_label }}</button>
+      </div>
+    </form>
+
+    <div class="tamarinse-quiz__result" data-quiz-result tabindex="-1">
+      <p class="tamarinse-quiz__result-line">
+        {{ section.settings.result_prefix }}
+        <strong data-quiz-tier></strong>
+      </p>
+      {%- if section.settings.result_text != blank -%}
+        <p class="tamarinse-quiz__result-text">{{ section.settings.result_text }}</p>
+      {%- endif -%}
+      <div class="tamarinse-quiz__result-actions">
+        {%- if section.settings.result_cta_label != blank -%}
+          <a class="t-btn t-btn--accent" href="{{ section.settings.result_cta_link | default: routes.all_products_collection_url }}">
+            {{- section.settings.result_cta_label -}}
+          </a>
+        {%- endif -%}
+        <button type="button" class="tamarinse-quiz__reset" data-quiz-reset>
+          {{- section.settings.retake_label -}}
+        </button>
+      </div>
+    </div>
+  </div>
+</tamarinse-exposure-quiz>
+
+<script src="{{ 'tamarinse-exposure-quiz.js' | asset_url }}" type="module"></script>
+
+{% stylesheet %}
+  .tamarinse-quiz {
+    display: block;
+    background: var(--t-cream);
+    color: var(--t-text-hi-inverse);
+    padding: var(--t-space-section) var(--t-space-md);
+  }
+
+  .tamarinse-quiz__inner {
+    max-width: var(--t-content-max);
+    margin-inline: auto;
+  }
+
+  .tamarinse-quiz__header {
+    max-width: var(--t-copy-max);
+    margin-block-end: var(--t-space-xl);
+  }
+
+  .tamarinse-quiz__eyebrow {
+    color: var(--t-terracotta);
+    margin: 0 0 var(--t-space-sm);
+  }
+
+  .tamarinse-quiz__title {
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-h2);
+    line-height: var(--t-leading-heading);
+    font-weight: 400;
+    margin: 0 0 var(--t-space-sm);
+    text-wrap: balance;
+  }
+
+  .tamarinse-quiz__intro {
+    font-size: var(--t-type-body-lg);
+    line-height: var(--t-leading-body);
+    color: var(--t-text-mid-inverse);
+    margin: 0;
+  }
+
+  .tamarinse-quiz__questions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--t-space-xs);
+    border: 0;
+    padding: 0;
+    margin: 0;
+  }
+
+  .tamarinse-quiz__question {
+    display: flex;
+    align-items: center;
+    gap: var(--t-space-sm);
+    min-height: var(--t-touch-target);
+    padding: var(--t-space-sm) var(--t-space-md);
+    background: rgb(255 255 255 / 55%);
+    border: 1px solid var(--t-cream-border);
+    border-radius: var(--t-radius-sm);
+    cursor: pointer;
+    transition:
+      border-color var(--t-dur-fast) var(--t-ease-out),
+      background-color var(--t-dur-fast) var(--t-ease-out);
+  }
+
+  .tamarinse-quiz__question:hover {
+    border-color: var(--t-text-low-inverse);
+  }
+
+  .tamarinse-quiz__checkbox {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .tamarinse-quiz__question-text {
+    flex: 1;
+    font-size: var(--t-type-body);
+    line-height: var(--t-leading-body);
+  }
+
+  .tamarinse-quiz__check {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border: 1px solid var(--t-text-low-inverse);
+    border-radius: 50%;
+    position: relative;
+    transition:
+      background-color var(--t-dur-fast) var(--t-ease-out),
+      border-color var(--t-dur-fast) var(--t-ease-out);
+  }
+
+  .tamarinse-quiz__checkbox:checked ~ .tamarinse-quiz__check {
+    background: var(--t-terracotta);
+    border-color: var(--t-terracotta);
+  }
+
+  .tamarinse-quiz__checkbox:checked ~ .tamarinse-quiz__check::after {
+    content: '';
+    position: absolute;
+    inset: 6px 5px 7px;
+    border: solid var(--t-cream);
+    border-width: 0 0 2px 2px;
+    transform: rotate(-45deg);
+  }
+
+  .tamarinse-quiz__checkbox:focus-visible ~ .tamarinse-quiz__check {
+    outline: 2px solid var(--t-terracotta);
+    outline-offset: 3px;
+  }
+
+  .tamarinse-quiz__question:has(.tamarinse-quiz__checkbox:checked) {
+    background: rgb(168 86 56 / 7%);
+    border-color: var(--t-terracotta);
+  }
+
+  .tamarinse-quiz__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--t-space-sm);
+    margin-block-start: var(--t-space-lg);
+  }
+
+  .tamarinse-quiz__selected {
+    font-size: var(--t-type-small);
+    color: var(--t-text-low-inverse);
+    margin: 0;
+  }
+
+  .tamarinse-quiz__result {
+    display: none;
+    margin-block-start: var(--t-space-xl);
+    padding: var(--t-space-lg);
+    background: var(--t-ink);
+    color: var(--t-text-hi);
+    border-radius: var(--t-radius-sm);
+    outline: none;
+  }
+
+  .tamarinse-quiz[data-state='result'] .tamarinse-quiz__result {
+    display: block;
+  }
+
+  .tamarinse-quiz__result-line {
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-h3);
+    line-height: var(--t-leading-heading);
+    margin: 0 0 var(--t-space-sm);
+  }
+
+  .tamarinse-quiz__result-line strong {
+    color: var(--t-terracotta);
+    font-weight: 400;
+  }
+
+  .tamarinse-quiz__result-text {
+    font-size: var(--t-type-body-lg);
+    line-height: var(--t-leading-body);
+    color: var(--t-text-mid);
+    max-width: var(--t-copy-max);
+    margin: 0 0 var(--t-space-md);
+  }
+
+  .tamarinse-quiz__result-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--t-space-md);
+  }
+
+  .tamarinse-quiz__reset {
+    background: none;
+    border: none;
+    color: var(--t-text-mid);
+    font-size: var(--t-type-small);
+    text-decoration: underline;
+    cursor: pointer;
+    min-height: var(--t-touch-target);
+    padding: 0 var(--t-space-xs);
+  }
+
+  @media screen and (min-width: 750px) {
+    .tamarinse-quiz__questions {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Tamarinse Exposure Quiz",
+  "tag": "section",
+  "class": "tamarinse-quiz-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Exposure Assessment"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "How exposed are you to microplastics?"
+    },
+    {
+      "type": "text",
+      "id": "intro",
+      "label": "Intro",
+      "default": "How exposed are you to microplastics in your daily life? Select all that apply:"
+    },
+    {
+      "type": "text",
+      "id": "submit_label",
+      "label": "Submit button label",
+      "default": "See my result"
+    },
+    {
+      "type": "header",
+      "content": "Result"
+    },
+    {
+      "type": "text",
+      "id": "result_prefix",
+      "label": "Result line (tier is appended)",
+      "default": "Your estimated exposure is"
+    },
+    {
+      "type": "textarea",
+      "id": "result_text",
+      "label": "Result supporting text",
+      "default": "Exposure adds up quietly, through everyday routines. Tamarinse™ was designed for exactly this."
+    },
+    {
+      "type": "text",
+      "id": "result_cta_label",
+      "label": "Result button label",
+      "default": "Meet Tamarinse™"
+    },
+    {
+      "type": "url",
+      "id": "result_cta_link",
+      "label": "Result button link"
+    },
+    {
+      "type": "text",
+      "id": "retake_label",
+      "label": "Retake link label",
+      "default": "Retake the assessment"
+    },
+    {
+      "type": "header",
+      "content": "Tiers"
+    },
+    {
+      "type": "text",
+      "id": "tier_low",
+      "label": "Tier 1 label",
+      "default": "Low"
+    },
+    {
+      "type": "text",
+      "id": "tier_moderate",
+      "label": "Tier 2 label",
+      "default": "Moderate"
+    },
+    {
+      "type": "range",
+      "id": "threshold_moderate",
+      "label": "Tier 2 starts at (% of max score)",
+      "min": 5,
+      "max": 50,
+      "step": 5,
+      "unit": "%",
+      "default": 15
+    },
+    {
+      "type": "text",
+      "id": "tier_high",
+      "label": "Tier 3 label",
+      "default": "High"
+    },
+    {
+      "type": "range",
+      "id": "threshold_high",
+      "label": "Tier 3 starts at (% of max score)",
+      "min": 20,
+      "max": 70,
+      "step": 5,
+      "unit": "%",
+      "default": 35
+    },
+    {
+      "type": "text",
+      "id": "tier_very_high",
+      "label": "Tier 4 label",
+      "default": "Very High"
+    },
+    {
+      "type": "range",
+      "id": "threshold_very_high",
+      "label": "Tier 4 starts at (% of max score)",
+      "min": 50,
+      "max": 95,
+      "step": 5,
+      "unit": "%",
+      "default": 70
+    }
+  ],
+  "blocks": [
+    {
+      "type": "question",
+      "name": "Question",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question"
+        },
+        {
+          "type": "range",
+          "id": "weight",
+          "label": "Weight",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 1
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Tamarinse Exposure Quiz",
+      "category": "Tamarinse",
+      "blocks": [
+        { "type": "question", "settings": { "question": "Drink bottled water regularly?", "weight": 2 } },
+        { "type": "question", "settings": { "question": "Heat food in plastic containers?", "weight": 2 } },
+        { "type": "question", "settings": { "question": "Store leftovers in plastic containers?", "weight": 1 } },
+        { "type": "question", "settings": { "question": "Frequently order takeout or food delivery?", "weight": 1 } },
+        { "type": "question", "settings": { "question": "Drink coffee with plastic lids?", "weight": 1 } },
+        { "type": "question", "settings": { "question": "Use non-stick cookware?", "weight": 1 } },
+        { "type": "question", "settings": { "question": "Use plastic cutting boards?", "weight": 1 } },
+        { "type": "question", "settings": { "question": "Drink from protein shaker bottles or plastic water bottles daily?", "weight": 2 } },
+        { "type": "question", "settings": { "question": "Brew tea using tea bags?", "weight": 1 } },
+        { "type": "question", "settings": { "question": "Eat seafood two or more times per week?", "weight": 1 } },
+        { "type": "question", "settings": { "question": "Frequently eat processed or packaged foods?", "weight": 1 } },
+        { "type": "question", "settings": { "question": "Microwave food in its original plastic packaging?", "weight": 2 } },
+        { "type": "question", "settings": { "question": "Use plastic food storage bags or plastic wrap regularly?", "weight": 1 } },
+        { "type": "question", "settings": { "question": "Wear synthetic athletic clothing (polyester, nylon, or spandex) several times a week?", "weight": 1 } },
+        { "type": "question", "settings": { "question": "Handle thermal paper receipts several times per week?", "weight": 1 } }
+      ]
+    }
+  ]
+}
+{% endschema %}

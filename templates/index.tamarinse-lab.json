@@ -1,7 +1,7 @@
 /*
- * Tamarinse homepage — assembled from the custom Tamarinse sections.
- * Section files: sections/tamarinse-*.liquid. Editable copy lives in
- * section/block settings (defaults from CONTENT.md).
+ * Tamarinse lab template — full homepage assembly, proven here before it
+ * replaces templates/index.json (BUILD_GUIDE section 3).
+ * View at /?view=tamarinse-lab
  */
 {
   "sections": {

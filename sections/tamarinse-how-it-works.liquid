@@ -1,0 +1,348 @@
+{% comment %}
+  How Tamarinse™ Works — horizontal scroll timeline (MASTER_PROMPT #7).
+  Native touch swipe with CSS scroll-snap; a visible partial peek of the next
+  step at the viewport edge; prev/next buttons are a desktop enhancement.
+  Each step is a block: title + text + optional illustration image.
+{% endcomment %}
+
+<tamarinse-timeline class="tamarinse-hiw" id="TamarinseHiw-{{ section.id }}">
+  <div class="tamarinse-hiw__header">
+    <p class="t-eyebrow tamarinse-hiw__eyebrow">{{ section.settings.eyebrow }}</p>
+    <h2 class="tamarinse-hiw__title" id="how-tamarinse-works">{{ section.settings.title }}</h2>
+  </div>
+
+  <div class="tamarinse-hiw__track-wrapper">
+    <ol class="tamarinse-hiw__track" data-timeline-track>
+      {%- for block in section.blocks -%}
+        <li class="tamarinse-hiw__step" {{ block.shopify_attributes }}>
+          <div class="tamarinse-hiw__step-media">
+            {%- if block.settings.image != blank -%}
+              {{
+                block.settings.image
+                | image_url: width: 1200
+                | image_tag:
+                  widths: '400, 600, 900, 1200',
+                  sizes: '(min-width: 750px) 38vw, 82vw',
+                  class: 'tamarinse-hiw__step-image',
+                  alt: block.settings.image.alt
+              }}
+            {%- else -%}
+              <span class="tamarinse-hiw__step-number" aria-hidden="true">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
+            {%- endif -%}
+          </div>
+          <h3 class="tamarinse-hiw__step-title">
+            {{ block.settings.title }}
+            {%- if block.settings.footnote_marker %}<sup>*</sup>{% endif -%}
+          </h3>
+          <p class="tamarinse-hiw__step-text">{{ block.settings.text }}</p>
+        </li>
+      {%- endfor -%}
+    </ol>
+
+    <div class="tamarinse-hiw__nav">
+      <button type="button" class="tamarinse-hiw__nav-button" data-timeline-prev aria-label="Previous step">
+        <span aria-hidden="true">&larr;</span>
+      </button>
+      <button type="button" class="tamarinse-hiw__nav-button" data-timeline-next aria-label="Next step">
+        <span aria-hidden="true">&rarr;</span>
+      </button>
+    </div>
+  </div>
+
+  {%- if section.settings.footnote != blank -%}
+    <p class="tamarinse-hiw__footnote">* {{ section.settings.footnote }}</p>
+  {%- endif -%}
+</tamarinse-timeline>
+
+<script type="module">
+  if (!customElements.get('tamarinse-timeline')) {
+    customElements.define(
+      'tamarinse-timeline',
+      class extends HTMLElement {
+        #onPrev = () => this.#scrollBy(-1);
+        #onNext = () => this.#scrollBy(1);
+
+        connectedCallback() {
+          this.#track = this.querySelector('[data-timeline-track]');
+          this.#prev = this.querySelector('[data-timeline-prev]');
+          this.#next = this.querySelector('[data-timeline-next]');
+          this.#prev?.addEventListener('click', this.#onPrev);
+          this.#next?.addEventListener('click', this.#onNext);
+        }
+
+        disconnectedCallback() {
+          this.#prev?.removeEventListener('click', this.#onPrev);
+          this.#next?.removeEventListener('click', this.#onNext);
+        }
+
+        #track = null;
+        #prev = null;
+        #next = null;
+
+        #scrollBy(direction) {
+          const step = this.#track?.querySelector('li');
+          if (!this.#track || !step) return;
+          this.#track.scrollBy({
+            left: direction * step.getBoundingClientRect().width,
+            behavior: 'smooth',
+          });
+        }
+      }
+    );
+  }
+</script>
+
+{% stylesheet %}
+  .tamarinse-hiw {
+    display: block;
+    background: var(--t-ink);
+    color: var(--t-text-hi);
+    padding: var(--t-space-section) 0;
+    overflow: hidden;
+  }
+
+  .tamarinse-hiw__header {
+    max-width: var(--t-content-max);
+    margin-inline: auto;
+    padding-inline: var(--t-space-md);
+    margin-block-end: var(--t-space-xl);
+  }
+
+  .tamarinse-hiw__eyebrow {
+    color: var(--t-text-low);
+    margin: 0 0 var(--t-space-sm);
+  }
+
+  .tamarinse-hiw__title {
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-h2);
+    line-height: var(--t-leading-heading);
+    font-weight: 400;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .tamarinse-hiw__track {
+    display: flex;
+    gap: var(--t-space-md);
+    list-style: none;
+    margin: 0;
+    /* Padding keeps a peek of the next card visible at the right edge */
+    padding: 0 18vw 0 var(--t-space-md);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .tamarinse-hiw__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tamarinse-hiw__step {
+    flex: 0 0 82vw;
+    scroll-snap-align: start;
+    scroll-margin-inline-start: var(--t-space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--t-space-sm);
+  }
+
+  .tamarinse-hiw__step-media {
+    aspect-ratio: 4 / 3;
+    background: var(--t-ink-soft);
+    border: 1px solid var(--t-ink-border);
+    border-radius: var(--t-radius-sm);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+
+  .tamarinse-hiw__step-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .tamarinse-hiw__step-number {
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-display);
+    color: var(--t-text-low);
+  }
+
+  .tamarinse-hiw__step-title {
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-h3);
+    line-height: var(--t-leading-heading);
+    font-weight: 400;
+    margin: var(--t-space-xs) 0 0;
+  }
+
+  .tamarinse-hiw__step-title sup {
+    color: var(--t-text-low);
+  }
+
+  .tamarinse-hiw__step-text {
+    font-size: var(--t-type-body);
+    line-height: var(--t-leading-body);
+    color: var(--t-text-mid);
+    max-width: 32rem;
+    margin: 0;
+  }
+
+  .tamarinse-hiw__nav {
+    display: none;
+  }
+
+  .tamarinse-hiw__footnote {
+    max-width: var(--t-content-max);
+    margin: var(--t-space-lg) auto 0;
+    padding-inline: var(--t-space-md);
+    font-size: var(--t-type-small);
+    color: var(--t-text-low);
+  }
+
+  @media screen and (min-width: 750px) {
+    .tamarinse-hiw__step {
+      flex-basis: 38vw;
+    }
+
+    .tamarinse-hiw__track {
+      padding-inline: max(var(--t-space-md), calc((100vw - var(--t-content-max)) / 2)) 24vw;
+    }
+
+    .tamarinse-hiw__step {
+      scroll-margin-inline-start: max(var(--t-space-md), calc((100vw - var(--t-content-max)) / 2));
+    }
+
+    .tamarinse-hiw__nav {
+      display: flex;
+      gap: var(--t-space-xs);
+      max-width: var(--t-content-max);
+      margin: var(--t-space-lg) auto 0;
+      padding-inline: var(--t-space-md);
+    }
+
+    .tamarinse-hiw__nav-button {
+      width: var(--t-touch-target);
+      height: var(--t-touch-target);
+      border-radius: 50%;
+      border: 1px solid var(--t-ink-border);
+      background: transparent;
+      color: var(--t-text-hi);
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: border-color var(--t-dur-fast) var(--t-ease-out);
+    }
+
+    .tamarinse-hiw__nav-button:hover {
+      border-color: var(--t-text-mid);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Tamarinse How It Works",
+  "tag": "section",
+  "class": "tamarinse-hiw-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "The mechanism"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "How Tamarinse™ Works"
+    },
+    {
+      "type": "textarea",
+      "id": "footnote",
+      "label": "Footnote (shown with * marker)",
+      "info": "Exact disclaimer wording pending client/legal confirmation — see LAUNCH_CHECKLIST.md",
+      "default": "These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "step",
+      "name": "Step",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Illustration"
+        },
+        {
+          "type": "checkbox",
+          "id": "footnote_marker",
+          "label": "Show * footnote marker",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "max_blocks": 8,
+  "presets": [
+    {
+      "name": "Tamarinse How It Works",
+      "category": "Tamarinse",
+      "blocks": [
+        {
+          "type": "step",
+          "settings": {
+            "title": "Exposure",
+            "text": "Every day, you're exposed to microplastics and other unwanted compounds through food, water, beverages, packaging, and the environment."
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "title": "Activates",
+            "text": "The delayed-release capsule is designed to bypass stomach acid before releasing the Tamarinse™ blend where it's intended to work."
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "title": "Binds",
+            "text": "The proprietary blend forms a natural fiber matrix that helps bind targeted compounds within the digestive tract."
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "title": "Supports",
+            "text": "Clinically studied plant-based ingredients work together to support healthy digestive function and the body's natural elimination processes."
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "title": "Naturally Eliminates",
+            "text": "Bound compounds are carried through the digestive system and eliminated naturally rather than remaining available for absorption.",
+            "footnote_marker": true
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

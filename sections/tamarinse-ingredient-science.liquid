@@ -1,0 +1,401 @@
+{% comment %}
+  Ingredient Science (MASTER_PROMPT #8) — six cards with what-it-is /
+  why-we-chose-it / research orgs, plus the featured research orgs banner
+  (client brief's "featured companies banner", text treatment).
+
+  Primary data path: the Ingredient metaobject via metaobject_list dynamic
+  source. Fallback path: editable blocks with defaults from
+  data/ingredients.json until the metaobject entries exist in admin.
+{% endcomment %}
+
+{%- liquid
+  assign use_metaobjects = false
+  if section.settings.ingredients != blank and section.settings.ingredients.count > 0
+    assign use_metaobjects = true
+  endif
+-%}
+
+<section class="tamarinse-science t-on-light" id="TamarinseScience-{{ section.id }}">
+  <div class="tamarinse-science__inner">
+    <header class="tamarinse-science__header">
+      <p class="t-eyebrow tamarinse-science__eyebrow">{{ section.settings.eyebrow }}</p>
+      <h2 class="tamarinse-science__title">{{ section.settings.title }}</h2>
+      <p class="tamarinse-science__intro">{{ section.settings.intro }}</p>
+    </header>
+
+    <div class="tamarinse-science__grid">
+      {%- if use_metaobjects -%}
+        {%- for ingredient in section.settings.ingredients -%}
+          {%- liquid
+            assign orgs_joined = ''
+            for org in ingredient.research_orgs.value
+              assign orgs_joined = orgs_joined | append: org | append: ';'
+            endfor
+          -%}
+          {%- render 'tamarinse-ingredient-card',
+            name: ingredient.name,
+            what_it_is: ingredient.what_it_is,
+            why_we_chose_it: ingredient.why_we_chose_it,
+            research_orgs: orgs_joined,
+            orgs_label: section.settings.orgs_label
+          -%}
+        {%- endfor -%}
+      {%- else -%}
+        {%- for block in section.blocks -%}
+          <div {{ block.shopify_attributes }} style="display: contents;">
+            {%- render 'tamarinse-ingredient-card',
+              name: block.settings.name,
+              what_it_is: block.settings.what_it_is,
+              why_we_chose_it: block.settings.why_we_chose_it,
+              research_orgs: block.settings.research_orgs,
+              orgs_label: section.settings.orgs_label
+            -%}
+          </div>
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+
+    <footer class="tamarinse-science__close">
+      <h3 class="tamarinse-science__close-title">{{ section.settings.close_title }}</h3>
+      <p class="tamarinse-science__close-text">{{ section.settings.close_text }}</p>
+
+      {%- if section.settings.featured_orgs != blank -%}
+        {%- assign featured = section.settings.featured_orgs | newline_to_br | split: '<br />' -%}
+        <ul class="tamarinse-science__banner" aria-label="Featured research organizations">
+          {%- for org in featured -%}
+            {%- assign org_stripped = org | strip -%}
+            {%- if org_stripped != blank -%}
+              <li>{{ org_stripped }}</li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+
+      <p class="tamarinse-science__close-kicker">{{ section.settings.close_kicker }}</p>
+    </footer>
+  </div>
+</section>
+
+{% stylesheet %}
+  .tamarinse-science {
+    display: block;
+    background: var(--t-cream);
+    color: var(--t-text-hi-inverse);
+    padding: var(--t-space-section) var(--t-space-md);
+  }
+
+  .tamarinse-science__inner {
+    max-width: var(--t-content-max);
+    margin-inline: auto;
+  }
+
+  .tamarinse-science__header {
+    max-width: var(--t-copy-max);
+    margin-block-end: var(--t-space-xl);
+  }
+
+  .tamarinse-science__eyebrow {
+    color: var(--t-olive);
+    margin: 0 0 var(--t-space-sm);
+  }
+
+  .tamarinse-science__title {
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-h2);
+    line-height: var(--t-leading-heading);
+    font-weight: 400;
+    margin: 0 0 var(--t-space-sm);
+    text-wrap: balance;
+  }
+
+  .tamarinse-science__intro {
+    font-size: var(--t-type-body-lg);
+    line-height: var(--t-leading-body);
+    color: var(--t-text-mid-inverse);
+    margin: 0;
+  }
+
+  .tamarinse-science__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--t-space-md);
+  }
+
+  .tamarinse-ingredient-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--t-space-sm);
+    padding: var(--t-space-lg);
+    background: rgb(255 255 255 / 55%);
+    border: 1px solid var(--t-cream-border);
+    border-radius: var(--t-radius-sm);
+  }
+
+  .tamarinse-ingredient-card__name {
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-h3);
+    line-height: var(--t-leading-heading);
+    font-weight: 400;
+    margin: 0;
+  }
+
+  .tamarinse-ingredient-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--t-space-xs);
+  }
+
+  .tamarinse-ingredient-card__what,
+  .tamarinse-ingredient-card__why {
+    font-size: var(--t-type-body);
+    line-height: var(--t-leading-body);
+    color: var(--t-text-mid-inverse);
+    margin: 0;
+  }
+
+  .tamarinse-ingredient-card__orgs {
+    margin-block-start: auto;
+    padding-block-start: var(--t-space-sm);
+    border-block-start: 1px solid var(--t-cream-border);
+  }
+
+  .tamarinse-ingredient-card__orgs-label {
+    color: var(--t-olive);
+    margin: 0 0 var(--t-space-xs);
+    font-size: 0.6875rem;
+  }
+
+  .tamarinse-ingredient-card__orgs-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--t-space-2xs) var(--t-space-sm);
+  }
+
+  .tamarinse-ingredient-card__orgs-list li {
+    font-size: var(--t-type-small);
+    color: var(--t-text-low-inverse);
+  }
+
+  .tamarinse-science__close {
+    margin-block-start: var(--t-space-2xl);
+    text-align: center;
+  }
+
+  .tamarinse-science__close-title {
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-h3);
+    font-weight: 400;
+    margin: 0 0 var(--t-space-sm);
+  }
+
+  .tamarinse-science__close-text {
+    max-width: var(--t-copy-max);
+    margin: 0 auto var(--t-space-lg);
+    font-size: var(--t-type-body-lg);
+    line-height: var(--t-leading-body);
+    color: var(--t-text-mid-inverse);
+  }
+
+  .tamarinse-science__banner {
+    list-style: none;
+    margin: 0 auto var(--t-space-lg);
+    padding: var(--t-space-md) 0;
+    border-block: 1px solid var(--t-cream-border);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--t-space-sm) var(--t-space-lg);
+    max-width: var(--t-content-max);
+  }
+
+  .tamarinse-science__banner li {
+    font-size: var(--t-type-small);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--t-text-low-inverse);
+  }
+
+  .tamarinse-science__close-kicker {
+    font-size: var(--t-type-body);
+    color: var(--t-text-mid-inverse);
+    margin: 0;
+  }
+
+  @media screen and (min-width: 750px) {
+    .tamarinse-science__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media screen and (min-width: 1100px) {
+    .tamarinse-science__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Ingredient Science",
+  "tag": "section",
+  "class": "tamarinse-science-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Ingredient Science"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Built on Published Research"
+    },
+    {
+      "type": "textarea",
+      "id": "intro",
+      "label": "Intro",
+      "default": "Every ingredient in Tamarinse™ was selected for a specific purpose. Each ingredient is supported by published research from respected universities, medical organizations, and peer-reviewed scientific journals."
+    },
+    {
+      "type": "text",
+      "id": "orgs_label",
+      "label": "Research orgs label",
+      "default": "Research Organizations"
+    },
+    {
+      "type": "metaobject_list",
+      "id": "ingredients",
+      "label": "Ingredients (metaobject)",
+      "metaobject_type": "ingredient",
+      "info": "When connected, these replace the ingredient blocks below so all sections share one editable list."
+    },
+    {
+      "type": "header",
+      "content": "Section close"
+    },
+    {
+      "type": "text",
+      "id": "close_title",
+      "label": "Close title",
+      "default": "Every Ingredient. Every Purpose."
+    },
+    {
+      "type": "textarea",
+      "id": "close_text",
+      "label": "Close text",
+      "default": "Unlike formulas that rely on a single \"hero ingredient,\" Tamarinse™ combines multiple plant-derived compounds supported by research from leading scientific institutions and peer-reviewed journals."
+    },
+    {
+      "type": "textarea",
+      "id": "featured_orgs",
+      "label": "Featured research orgs (one per line)",
+      "default": "American Chemical Society (ACS)\nNational Institutes of Health (NIH)\nNational Cancer Institute (NCI)\nOffice of Dietary Supplements (ODS)\nNational Center for Complementary and Integrative Health (NCCIH)\nNational Library of Medicine (PubMed)\nTarleton State University\nThe University of Texas at Dallas"
+    },
+    {
+      "type": "text",
+      "id": "close_kicker",
+      "label": "Close kicker",
+      "default": "Every ingredient is included for a reason. Every claim is backed by published research."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "ingredient",
+      "name": "Ingredient",
+      "settings": [
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Name"
+        },
+        {
+          "type": "textarea",
+          "id": "what_it_is",
+          "label": "What it is"
+        },
+        {
+          "type": "textarea",
+          "id": "why_we_chose_it",
+          "label": "Why we chose it"
+        },
+        {
+          "type": "textarea",
+          "id": "research_orgs",
+          "label": "Research organizations (one per line)"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 8,
+  "presets": [
+    {
+      "name": "Ingredient Science",
+      "category": "Tamarinse",
+      "blocks": [
+        {
+          "type": "ingredient",
+          "settings": {
+            "name": "Tamarind Seed Extract",
+            "what_it_is": "A natural polysaccharide extracted from tamarind seeds.",
+            "why_we_chose_it": "Forms part of the proprietary Tamarinse™ fiber matrix.",
+            "research_orgs": "American Chemical Society (ACS)\nACS Omega\nTarleton State University\nThe University of Texas at Dallas\nNational Science Foundation (NSF)\nU.S. Department of Energy (DOE)\nWelch Foundation"
+          }
+        },
+        {
+          "type": "ingredient",
+          "settings": {
+            "name": "Okra Polysaccharides",
+            "what_it_is": "A soluble plant polysaccharide naturally found in okra.",
+            "why_we_chose_it": "Supports formation of a viscous fiber matrix.",
+            "research_orgs": "American Chemical Society (ACS)\nACS Omega\nTarleton State University\nThe University of Texas at Dallas\nNational Science Foundation (NSF)\nU.S. Department of Energy (DOE)\nWelch Foundation"
+          }
+        },
+        {
+          "type": "ingredient",
+          "settings": {
+            "name": "Fenugreek Extract",
+            "what_it_is": "A source of soluble galactomannan polysaccharides.",
+            "why_we_chose_it": "Strengthens the overall fiber matrix.",
+            "research_orgs": "American Chemical Society (ACS)\nACS Omega\nTarleton State University\nThe University of Texas at Dallas\nNational Science Foundation (NSF)\nU.S. Department of Energy (DOE)\nWelch Foundation\nNational Institutes of Health (NIH) Natural Products Research Program"
+          }
+        },
+        {
+          "type": "ingredient",
+          "settings": {
+            "name": "Activated Coconut Charcoal",
+            "what_it_is": "An ultra-porous activated carbon derived from coconut shells.",
+            "why_we_chose_it": "Provides additional adsorption capacity within the digestive tract.",
+            "research_orgs": "American Academy of Clinical Toxicology (AACT)\nEuropean Association of Poisons Centres and Clinical Toxicologists (EAPCCT)\nNational Library of Medicine (PubMed)\nStatPearls Publishing\nUniversity of Tennessee Health Science Center"
+          }
+        },
+        {
+          "type": "ingredient",
+          "settings": {
+            "name": "Organic Chlorella",
+            "what_it_is": "A nutrient-rich freshwater green algae.",
+            "why_we_chose_it": "Supports antioxidant defenses and normal detoxification pathways.",
+            "research_orgs": "National Institutes of Health (NIH)\nOffice of Dietary Supplements (ODS)\nNational Center for Complementary and Integrative Health (NCCIH)\nNational Library of Medicine (PubMed)\nChemosphere\nNutrition Journal\nClinical Nutrition"
+          }
+        },
+        {
+          "type": "ingredient",
+          "settings": {
+            "name": "Milk Thistle Extract",
+            "what_it_is": "A standardized extract containing silymarin.",
+            "why_we_chose_it": "Supports healthy liver function and antioxidant activity.",
+            "research_orgs": "National Institutes of Health (NIH)\nOffice of Dietary Supplements (ODS)\nNational Center for Complementary and Integrative Health (NCCIH)\nNational Cancer Institute (NCI)\nNational Library of Medicine (PubMed)\nPhytotherapy Research\nWorld Journal of Gastroenterology\nJournal of Hepatology"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

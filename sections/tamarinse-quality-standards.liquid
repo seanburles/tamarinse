@@ -1,0 +1,153 @@
+{% comment %}
+  Quality Standards (MASTER_PROMPT #9) — minimalist icon row.
+  Line icons only, consistent stroke weight (style contract). Each standard
+  is a block: label + icon choice (built-in line icons) or custom image.
+{% endcomment %}
+
+<section class="tamarinse-quality t-on-light" id="TamarinseQuality-{{ section.id }}">
+  <h2 class="visually-hidden">{{ section.settings.title }}</h2>
+  <ul class="tamarinse-quality__row">
+    {%- for block in section.blocks -%}
+      <li class="tamarinse-quality__item" {{ block.shopify_attributes }}>
+        <span class="tamarinse-quality__icon" aria-hidden="true">
+          {%- if block.settings.custom_icon != blank -%}
+            {{ block.settings.custom_icon | image_url: width: 96 | image_tag: class: 'tamarinse-quality__icon-image', alt: '' }}
+          {%- else -%}
+            {%- case block.settings.icon -%}
+              {%- when 'leaf' -%}
+                <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 26C6 14 14 6 26 6c0 12-8 20-20 20Z"/><path d="M6 26C12 20 16 16 22 10"/></svg>
+              {%- when 'stethoscope' -%}
+                <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 4v8a6 6 0 0 0 12 0V4"/><path d="M14 18v3a7 7 0 0 0 14 0v-2"/><circle cx="28" cy="16" r="3"/></svg>
+              {%- when 'flask' -%}
+                <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 4v9L5 26a2 2 0 0 0 2 3h18a2 2 0 0 0 2-3l-8-13V4"/><path d="M11 4h10"/><path d="M9 20h14"/></svg>
+              {%- when 'flag' -%}
+                <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 28V5"/><path d="M7 6h18l-4 5 4 5H7"/></svg>
+              {%- when 'shield' -%}
+                <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 4 6 8v8c0 6 4 10 10 12 6-2 10-6 10-12V8Z"/><path d="m11 16 3.5 3.5L21 13"/></svg>
+              {%- else -%}
+                <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="16" cy="16" r="11"/><path d="m11 16 3.5 3.5L21 13"/></svg>
+            {%- endcase -%}
+          {%- endif -%}
+        </span>
+        <span class="tamarinse-quality__label">{{ block.settings.label }}</span>
+      </li>
+    {%- endfor -%}
+  </ul>
+</section>
+
+{% stylesheet %}
+  .tamarinse-quality {
+    display: block;
+    background: var(--t-cream);
+    color: var(--t-text-hi-inverse);
+    padding: var(--t-space-xl) var(--t-space-md);
+    border-block: 1px solid var(--t-cream-border);
+  }
+
+  .tamarinse-quality__row {
+    list-style: none;
+    margin: 0 auto;
+    padding: 0;
+    max-width: var(--t-content-max);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--t-space-lg) var(--t-space-md);
+  }
+
+  .tamarinse-quality__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--t-space-sm);
+    text-align: center;
+  }
+
+  .tamarinse-quality__icon {
+    width: 34px;
+    height: 34px;
+    color: var(--t-text-mid-inverse);
+  }
+
+  .tamarinse-quality__icon svg,
+  .tamarinse-quality__icon-image {
+    width: 100%;
+    height: 100%;
+  }
+
+  .tamarinse-quality__label {
+    font-size: var(--t-type-small);
+    letter-spacing: 0.06em;
+    color: var(--t-text-mid-inverse);
+  }
+
+  @media screen and (min-width: 750px) {
+    .tamarinse-quality__row {
+      grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Quality Standards",
+  "tag": "section",
+  "class": "tamarinse-quality-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Accessible section title",
+      "default": "Quality standards"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "standard",
+      "name": "Standard",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label"
+        },
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            { "value": "leaf", "label": "Leaf" },
+            { "value": "stethoscope", "label": "Stethoscope" },
+            { "value": "flask", "label": "Flask" },
+            { "value": "flag", "label": "Flag" },
+            { "value": "shield", "label": "Shield check" },
+            { "value": "check", "label": "Circle check" }
+          ],
+          "default": "check"
+        },
+        {
+          "type": "image_picker",
+          "id": "custom_icon",
+          "label": "Custom icon (overrides)"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "presets": [
+    {
+      "name": "Quality Standards",
+      "category": "Tamarinse",
+      "blocks": [
+        { "type": "standard", "settings": { "label": "USDA Organic", "icon": "leaf" } },
+        { "type": "standard", "settings": { "label": "Physician Formulated", "icon": "stethoscope" } },
+        { "type": "standard", "settings": { "label": "Clinically Studied Ingredients", "icon": "flask" } },
+        { "type": "standard", "settings": { "label": "Manufactured in the USA", "icon": "flag" } },
+        { "type": "standard", "settings": { "label": "Third-Party Tested (when available)", "icon": "shield" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,163 @@
+/*
+  Tamarinse™ design tokens
+  ------------------------
+  Single source of truth for the custom homepage/product sections.
+  Everything custom references these variables — never hardcode a hex
+  or a magic duration inside a section stylesheet.
+
+  Style contract (MASTER_PROMPT.md):
+  - near-black base, warm off-white, ONE restrained accent live per section
+  - motion is slow, scroll-tied, purposeful; the 20-30s bottle rotation
+    sets the pace for everything else
+  - mobile-first: these tokens are viewport-agnostic; type uses clamp()
+*/
+
+:root {
+  /* ---- Palette ---- */
+  --t-ink: #0b0b0c; /* near-black base */
+  --t-ink-soft: #141416; /* raised surfaces on dark */
+  --t-ink-border: rgb(247 245 240 / 12%);
+  --t-cream: #f7f5f0; /* warm off-white */
+  --t-cream-dim: #edeae2; /* raised surfaces on light */
+  --t-cream-border: rgb(11 11 12 / 12%);
+  --t-terracotta: #a85638; /* accent 1 — muted terracotta */
+  --t-terracotta-deep: #8a4127;
+  --t-olive: #66663f; /* accent 2 — deep olive (never in the same section as terracotta) */
+
+  /* text emphasis on dark */
+  --t-text-hi: var(--t-cream);
+  --t-text-mid: rgb(247 245 240 / 72%);
+  --t-text-low: rgb(247 245 240 / 52%);
+  /* text emphasis on light */
+  --t-text-hi-inverse: var(--t-ink);
+  --t-text-mid-inverse: rgb(11 11 12 / 72%);
+  --t-text-low-inverse: rgb(11 11 12 / 52%);
+
+  /* ---- Type scale (fluid) ----
+     Families come from the theme font settings so the merchant keeps control:
+     headings = refined serif, body = neutral grotesk (set in theme settings). */
+  --t-font-heading: var(--font-heading--family, Georgia, serif);
+  --t-font-body: var(--font-body--family, system-ui, sans-serif);
+
+  --t-type-display: clamp(2.625rem, 1.2rem + 6vw, 5.5rem); /* hero / closing */
+  --t-type-h2: clamp(2rem, 1rem + 4vw, 3.75rem); /* section titles */
+  --t-type-h3: clamp(1.5rem, 1.1rem + 1.8vw, 2.25rem); /* card / step titles */
+  --t-type-body-lg: clamp(1.0625rem, 1rem + 0.4vw, 1.3125rem);
+  --t-type-body: 1rem;
+  --t-type-small: 0.875rem;
+  --t-type-eyebrow: 0.8125rem;
+
+  --t-leading-tight: 1.05;
+  --t-leading-heading: 1.15;
+  --t-leading-body: 1.65; /* generous, copy should never feel dense */
+  --t-tracking-eyebrow: 0.18em;
+
+  /* ---- Spacing scale ---- */
+  --t-space-2xs: 0.375rem;
+  --t-space-xs: 0.625rem;
+  --t-space-sm: 1rem;
+  --t-space-md: 1.5rem;
+  --t-space-lg: 2.5rem;
+  --t-space-xl: 4rem;
+  --t-space-2xl: 6rem;
+  --t-space-section: clamp(4rem, 2rem + 8vw, 9rem); /* vertical rhythm between major statements */
+
+  /* ---- Motion ----
+     Restrained and purposeful. Bottle: one rotation per --t-bottle-period. */
+  --t-bottle-period: 24s;
+  --t-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --t-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --t-dur-fast: 240ms;
+  --t-dur-med: 600ms;
+  --t-dur-slow: 1100ms;
+
+  /* ---- Interaction ---- */
+  --t-touch-target: 44px; /* hard minimum for every interactive element */
+  --t-radius-sm: 4px;
+  --t-radius-pill: 999px;
+
+  /* ---- Layout ---- */
+  --t-content-max: 68rem;
+  --t-copy-max: 38rem; /* measure for body copy */
+}
+
+/* ---- Shared primitives used across Tamarinse sections ---- */
+
+.t-eyebrow {
+  font-family: var(--t-font-body);
+  font-size: var(--t-type-eyebrow);
+  letter-spacing: var(--t-tracking-eyebrow);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.t-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--t-touch-target);
+  min-width: var(--t-touch-target);
+  padding: 0.75rem 2rem;
+  border-radius: var(--t-radius-pill);
+  font-family: var(--t-font-body);
+  font-size: var(--t-type-body);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition:
+    background-color var(--t-dur-fast) var(--t-ease-out),
+    border-color var(--t-dur-fast) var(--t-ease-out),
+    color var(--t-dur-fast) var(--t-ease-out),
+    transform var(--t-dur-fast) var(--t-ease-out);
+}
+
+.t-btn:active {
+  transform: scale(0.98);
+}
+
+.t-btn--primary {
+  background: var(--t-cream);
+  color: var(--t-ink);
+}
+
+.t-btn--primary:hover {
+  background: var(--t-cream-dim);
+}
+
+.t-btn--accent {
+  background: var(--t-terracotta);
+  color: var(--t-cream);
+}
+
+.t-btn--accent:hover {
+  background: var(--t-terracotta-deep);
+}
+
+.t-btn--ghost {
+  background: transparent;
+  color: var(--t-text-hi);
+  border-color: var(--t-ink-border);
+}
+
+.t-btn--ghost:hover {
+  border-color: var(--t-text-mid);
+}
+
+/* light-surface variants */
+.t-on-light .t-btn--primary {
+  background: var(--t-ink);
+  color: var(--t-cream);
+}
+
+.t-on-light .t-btn--ghost {
+  color: var(--t-text-hi-inverse);
+  border-color: var(--t-cream-border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-btn {
+    transition: none;
+  }
+}

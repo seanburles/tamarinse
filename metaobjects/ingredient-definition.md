@@ -14,8 +14,8 @@ Go to **Shopify admin → Content → Metaobjects → Add definition** and creat
 | Field name | Key | Type | Notes |
 |---|---|---|---|
 | Name | `name` | Single line text | e.g. "Tamarind Seed Extract" |
-| What It Is | `what_it_is` | Single line text | Short description |
-| Why We Chose It | `why_we_chose_it` | Single line text | Short description |
+| What It Is | `what_it_is` | Multi-line text | Description copy (multi-line per BUILD_GUIDE section 4 — don't create as single-line, field types are painful to change once entries exist) |
+| Why We Chose It | `why_we_chose_it` | Multi-line text | Description copy (same note as above) |
 | Research Organizations | `research_orgs` | List of single line text | One list item per org |
 
 ### Access

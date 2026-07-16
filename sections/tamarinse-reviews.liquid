@@ -1,0 +1,264 @@
+{% comment %}
+  Reviews (MASTER_PROMPT #13) — luxury layout. Badge (rating/count/source) is
+  section settings; each review is an editable block. Per client-approved
+  direction (BUILD_GUIDE section 8): placeholder reviews ship as editable
+  customizer defaults, swappable for real reviews or a review-app feed with
+  no code change. Placeholder quote copy must come from/be approved by the
+  client — defaults here are clearly marked placeholders.
+{% endcomment %}
+
+<section class="tamarinse-reviews t-on-light" id="TamarinseReviews-{{ section.id }}">
+  <div class="tamarinse-reviews__inner">
+    <header class="tamarinse-reviews__header">
+      <p class="t-eyebrow tamarinse-reviews__eyebrow">{{ section.settings.eyebrow }}</p>
+      <h2 class="tamarinse-reviews__title">{{ section.settings.title }}</h2>
+
+      {%- if section.settings.show_badge -%}
+        {%- render 'tamarinse-reviews-badge',
+          rating: section.settings.badge_rating,
+          count: section.settings.badge_count,
+          source: section.settings.badge_source
+        -%}
+      {%- endif -%}
+    </header>
+
+    <div class="tamarinse-reviews__grid">
+      {%- for block in section.blocks -%}
+        <figure class="tamarinse-reviews__card" {{ block.shopify_attributes }}>
+          <div class="tamarinse-reviews__stars" aria-label="{{ block.settings.rating }} out of 5 stars">
+            {%- for i in (1..5) -%}
+              <span class="tamarinse-reviews__star{% if i > block.settings.rating %} tamarinse-reviews__star--empty{% endif %}" aria-hidden="true">&#9733;</span>
+            {%- endfor -%}
+          </div>
+          <blockquote class="tamarinse-reviews__quote">{{ block.settings.quote }}</blockquote>
+          <figcaption class="tamarinse-reviews__attribution">
+            <span class="tamarinse-reviews__name">{{ block.settings.name }}</span>
+            {%- if block.settings.role != blank -%}
+              <span class="tamarinse-reviews__role">{{ block.settings.role }}</span>
+            {%- endif -%}
+          </figcaption>
+        </figure>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .tamarinse-reviews {
+    display: block;
+    background: var(--t-cream);
+    color: var(--t-text-hi-inverse);
+    padding: var(--t-space-section) var(--t-space-md);
+  }
+
+  .tamarinse-reviews__inner {
+    max-width: var(--t-content-max);
+    margin-inline: auto;
+  }
+
+  .tamarinse-reviews__header {
+    max-width: var(--t-copy-max);
+    margin-block-end: var(--t-space-xl);
+  }
+
+  .tamarinse-reviews__eyebrow {
+    color: var(--t-terracotta);
+    margin: 0 0 var(--t-space-sm);
+  }
+
+  .tamarinse-reviews__title {
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-h2);
+    line-height: var(--t-leading-heading);
+    font-weight: 400;
+    margin: 0 0 var(--t-space-sm);
+    text-wrap: balance;
+  }
+
+  .tamarinse-reviews__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--t-space-md);
+  }
+
+  .tamarinse-reviews__card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--t-space-sm);
+    margin: 0;
+    padding: var(--t-space-lg);
+    background: rgb(255 255 255 / 55%);
+    border: 1px solid var(--t-cream-border);
+    border-radius: var(--t-radius-sm);
+  }
+
+  .tamarinse-reviews__stars {
+    color: var(--t-terracotta);
+    letter-spacing: 0.2em;
+    font-size: 0.9rem;
+  }
+
+  .tamarinse-reviews__star--empty {
+    opacity: 0.25;
+  }
+
+  .tamarinse-reviews__quote {
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-body-lg);
+    line-height: var(--t-leading-body);
+    margin: 0;
+  }
+
+  .tamarinse-reviews__attribution {
+    margin-block-start: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .tamarinse-reviews__name {
+    font-size: var(--t-type-small);
+    font-weight: 500;
+  }
+
+  .tamarinse-reviews__role {
+    font-size: var(--t-type-small);
+    color: var(--t-text-low-inverse);
+  }
+
+  @media screen and (min-width: 750px) {
+    .tamarinse-reviews__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media screen and (min-width: 1100px) {
+    .tamarinse-reviews__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Tamarinse Reviews",
+  "tag": "section",
+  "class": "tamarinse-reviews-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Reviews"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Trusted daily. Reviewed honestly."
+    },
+    {
+      "type": "header",
+      "content": "Badge"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_badge",
+      "label": "Show rating badge",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "badge_rating",
+      "label": "Rating",
+      "min": 1,
+      "max": 5,
+      "step": 0.1,
+      "default": 4.8
+    },
+    {
+      "type": "number",
+      "id": "badge_count",
+      "label": "Review count",
+      "default": 0
+    },
+    {
+      "type": "text",
+      "id": "badge_source",
+      "label": "Source label",
+      "default": "Verified reviews",
+      "info": "Swap for the review platform name (Judge.me, Okendo, Loox) when a real feed is connected."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "review",
+      "name": "Review",
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "quote",
+          "label": "Quote"
+        },
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Name"
+        },
+        {
+          "type": "text",
+          "id": "role",
+          "label": "Role (e.g. Physician review, Verified buyer)"
+        },
+        {
+          "type": "range",
+          "id": "rating",
+          "label": "Stars",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 5
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Tamarinse Reviews",
+      "category": "Tamarinse",
+      "blocks": [
+        {
+          "type": "review",
+          "settings": {
+            "quote": "[Placeholder review — replace with client-approved copy before launch]",
+            "name": "[Name]",
+            "role": "Verified buyer",
+            "rating": 5
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "quote": "[Placeholder review — replace with client-approved copy before launch]",
+            "name": "[Name]",
+            "role": "Physician review",
+            "rating": 5
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "quote": "[Placeholder review — replace with client-approved copy before launch]",
+            "name": "[Name]",
+            "role": "Verified buyer",
+            "rating": 4
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

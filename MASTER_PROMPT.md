@@ -28,7 +28,7 @@ Base theme: **Horizon** (Shopify reference theme, wellness preset). See `BUILD_G
 10. **Medical Advisory Board** — reuse existing bios/credentials, premium trust layout.
 11. **Why Tamarinse** — three animated pillars: Daily Defense / Clean Ingredients / Smarter Delivery.
 12. **Everyday Exposure** — lifestyle photography grid, one message: exposure happens every day.
-13. **Reviews** — luxury layout, testimonials + physician reviews + video stories. *Build the badge/UI to accept real or seeded review data — flag to stakeholders that fabricated reviews are a compliance risk, don't hardcode invented quotes into the template.*
+13. **Reviews** — luxury layout, testimonials + physician reviews + video stories. *Client-approved direction: artificial placeholder reviews until real ones arrive, shipped as editable customizer defaults (never hardcoded in the template) so real reviews are a content swap. Compliance was flagged and resolved as the client's call — see BUILD_GUIDE section 8.*
 14. **FAQ** — reuse existing content.
 15. **Sticky Buy Bar** — appears ~25% scroll depth, persists: bottle thumbnail, price, subscribe & save, add to cart.
 16. **Closing** — large typography, "Microplastics aren't going away. Your daily defense starts with Tamarinse™," final CTA.

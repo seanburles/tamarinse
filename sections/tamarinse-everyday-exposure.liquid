@@ -1,0 +1,170 @@
+{% comment %}
+  Everyday Exposure (MASTER_PROMPT #12) — lifestyle photography, one message.
+  Full-bleed one-subject-per-screen treatment like The Problem (style
+  contract: no collage grids in these two sections). Blocks are individual
+  photographs from the client brief's shot list; the single message overlays
+  the sequence once.
+{% endcomment %}
+
+<section class="tamarinse-everyday" id="TamarinseEveryday-{{ section.id }}">
+  <div class="tamarinse-everyday__message-panel">
+    <h2 class="tamarinse-everyday__message">{{ section.settings.message }}</h2>
+  </div>
+  {%- for block in section.blocks -%}
+    <div class="tamarinse-everyday__panel" {{ block.shopify_attributes }}>
+      {%- if block.settings.image != blank -%}
+        <picture>
+          {%- if block.settings.image_mobile != blank -%}
+            <source
+              media="(max-width: 749px)"
+              srcset="
+                {{ block.settings.image_mobile | image_url: width: 500 }} 500w,
+                {{ block.settings.image_mobile | image_url: width: 800 }} 800w,
+                {{ block.settings.image_mobile | image_url: width: 1200 }} 1200w
+              "
+              sizes="100vw"
+              width="{{ block.settings.image_mobile.width }}"
+              height="{{ block.settings.image_mobile.height }}"
+            >
+          {%- endif -%}
+          {{
+            block.settings.image
+            | image_url: width: 2560
+            | image_tag:
+              widths: '832, 1200, 1600, 1920, 2560',
+              sizes: '100vw',
+              class: 'tamarinse-everyday__image',
+              loading: 'lazy',
+              alt: block.settings.image.alt
+          }}
+        </picture>
+      {%- else -%}
+        <div class="tamarinse-everyday__placeholder">
+          <span>{{ block.settings.caption | default: 'Photography pending' }}</span>
+        </div>
+      {%- endif -%}
+      {%- if block.settings.caption != blank -%}
+        <p class="tamarinse-everyday__caption">{{ block.settings.caption }}</p>
+      {%- endif -%}
+    </div>
+  {%- endfor -%}
+</section>
+
+{% stylesheet %}
+  .tamarinse-everyday {
+    display: block;
+    background: var(--t-ink);
+    color: var(--t-text-hi);
+  }
+
+  .tamarinse-everyday__message-panel {
+    min-height: 70svh;
+    display: grid;
+    place-items: center;
+    padding: var(--t-space-xl) var(--t-space-md);
+  }
+
+  .tamarinse-everyday__message {
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-h2);
+    line-height: var(--t-leading-heading);
+    font-weight: 400;
+    text-align: center;
+    max-width: 18ch;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .tamarinse-everyday__panel {
+    position: relative;
+    min-height: 92svh;
+    overflow: hidden;
+    background: var(--t-ink-soft);
+  }
+
+  .tamarinse-everyday__panel picture,
+  .tamarinse-everyday__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .tamarinse-everyday__placeholder {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: var(--t-text-low);
+    font-size: var(--t-type-small);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-block: 1px solid var(--t-ink-border);
+  }
+
+  .tamarinse-everyday__caption {
+    position: absolute;
+    bottom: var(--t-space-md);
+    left: var(--t-space-md);
+    font-size: var(--t-type-small);
+    color: var(--t-text-mid);
+    letter-spacing: 0.06em;
+    margin: 0;
+    text-shadow: 0 1px 8px rgb(11 11 12 / 60%);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Everyday Exposure",
+  "tag": "section",
+  "class": "tamarinse-everyday-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "message",
+      "label": "Message",
+      "default": "Exposure happens every day."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "photo",
+      "name": "Photograph",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image (landscape, desktop)"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_mobile",
+          "label": "Image (portrait crop, mobile)"
+        },
+        {
+          "type": "text",
+          "id": "caption",
+          "label": "Caption (optional)"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 8,
+  "presets": [
+    {
+      "name": "Everyday Exposure",
+      "category": "Tamarinse",
+      "blocks": [
+        { "type": "photo", "settings": { "caption": "Parents making lunch" } },
+        { "type": "photo", "settings": { "caption": "Coffee shops" } },
+        { "type": "photo", "settings": { "caption": "Takeout meals" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

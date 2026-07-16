@@ -1,0 +1,350 @@
+{% comment %}
+  Tamarinse Hero — full-bleed, centered rotating 3D bottle.
+  Tall wrapper pins a full-viewport stage; the shared scroll controller maps
+  wrapper progress to the bottle's label-forward lock (MASTER_PROMPT sections
+  1-2). All copy is editable; defaults come from CONTENT.md.
+{% endcomment %}
+
+<div
+  class="tamarinse-hero"
+  id="TamarinseHero-{{ section.id }}"
+  style="--hero-scroll-length: {{ section.settings.scroll_length }}vh; --t-bottle-period: {{ section.settings.rotation_seconds }}s;"
+>
+  <div class="tamarinse-hero__sticky">
+    <tamarinse-bottle-scene
+      class="tamarinse-hero__scene"
+      data-scroll-root=".tamarinse-hero"
+      aria-hidden="true"
+    >
+      <div class="tamarinse-hero__fallback">
+        {%- if section.settings.fallback_image != blank -%}
+          {{
+            section.settings.fallback_image
+            | image_url: width: 1200
+            | image_tag:
+              widths: '600, 900, 1200',
+              sizes: '(min-width: 750px) 40vw, 70vw',
+              class: 'tamarinse-hero__fallback-image',
+              alt: section.settings.fallback_image.alt
+          }}
+        {%- else -%}
+          {%- comment -%} Placeholder bottle until brand render is uploaded {%- endcomment -%}
+          <div class="tamarinse-hero__fallback-bottle">
+            <span class="tamarinse-hero__fallback-cap"></span>
+            <span class="tamarinse-hero__fallback-label">
+              <span>TAMARINSE</span>
+            </span>
+          </div>
+        {%- endif -%}
+      </div>
+    </tamarinse-bottle-scene>
+
+    <div class="tamarinse-hero__content">
+      <h1 class="tamarinse-hero__headline">{{ section.settings.headline }}</h1>
+      <p class="tamarinse-hero__subheadline">{{ section.settings.subheadline }}</p>
+      <div class="tamarinse-hero__actions">
+        {%- if section.settings.primary_cta_label != blank -%}
+          <a
+            class="t-btn t-btn--primary"
+            href="{{ section.settings.primary_cta_link | default: routes.all_products_collection_url }}"
+          >
+            {{- section.settings.primary_cta_label -}}
+          </a>
+        {%- endif -%}
+        {%- if section.settings.secondary_cta_label != blank -%}
+          <a
+            class="t-btn t-btn--ghost"
+            href="{{ section.settings.secondary_cta_link | default: '#how-tamarinse-works' }}"
+          >
+            {{- section.settings.secondary_cta_label -}}
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+
+    <div class="tamarinse-hero__scroll-hint" aria-hidden="true">
+      <span class="tamarinse-hero__scroll-hint-line"></span>
+    </div>
+  </div>
+</div>
+
+<script src="{{ 'tamarinse-bottle-scene.js' | asset_url }}" type="module"></script>
+
+{% stylesheet %}
+  .tamarinse-hero {
+    background: var(--t-ink);
+    color: var(--t-text-hi);
+    /* Tall wrapper: the extra height is the scroll range for the label lock */
+    height: calc(100svh + var(--hero-scroll-length, 120vh));
+  }
+
+  .tamarinse-hero__sticky {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding: var(--t-space-lg) var(--t-space-md) calc(var(--t-space-xl) + env(safe-area-inset-bottom));
+    text-align: center;
+  }
+
+  .tamarinse-hero__scene {
+    position: absolute;
+    inset: 0;
+    display: block;
+    z-index: 0;
+  }
+
+  .tamarinse-hero__scene canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Fallback bottle: shown until WebGL activates, and permanently on
+     low-tier devices */
+  .tamarinse-hero__fallback {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity var(--t-dur-slow) var(--t-ease-out);
+  }
+
+  .tamarinse-hero__scene[data-webgl-active] .tamarinse-hero__fallback {
+    opacity: 0;
+  }
+
+  .tamarinse-hero__fallback-image {
+    max-height: 52svh;
+    width: auto;
+    object-fit: contain;
+  }
+
+  .tamarinse-hero__fallback-bottle {
+    position: relative;
+    width: clamp(120px, 22vw, 190px);
+    height: clamp(260px, 46svh, 420px);
+    background: linear-gradient(160deg, #2c1c13, #1a100a 70%);
+    border-radius: 22px 22px 30px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+      inset 8px 0 24px rgb(247 245 240 / 6%),
+      inset -12px 0 28px rgb(0 0 0 / 45%);
+  }
+
+  .tamarinse-hero__fallback-cap {
+    position: absolute;
+    top: -34px;
+    width: 46%;
+    height: 44px;
+    background: #0b0b0c;
+    border-radius: 8px 8px 2px 2px;
+  }
+
+  .tamarinse-hero__fallback-label {
+    width: 88%;
+    padding: 2.2em 0.5em;
+    background: var(--t-cream);
+    color: var(--t-ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--t-font-body);
+    font-size: 0.8rem;
+    letter-spacing: 0.32em;
+    text-indent: 0.32em;
+  }
+
+  /* Legibility scrim: copy sits over the bottle's lower third */
+  .tamarinse-hero__sticky::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 52svh;
+    background: linear-gradient(to top, rgb(11 11 12 / 97%) 38%, transparent);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .tamarinse-hero__content {
+    position: relative;
+    z-index: 2;
+    max-width: var(--t-copy-max);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--t-space-sm);
+  }
+
+  .tamarinse-hero__headline {
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-display);
+    line-height: var(--t-leading-tight);
+    font-weight: 400;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .tamarinse-hero__subheadline {
+    font-family: var(--t-font-body);
+    font-size: var(--t-type-small);
+    line-height: var(--t-leading-body);
+    color: var(--t-text-mid);
+    letter-spacing: 0.06em;
+    margin: 0;
+    max-width: 34rem;
+  }
+
+  .tamarinse-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--t-space-xs);
+    margin-block-start: var(--t-space-sm);
+  }
+
+  .tamarinse-hero__scroll-hint {
+    position: absolute;
+    bottom: calc(var(--t-space-sm) + env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+  }
+
+  .tamarinse-hero__scroll-hint-line {
+    display: block;
+    width: 1px;
+    height: 34px;
+    background: linear-gradient(to bottom, transparent, var(--t-text-low));
+    animation: tamarinse-hero-hint 2.6s var(--t-ease-in-out) infinite;
+    transform-origin: top;
+  }
+
+  @keyframes tamarinse-hero-hint {
+    0%,
+    100% {
+      transform: scaleY(0.55);
+      opacity: 0.4;
+    }
+
+    50% {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tamarinse-hero {
+      /* No scroll story: hero is a single static viewport */
+      height: 100svh;
+    }
+
+    .tamarinse-hero__scroll-hint-line {
+      animation: none;
+    }
+  }
+
+  @media screen and (min-width: 750px) {
+    .tamarinse-hero__sticky {
+      justify-content: flex-end;
+      padding-block-end: var(--t-space-2xl);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Tamarinse Hero",
+  "tag": "section",
+  "class": "tamarinse-hero-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "headline",
+      "label": "Headline",
+      "default": "Daily Defense Against Microplastics™"
+    },
+    {
+      "type": "text",
+      "id": "subheadline",
+      "label": "Subheadline",
+      "default": "Physician Formulated • USDA Organic • Clinically Studied Ingredients. Made in the USA"
+    },
+    {
+      "type": "text",
+      "id": "primary_cta_label",
+      "label": "Primary button label",
+      "default": "Shop Tamarinse™"
+    },
+    {
+      "type": "url",
+      "id": "primary_cta_link",
+      "label": "Primary button link"
+    },
+    {
+      "type": "text",
+      "id": "secondary_cta_label",
+      "label": "Secondary button label",
+      "default": "How It Works"
+    },
+    {
+      "type": "url",
+      "id": "secondary_cta_link",
+      "label": "Secondary button link"
+    },
+    {
+      "type": "header",
+      "content": "Bottle"
+    },
+    {
+      "type": "image_picker",
+      "id": "fallback_image",
+      "label": "Static bottle image",
+      "info": "Shown while the 3D bottle loads, and instead of it on low-end devices or when reduced motion is enabled."
+    },
+    {
+      "type": "range",
+      "id": "rotation_seconds",
+      "label": "Rotation duration",
+      "min": 20,
+      "max": 30,
+      "step": 1,
+      "unit": "s",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "scroll_length",
+      "label": "Label-reveal scroll distance",
+      "min": 60,
+      "max": 200,
+      "step": 10,
+      "unit": "vh",
+      "default": 120,
+      "info": "How far the visitor scrolls while the bottle settles label-forward."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Tamarinse Hero",
+      "category": "Tamarinse"
+    }
+  ]
+}
+{% endschema %}

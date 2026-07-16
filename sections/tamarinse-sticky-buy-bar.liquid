@@ -1,0 +1,287 @@
+{% comment %}
+  Sticky Buy Bar (MASTER_PROMPT #15) — appears at ~25% scroll depth and
+  persists: bottle thumbnail, price, subscribe & save, add to cart.
+  Respects env(safe-area-inset-bottom); Add to Cart sits at the right edge
+  for one-handed thumb reach. Product is a section setting.
+{% endcomment %}
+
+{%- liquid
+  assign product = section.settings.product
+  assign variant = product.selected_or_first_available_variant
+  assign selling_plan = nil
+  for group in product.selling_plan_groups
+    for plan in group.selling_plans
+      assign selling_plan = plan
+      break
+    endfor
+    break
+  endfor
+-%}
+
+{%- if product != blank -%}
+  <tamarinse-sticky-bar
+    class="tamarinse-buybar"
+    id="TamarinseBuyBar-{{ section.id }}"
+    data-trigger-depth="{{ section.settings.trigger_depth | divided_by: 100.0 }}"
+    aria-hidden="true"
+  >
+    <form method="post" action="{{ routes.cart_add_url }}" class="tamarinse-buybar__form" data-buybar-form>
+      <input type="hidden" name="id" value="{{ variant.id }}">
+
+      <div class="tamarinse-buybar__product">
+        {%- if product.featured_media != blank -%}
+          {{
+            product.featured_media.preview_image
+            | image_url: width: 120
+            | image_tag: class: 'tamarinse-buybar__thumb', alt: product.featured_media.preview_image.alt, loading: 'lazy'
+          }}
+        {%- endif -%}
+        <div class="tamarinse-buybar__meta">
+          <span class="tamarinse-buybar__title">{{ product.title }}</span>
+          <span class="tamarinse-buybar__price" data-buybar-price>
+            {{ variant.price | money }}
+          </span>
+        </div>
+      </div>
+
+      {%- if selling_plan and section.settings.show_subscription -%}
+        <fieldset class="tamarinse-buybar__plans">
+          <legend class="visually-hidden">Purchase options</legend>
+          <label class="tamarinse-buybar__plan">
+            <input type="radio" name="selling_plan" value="" checked data-buybar-plan data-price="{{ variant.price }}">
+            <span>{{ section.settings.one_time_label }}</span>
+          </label>
+          <label class="tamarinse-buybar__plan">
+            {%- assign plan_allocation = variant.selling_plan_allocations | where: 'selling_plan_id', selling_plan.id | first -%}
+            <input type="radio" name="selling_plan" value="{{ selling_plan.id }}" data-buybar-plan data-price="{{ plan_allocation.price | default: variant.price }}">
+            <span>{{ section.settings.subscribe_label }}</span>
+          </label>
+        </fieldset>
+      {%- endif -%}
+
+      <button type="submit" class="t-btn t-btn--accent tamarinse-buybar__add" {% unless variant.available %}disabled{% endunless %}>
+        {%- if variant.available -%}
+          {{ section.settings.add_label }}
+        {%- else -%}
+          {{ section.settings.sold_out_label }}
+        {%- endif -%}
+      </button>
+    </form>
+  </tamarinse-sticky-bar>
+
+  <script type="module">
+    if (!customElements.get('tamarinse-sticky-bar')) {
+      customElements.define(
+        'tamarinse-sticky-bar',
+        class extends HTMLElement {
+          #onScroll = () => this.#update();
+          #onPlanChange = (event) => {
+            const input = event.target;
+            if (input.matches('[data-buybar-plan]') && input.dataset.price) {
+              const price = this.querySelector('[data-buybar-price]');
+              if (price) {
+                price.textContent = new Intl.NumberFormat(document.documentElement.lang || 'en', {
+                  style: 'currency',
+                  currency: '{{ cart.currency.iso_code }}',
+                }).format(Number(input.dataset.price) / 100);
+              }
+            }
+          };
+
+          connectedCallback() {
+            this.depth = Number(this.getAttribute('data-trigger-depth')) || 0.25;
+            window.addEventListener('scroll', this.#onScroll, { passive: true });
+            this.addEventListener('change', this.#onPlanChange);
+            this.#update();
+          }
+
+          disconnectedCallback() {
+            window.removeEventListener('scroll', this.#onScroll);
+            this.removeEventListener('change', this.#onPlanChange);
+          }
+
+          #update() {
+            const max = document.documentElement.scrollHeight - innerHeight;
+            const visible = max > 0 && scrollY / max >= this.depth;
+            this.toggleAttribute('data-visible', visible);
+            this.setAttribute('aria-hidden', String(!visible));
+            /* Keep controls out of the tab order while hidden */
+            this.inert = !visible;
+          }
+        }
+      );
+    }
+  </script>
+{%- endif -%}
+
+{% stylesheet %}
+    .tamarinse-buybar {
+      position: fixed;
+      inset: auto 0 0;
+      z-index: 40;
+      background: rgb(11 11 12 / 92%);
+      backdrop-filter: blur(12px);
+      color: var(--t-text-hi);
+      border-block-start: 1px solid var(--t-ink-border);
+      padding: var(--t-space-xs) var(--t-space-md) calc(var(--t-space-xs) + env(safe-area-inset-bottom));
+      transform: translateY(105%);
+      transition: transform var(--t-dur-med) var(--t-ease-out);
+    }
+
+    .tamarinse-buybar[data-visible] {
+      transform: translateY(0);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .tamarinse-buybar {
+        transition: none;
+      }
+    }
+
+    .tamarinse-buybar__form {
+      max-width: var(--t-content-max);
+      margin-inline: auto;
+      display: flex;
+      align-items: center;
+      gap: var(--t-space-sm);
+    }
+
+    .tamarinse-buybar__product {
+      display: flex;
+      align-items: center;
+      gap: var(--t-space-xs);
+      min-width: 0;
+      flex: 1;
+    }
+
+    .tamarinse-buybar__thumb {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+      border-radius: var(--t-radius-sm);
+      background: var(--t-ink-soft);
+      flex: none;
+    }
+
+    .tamarinse-buybar__meta {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .tamarinse-buybar__title {
+      font-size: var(--t-type-small);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tamarinse-buybar__price {
+      font-size: var(--t-type-small);
+      color: var(--t-text-mid);
+    }
+
+    .tamarinse-buybar__plans {
+      display: none;
+      border: 0;
+      padding: 0;
+      margin: 0;
+      gap: var(--t-space-xs);
+    }
+
+    .tamarinse-buybar__plan {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--t-space-2xs);
+      min-height: var(--t-touch-target);
+      padding: 0 var(--t-space-sm);
+      border: 1px solid var(--t-ink-border);
+      border-radius: var(--t-radius-pill);
+      font-size: var(--t-type-small);
+      cursor: pointer;
+    }
+
+    .tamarinse-buybar__plan:has(input:checked) {
+      border-color: var(--t-terracotta);
+      color: var(--t-cream);
+    }
+
+    .tamarinse-buybar__plan input {
+      accent-color: var(--t-terracotta);
+    }
+
+    .tamarinse-buybar__add {
+      flex: none;
+    }
+
+    @media screen and (min-width: 750px) {
+      .tamarinse-buybar__plans {
+        display: flex;
+      }
+    }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Tamarinse Sticky Buy Bar",
+  "tag": "section",
+  "class": "tamarinse-buybar-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Product"
+    },
+    {
+      "type": "range",
+      "id": "trigger_depth",
+      "label": "Appear after scroll depth",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "unit": "%",
+      "default": 25
+    },
+    {
+      "type": "checkbox",
+      "id": "show_subscription",
+      "label": "Show subscribe & save option",
+      "default": true,
+      "info": "Requires a subscription app selling plan on the product."
+    },
+    {
+      "type": "text",
+      "id": "one_time_label",
+      "label": "One-time label",
+      "default": "One-time"
+    },
+    {
+      "type": "text",
+      "id": "subscribe_label",
+      "label": "Subscribe label",
+      "default": "Subscribe & Save"
+    },
+    {
+      "type": "text",
+      "id": "add_label",
+      "label": "Add to cart label",
+      "default": "Add to Cart"
+    },
+    {
+      "type": "text",
+      "id": "sold_out_label",
+      "label": "Sold out label",
+      "default": "Sold out"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Tamarinse Sticky Buy Bar",
+      "category": "Tamarinse"
+    }
+  ]
+}
+{% endschema %}

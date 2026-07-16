@@ -3,7 +3,12 @@
 Everything here is an open item already flagged somewhere in BUILD_GUIDE.md / MASTER_PROMPT.md / CONTENT.md — collected in one place so nothing gets lost between now and launch.
 
 ## Content / Legal
-- [ ] Reviews section populated with real or seeded reviews — not fabricated quotes/ratings
+- [ ] "Five plant-based ingredients" in Meet Tamarinse copy vs. six listed ingredients — confirm intended count with client (see CONTENT.md flag)
+- [ ] Reviews: artificial placeholders swapped for real reviews when the client has them (client-approved placeholder strategy — see BUILD_GUIDE section 8; compliance was flagged and is the client's call)
+- [ ] Featured research orgs banner — confirm text-only vs. logos (logo use requires each org's permission)
+- [ ] Quiz weighting reviewed against client's stated goal (typical respondent lands on "High") without making it feel rigged
+- [ ] Homepage + product page meta title/description set in admin, targeting microplastics defense (BUILD_GUIDE section 7)
+- [ ] FAQ section outputs FAQPage structured data; alt text populated on all photography blocks
 - [ ] "2026 Earth Prize winner" claim — verify documentation exists before publishing
 - [ ] Statistics in "The Problem" section — sourced and cited, not placeholder numbers
 - [ ] Naturally Eliminates* footnote — exact disclaimer wording confirmed with client/legal

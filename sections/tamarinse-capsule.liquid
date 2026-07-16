@@ -1,0 +1,404 @@
+{% comment %}
+  Interactive Capsule — signature scroll-driven sequence (MASTER_PROMPT #6).
+  Capsule separates → delayed-release copy → six ingredients reveal one at a
+  time → capsule closes.
+
+  Ingredient data: connect the "Ingredients" metaobject list setting
+  (Content > Metaobjects > Ingredient, see metaobjects/ingredient-definition.md).
+  Until those entries exist, the section falls back to its editable ingredient
+  blocks (defaults seeded from data/ingredients.json).
+{% endcomment %}
+
+{%- liquid
+  assign use_metaobjects = false
+  if section.settings.ingredients != blank and section.settings.ingredients.count > 0
+    assign use_metaobjects = true
+  endif
+-%}
+
+<tamarinse-capsule-sequence
+  class="tamarinse-capsule"
+  id="TamarinseCapsule-{{ section.id }}"
+  style="--capsule-scroll-length: {{ section.settings.scroll_length }}vh;"
+>
+  <div class="tamarinse-capsule__sticky">
+    <p class="t-eyebrow tamarinse-capsule__eyebrow">{{ section.settings.eyebrow }}</p>
+
+    <div class="tamarinse-capsule__stage" aria-hidden="true">
+      <div class="tamarinse-capsule__half tamarinse-capsule__half--top">
+        <span class="tamarinse-capsule__shell"></span>
+      </div>
+      <div class="tamarinse-capsule__reveal">
+        {%- if use_metaobjects -%}
+          {%- for ingredient in section.settings.ingredients -%}
+            <span class="tamarinse-capsule__ingredient" data-capsule-ingredient>
+              <strong>{{ ingredient.name }}</strong>
+              <em>{{ ingredient.what_it_is }}</em>
+            </span>
+          {%- endfor -%}
+        {%- else -%}
+          {%- for block in section.blocks -%}
+            <span class="tamarinse-capsule__ingredient" data-capsule-ingredient {{ block.shopify_attributes }}>
+              <strong>{{ block.settings.name }}</strong>
+              <em>{{ block.settings.description }}</em>
+            </span>
+          {%- endfor -%}
+        {%- endif -%}
+      </div>
+      <div class="tamarinse-capsule__half tamarinse-capsule__half--bottom">
+        <span class="tamarinse-capsule__shell"></span>
+      </div>
+    </div>
+
+    <div class="tamarinse-capsule__copy">
+      <p class="tamarinse-capsule__layer-one">
+        <strong>{{ section.settings.layer_one_title }}</strong>
+        {{ section.settings.layer_one_text }}
+      </p>
+      <div class="tamarinse-capsule__dots" aria-hidden="true">
+        {%- liquid
+          assign dot_count = section.blocks.size
+          if use_metaobjects
+            assign dot_count = section.settings.ingredients.count
+          endif
+        -%}
+        {%- for i in (1..dot_count) -%}
+          <span class="tamarinse-capsule__dot" data-capsule-dot></span>
+        {%- endfor -%}
+      </div>
+    </div>
+
+    {%- comment -%} Accessible/SEO version of the reveal content {%- endcomment -%}
+    <ul class="visually-hidden">
+      {%- if use_metaobjects -%}
+        {%- for ingredient in section.settings.ingredients -%}
+          <li>{{ ingredient.name }} — {{ ingredient.what_it_is }}</li>
+        {%- endfor -%}
+      {%- else -%}
+        {%- for block in section.blocks -%}
+          <li>{{ block.settings.name }} — {{ block.settings.description }}</li>
+        {%- endfor -%}
+      {%- endif -%}
+    </ul>
+  </div>
+</tamarinse-capsule-sequence>
+
+<script src="{{ 'tamarinse-capsule-timeline.js' | asset_url }}" type="module"></script>
+
+{% stylesheet %}
+  .tamarinse-capsule {
+    display: block;
+    background: var(--t-ink);
+    color: var(--t-text-hi);
+    height: calc(100svh + var(--capsule-scroll-length, 400vh));
+    --capsule-separation: 0;
+  }
+
+  .tamarinse-capsule__sticky {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--t-space-lg);
+    padding: var(--t-space-lg) var(--t-space-md);
+    text-align: center;
+  }
+
+  .tamarinse-capsule__eyebrow {
+    color: var(--t-text-low);
+    margin: 0;
+  }
+
+  .tamarinse-capsule__stage {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: min(52svh, 480px);
+    width: 100%;
+  }
+
+  .tamarinse-capsule__half {
+    position: relative;
+    z-index: 1;
+    transition: transform 80ms linear;
+  }
+
+  .tamarinse-capsule__half--top {
+    transform: translateY(calc(var(--capsule-separation) * min(-16svh, -90px)));
+  }
+
+  .tamarinse-capsule__half--bottom {
+    transform: translateY(calc(var(--capsule-separation) * min(16svh, 90px)));
+  }
+
+  .tamarinse-capsule__shell {
+    display: block;
+    width: clamp(90px, 18vw, 150px);
+    height: clamp(110px, 22vw, 190px);
+    background: linear-gradient(150deg, #c8b9a4, #9c8a72 80%);
+    box-shadow:
+      inset 10px 0 22px rgb(247 245 240 / 22%),
+      inset -14px -6px 26px rgb(0 0 0 / 32%);
+  }
+
+  .tamarinse-capsule__half--top .tamarinse-capsule__shell {
+    border-radius: 999px 999px 14px 14px;
+    background: linear-gradient(150deg, #b3653f, #8a4127 80%);
+  }
+
+  .tamarinse-capsule__half--bottom .tamarinse-capsule__shell {
+    border-radius: 14px 14px 999px 999px;
+  }
+
+  .tamarinse-capsule__reveal {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    z-index: 0;
+  }
+
+  .tamarinse-capsule__ingredient {
+    grid-area: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--t-space-2xs);
+    max-width: var(--t-copy-max);
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+      opacity var(--t-dur-med) var(--t-ease-out),
+      transform var(--t-dur-med) var(--t-ease-out);
+    pointer-events: none;
+  }
+
+  .tamarinse-capsule__ingredient[data-active] {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .tamarinse-capsule__ingredient strong {
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-h3);
+    line-height: var(--t-leading-heading);
+    font-weight: 400;
+  }
+
+  .tamarinse-capsule__ingredient em {
+    font-style: normal;
+    font-size: var(--t-type-body);
+    line-height: var(--t-leading-body);
+    color: var(--t-text-mid);
+  }
+
+  .tamarinse-capsule__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--t-space-sm);
+    min-height: 7rem;
+  }
+
+  .tamarinse-capsule__layer-one {
+    max-width: var(--t-copy-max);
+    font-size: var(--t-type-body-lg);
+    line-height: var(--t-leading-body);
+    color: var(--t-text-mid);
+    margin: 0;
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+      opacity var(--t-dur-med) var(--t-ease-out),
+      transform var(--t-dur-med) var(--t-ease-out);
+  }
+
+  .tamarinse-capsule__layer-one strong {
+    display: block;
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-h3);
+    font-weight: 400;
+    color: var(--t-text-hi);
+    margin-block-end: var(--t-space-2xs);
+  }
+
+  .tamarinse-capsule[data-phase='open'] .tamarinse-capsule__layer-one,
+  .tamarinse-capsule[data-static] .tamarinse-capsule__layer-one {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .tamarinse-capsule__dots {
+    display: flex;
+    gap: var(--t-space-xs);
+    opacity: 0;
+    transition: opacity var(--t-dur-med) var(--t-ease-out);
+  }
+
+  .tamarinse-capsule[data-phase='ingredient'] .tamarinse-capsule__dots,
+  .tamarinse-capsule[data-phase='after'] .tamarinse-capsule__dots {
+    opacity: 1;
+  }
+
+  .tamarinse-capsule__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--t-text-low);
+    opacity: 0.35;
+    transition: opacity var(--t-dur-fast) var(--t-ease-out);
+  }
+
+  .tamarinse-capsule__dot[data-active] {
+    opacity: 1;
+    background: var(--t-terracotta);
+  }
+
+  /* Reduced motion: static open capsule, everything visible, natural height */
+  .tamarinse-capsule[data-static] {
+    height: auto;
+    --capsule-separation: 1;
+  }
+
+  .tamarinse-capsule[data-static] .tamarinse-capsule__sticky {
+    position: static;
+    height: auto;
+    min-height: 100svh;
+  }
+
+  .tamarinse-capsule[data-static] .tamarinse-capsule__ingredient {
+    position: static;
+    opacity: 1;
+    transform: none;
+  }
+
+  .tamarinse-capsule[data-static] .tamarinse-capsule__reveal {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    gap: var(--t-space-md);
+    padding: var(--t-space-md) 0;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Tamarinse Capsule",
+  "tag": "section",
+  "class": "tamarinse-capsule-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Inside the capsule"
+    },
+    {
+      "type": "text",
+      "id": "layer_one_title",
+      "label": "Layer one title",
+      "default": "Delayed-Release Capsule"
+    },
+    {
+      "type": "textarea",
+      "id": "layer_one_text",
+      "label": "Layer one text",
+      "default": "Designed to bypass stomach acid before releasing its ingredients where they're intended to work."
+    },
+    {
+      "type": "metaobject_list",
+      "id": "ingredients",
+      "label": "Ingredients (metaobject)",
+      "metaobject_type": "ingredient",
+      "info": "When connected, these replace the ingredient blocks below so all sections share one editable list."
+    },
+    {
+      "type": "range",
+      "id": "scroll_length",
+      "label": "Sequence scroll distance",
+      "min": 200,
+      "max": 700,
+      "step": 50,
+      "unit": "vh",
+      "default": 400
+    }
+  ],
+  "blocks": [
+    {
+      "type": "ingredient",
+      "name": "Ingredient",
+      "settings": [
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Name"
+        },
+        {
+          "type": "text",
+          "id": "description",
+          "label": "One-line description"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 8,
+  "presets": [
+    {
+      "name": "Tamarinse Capsule",
+      "category": "Tamarinse",
+      "blocks": [
+        {
+          "type": "ingredient",
+          "settings": {
+            "name": "Tamarind Seed Extract",
+            "description": "A natural polysaccharide extracted from tamarind seeds."
+          }
+        },
+        {
+          "type": "ingredient",
+          "settings": {
+            "name": "Okra Polysaccharides",
+            "description": "A soluble plant polysaccharide naturally found in okra."
+          }
+        },
+        {
+          "type": "ingredient",
+          "settings": {
+            "name": "Fenugreek Extract",
+            "description": "A source of soluble galactomannan polysaccharides."
+          }
+        },
+        {
+          "type": "ingredient",
+          "settings": {
+            "name": "Activated Coconut Charcoal",
+            "description": "An ultra-porous activated carbon derived from coconut shells."
+          }
+        },
+        {
+          "type": "ingredient",
+          "settings": {
+            "name": "Organic Chlorella",
+            "description": "A nutrient-rich freshwater green algae."
+          }
+        },
+        {
+          "type": "ingredient",
+          "settings": {
+            "name": "Milk Thistle Extract",
+            "description": "A standardized extract containing silymarin."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

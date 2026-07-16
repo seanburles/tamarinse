@@ -40,6 +40,8 @@ Tamarinse is the first premium supplement built around tamarind seed extract for
 **Result tiers:** Low / Moderate / High / Very High
 **Result display copy:** "Your estimated exposure is [tier]."
 
+*(Client brief: a "High" result is the intended outcome for typical respondents — tune question weights so common exposure patterns land there. Brief also says "10–12 simple questions" but supplies 15; questions are editable blocks, so ship all 15 and let the client trim.)*
+
 ## How Tamarinse™ Works — Timeline Steps
 
 **Exposure**
@@ -81,6 +83,8 @@ Every ingredient in Tamarinse™ was selected for a specific purpose. Each ingre
 **Section close copy:**
 "Every Ingredient. Every Purpose. Unlike formulas that rely on a single 'hero ingredient,' Tamarinse™ combines multiple plant-derived compounds supported by research from leading scientific institutions and peer-reviewed journals. Every ingredient is included for a reason. Every claim is backed by published research."
 
+**Featured research orgs banner** (client brief's "featured companies Banner"): renders with the section close, listing the eight orgs in `data/ingredients.json` → `featuredResearchOrgs`. Text/logo treatment, not third-party logos we don't have rights to — confirm any logo usage with client.
+
 ## Quality Standards (icon row labels)
 
 - USDA Organic
@@ -95,9 +99,15 @@ Every ingredient in Tamarinse™ was selected for a specific purpose. Each ingre
 **Clean Ingredients** — Plant-based, physician formulated, and clinically studied.
 **Smarter Delivery** — Delayed-release technology helps deliver ingredients where they're intended to work.
 
+## The Problem — Imagery Shot List (from client brief)
+
+One subject per screen, full-bleed: plastic food containers, bottled water, drinking water, air, household plastics, children, everyday consumer products. (Statistics still pending sourcing — see below.)
+
 ## Everyday Exposure — Section Message
 
 Exposure happens every day.
+
+**Imagery shot list (from client brief):** parents making lunch, office workers, coffee shops, airports, gym bags, plastic water bottles, takeout meals, grocery shopping.
 
 ## Closing Section
 
@@ -109,7 +119,8 @@ Microplastics aren't going away. Your daily defense starts with Tamarinse™.
 
 ## Not Yet Approved Copy (flag before writing)
 
+- **"Five plant-based ingredients" vs. six ingredients**: the Meet Tamarinse positioning line above says the formula "combines five plant-based ingredients," but the capsule reveal, ingredient science section, and `data/ingredients.json` all list six (Tamarind Seed Extract, Okra Polysaccharides, Fenugreek Extract, Activated Coconut Charcoal, Organic Chlorella, Milk Thistle Extract). Possibly intentional ("built around tamarind" + five others), but confirm with client which count is correct before this line ships — using the copy verbatim as-is until then.
 - The Problem section: statistics to display are not yet specified in the brief — need real, cited sources before these go live (avoid inventing figures).
-- Reviews section: no real review content provided — see BUILD_GUIDE.md open decisions.
+- Reviews section: client-approved strategy is artificial placeholder reviews (as editable customizer defaults) until real reviews arrive — see BUILD_GUIDE.md section 8. Placeholder quotes still need to be written/approved by the client; don't invent them silently in a template.
 - "2026 Earth Prize winner" claim: verify documentation exists before publishing.
 - Medical Advisory Board bios: reusing existing content per brief — pull from current Tamarinse.com, don't draft new bios.

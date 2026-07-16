@@ -28,18 +28,17 @@ shopify theme dev --store <dev-store>.myshopify.com
 ## 2. Repo / Folder Structure
 
 ```
-tamarinse-theme/
-  assets/
-    webgl/
-      bottle-scene.js        # Three.js scene, isolated module
-      bottle-loader.js        # GLTF/GLB loading + draco decoder
-      capsule-timeline.js      # scroll-triggered capsule open/ingredient reveal
-      scroll-controller.js    # shared scroll-progress utility (IntersectionObserver based)
-    models/
-      tamarinse-bottle.glb
-      capsule.glb
-    css/
-      tamarinse-tokens.css     # design tokens (see STYLE section in master prompt)
+tamarinse-dev-horizon/
+  assets/                          # Shopify requires assets/ to be FLAT — no subdirectories.
+                                   # All custom files use a `tamarinse-` prefix to stay
+                                   # distinguishable from Horizon's ~120 stock assets.
+    tamarinse-tokens.css           # design tokens (see STYLE section in master prompt)
+    tamarinse-bottle-scene.js      # Three.js scene, isolated module
+    tamarinse-bottle-loader.js     # GLTF/GLB loading + draco decoder
+    tamarinse-capsule-timeline.js  # scroll-triggered capsule open/ingredient reveal
+    tamarinse-scroll-controller.js # shared scroll-progress utility (IntersectionObserver based)
+    tamarinse-bottle.glb
+    tamarinse-capsule.glb
   sections/
     hero-bottle.liquid
     exposure-assessment.liquid
@@ -100,7 +99,7 @@ Hard requirement for this project: the client needs to update copy, ingredients,
 **Section/block schema settings — for page-specific copy.** Everything else (hero headline/subhead, quiz questions, timeline step copy, pillar copy, quality standard labels, closing section copy) should be `text`/`richtext`/`image_picker` settings on the relevant section's schema, ideally block-based where content repeats (e.g. each quiz question as its own block with `text` + `number` weight setting, each timeline step as its own block). This makes the entire homepage editable section-by-section in the customizer, matching `CONTENT.md`'s structure — that file's copy becomes each section's *default* setting value, not a code constant.
 
 - **Exposure assessment**: model each question as a block (`question` text setting + `weight` number setting) so the client can add/remove/reword questions without a deploy. Scoring logic in JS reads block data from the rendered DOM/schema output rather than a hardcoded array — keep the weighted-sum logic itself as pure, testable JS, just don't hardcode the question list into that JS.
-- **Reviews badge**: build the UI to accept rating + count + source label as section settings (with room to swap in a real review-platform app feed — Judge.me, Okendo, Loox — later without a rebuild). Flag to the client that seeded/soft-launch real reviews are safer than fabricated ones.
+- **Reviews badge + reviews section**: rating, count, and source label are section settings; each review (quote, name, rating, optional role like "Physician") is its own block. Per client direction (see section 8), artificial placeholder reviews go in as *default block values* — editable/removable in the customizer, never hardcoded — and get replaced with real reviews or a review-platform app feed (Judge.me, Okendo, Loox) when available.
 - **Stats in "The Problem" section**: block-based (one block per statistic + source citation field) rather than hardcoded, since these need real sourcing before launch per `CONTENT.md`'s open items and are the kind of content most likely to get updated as sourcing is confirmed.
 
 ---
@@ -148,8 +147,20 @@ shopify theme pull --environment dev
 
 ---
 
-## 7. Open Decisions to Confirm With Client
+## 7. SEO Requirements (from client brief)
 
-- Real vs. seeded reviews strategy (flagged above).
+The client brief calls out "SEO Friendly (in regards to Microplastics)" as a requirement. Concretely for this build:
+
+- Real text in the DOM for every section — headlines, quiz copy, timeline steps, and ingredient copy must be rendered HTML (Liquid), never text baked into canvas/WebGL or images. The animated layer decorates the content; it is not the content.
+- Proper heading hierarchy: one `h1` (hero headline "Daily Defense Against Microplastics™"), section titles as `h2`, ingredient/step names as `h3` — don't let visual styling drive heading levels.
+- Meta title/description for homepage and product page targeting microplastics-defense phrasing — set via Shopify admin search-engine-listing fields, keep editable, don't hardcode in `theme.liquid`.
+- Structured data: Horizon already outputs Product JSON-LD; add FAQ schema (`FAQPage`) to the FAQ section since that content exists and targets question-style microplastics searches.
+- Descriptive `alt` text settings on every image_picker (the Problem / Everyday Exposure photography especially) — make alt an editable setting per block, not auto-generated.
+- Performance is ranking-relevant: the Core Web Vitals guardrails in section 5 double as the SEO budget — lazy WebGL init and image `srcset` discipline keep LCP/INP in range on the animation-heavy page.
+
+## 8. Open Decisions to Confirm With Client
+
+- ~~Real vs. seeded reviews strategy~~ **RESOLVED 2026-07-16**: per client direction, artificial reviews ship as *placeholder* content until real reviews arrive. Compliance risk was flagged; legal is the client's responsibility, not this build's. Implementation rule: placeholders live as editable default block/section settings in the customizer (never hardcoded in Liquid/JS), so swapping in real reviews later is a content edit, not a deploy. Structure stays compatible with a review-platform feed (Judge.me, Okendo, Loox) for when real reviews exist.
+- Client brief also asks for a "featured companies Banner" — interpreted as the featured research orgs strip (see `data/ingredients.json` → `featuredResearchOrgs` and CONTENT.md). Confirm text-only treatment vs. logos (logo use needs each org's permission).
 - Whether "Earth Prize 2026 winner" and specific research org claims have backing documentation on file — these are the kind of specific factual claims that should be verifiable before launch, separate from the general "supports/designed to" supplement hedge language already in the copy.
 - Medical advisory board: reusing existing bios/credentials as-is, or refreshing photography/copy for the new site.
