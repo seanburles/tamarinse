@@ -16,29 +16,76 @@
   endif
 -%}
 
+{%- comment -%} Ingredient icons — one per default block order {%- endcomment -%}
+{%- capture icon_1 -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><ellipse cx="12" cy="12" rx="6" ry="9"/><path d="M9 4c1.5 4 1.5 12 0 16"/></svg>{%- endcapture -%}
+{%- capture icon_2 -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="12" r="4"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="12" r="4"/></svg>{%- endcapture -%}
+{%- capture icon_3 -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V10"/><path d="M5 4c0 6 7 8 7 8"/><path d="M19 4c0 6-7 8-7 8"/></svg>{%- endcapture -%}
+{%- capture icon_4 -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7Z"/><path d="m12 12 9-5" stroke-linecap="round"/><path d="m12 12-9-5" stroke-linecap="round"/><path d="M12 12v10" stroke-linecap="round"/></svg>{%- endcapture -%}
+{%- capture icon_5 -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg>{%- endcapture -%}
+{%- capture icon_6 -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 0-8 7.5-8 13a8 8 0 0 0 16 0c0-5.5-8-13-8-13Z"/><path d="M12 22v-7"/><path d="M9 18c1.5-2 3-3 3-5"/><path d="M15 18c-1.5-2-3-3-3-5"/></svg>{%- endcapture -%}
+
 <tamarinse-capsule-sequence
   class="tamarinse-capsule"
   id="TamarinseCapsule-{{ section.id }}"
   style="--capsule-scroll-length: {{ section.settings.scroll_length }}vh;"
 >
   <div class="tamarinse-capsule__sticky">
+    {%- comment -%} Decorative ring accents behind the capsule {%- endcomment -%}
+    <span class="tamarinse-capsule__ring tamarinse-capsule__ring--1" aria-hidden="true"></span>
+    <span class="tamarinse-capsule__ring tamarinse-capsule__ring--2" aria-hidden="true"></span>
+
     <p class="t-eyebrow tamarinse-capsule__eyebrow">{{ section.settings.eyebrow }}</p>
 
     <div class="tamarinse-capsule__stage" aria-hidden="true">
+      {%- comment -%} Particle burst on capsule split {%- endcomment -%}
+      <div class="tamarinse-capsule__particles">
+        {%- for i in (1..15) -%}
+          {%- assign idx = i | minus: 1 -%}
+          {%- assign mod3 = idx | modulo: 3 -%}
+          {%- assign mod5 = idx | modulo: 5 -%}
+          {%- assign dist = mod3 | times: 30 | plus: 50 -%}
+          {%- assign psize = mod5 | plus: 2 -%}
+          <span class="tamarinse-capsule__particle" style="--i:{{ idx }};--d:{{ dist }}px;--s:{{ psize }}px;"></span>
+        {%- endfor -%}
+      </div>
+
       <div class="tamarinse-capsule__half tamarinse-capsule__half--top">
-        <span class="tamarinse-capsule__shell"></span>
+        <span class="tamarinse-capsule__shell">
+          <span class="tamarinse-capsule__shine"></span>
+          <span class="tamarinse-capsule__band"></span>
+        </span>
       </div>
       <div class="tamarinse-capsule__reveal">
         {%- if use_metaobjects -%}
           {%- for ingredient in section.settings.ingredients -%}
+            {%- assign current_icon = '' -%}
+            {%- case forloop.index -%}
+              {%- when 1 -%}{%- assign current_icon = icon_1 -%}
+              {%- when 2 -%}{%- assign current_icon = icon_2 -%}
+              {%- when 3 -%}{%- assign current_icon = icon_3 -%}
+              {%- when 4 -%}{%- assign current_icon = icon_4 -%}
+              {%- when 5 -%}{%- assign current_icon = icon_5 -%}
+              {%- when 6 -%}{%- assign current_icon = icon_6 -%}
+            {%- endcase -%}
             <span class="tamarinse-capsule__ingredient" data-capsule-ingredient>
+              <span class="tamarinse-capsule__icon" aria-hidden="true">{{ current_icon }}</span>
               <strong>{{ ingredient.name }}</strong>
               <em>{{ ingredient.what_it_is }}</em>
             </span>
           {%- endfor -%}
         {%- else -%}
           {%- for block in section.blocks -%}
+            {%- assign current_icon = '' -%}
+            {%- case forloop.index -%}
+              {%- when 1 -%}{%- assign current_icon = icon_1 -%}
+              {%- when 2 -%}{%- assign current_icon = icon_2 -%}
+              {%- when 3 -%}{%- assign current_icon = icon_3 -%}
+              {%- when 4 -%}{%- assign current_icon = icon_4 -%}
+              {%- when 5 -%}{%- assign current_icon = icon_5 -%}
+              {%- when 6 -%}{%- assign current_icon = icon_6 -%}
+            {%- endcase -%}
             <span class="tamarinse-capsule__ingredient" data-capsule-ingredient {{ block.shopify_attributes }}>
+              <span class="tamarinse-capsule__icon" aria-hidden="true">{{ current_icon }}</span>
               <strong>{{ block.settings.name }}</strong>
               <em>{{ block.settings.description }}</em>
             </span>
@@ -46,7 +93,9 @@
         {%- endif -%}
       </div>
       <div class="tamarinse-capsule__half tamarinse-capsule__half--bottom">
-        <span class="tamarinse-capsule__shell"></span>
+        <span class="tamarinse-capsule__shell">
+          <span class="tamarinse-capsule__shine"></span>
+        </span>
       </div>
     </div>
 
@@ -94,6 +143,7 @@
     --capsule-separation: 0;
   }
 
+  /* ── Sticky container ── */
   .tamarinse-capsule__sticky {
     position: sticky;
     top: 0;
@@ -103,75 +153,226 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: var(--t-space-md);
-    padding: calc(var(--header-height, 64px) + var(--t-space-md)) var(--t-space-md) var(--t-space-lg);
+    gap: var(--t-space-xs);
+    padding: calc(var(--header-height, 64px) + var(--t-space-xs)) var(--t-space-md) var(--t-space-sm);
     text-align: center;
   }
 
+  /* ── Decorative rings ── */
+  .tamarinse-capsule__ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.05);
+    pointer-events: none;
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease;
+    opacity: 0;
+  }
+  .tamarinse-capsule__ring--1 {
+    width: min(50vw, 380px);
+    height: min(50vw, 380px);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .tamarinse-capsule__ring--2 {
+    width: min(70vw, 530px);
+    height: min(70vw, 530px);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .tamarinse-capsule[data-phase='open'] .tamarinse-capsule__ring,
+  .tamarinse-capsule[data-phase='ingredient'] .tamarinse-capsule__ring,
+  .tamarinse-capsule[data-phase='after'] .tamarinse-capsule__ring {
+    opacity: 1;
+  }
+  .tamarinse-capsule[data-phase='ingredient'] .tamarinse-capsule__ring--1 {
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+  .tamarinse-capsule[data-phase='ingredient'] .tamarinse-capsule__ring--2 {
+    transform: translate(-50%, -50%) scale(1.03);
+  }
+
+  /* ── Eyebrow ── */
   .tamarinse-capsule__eyebrow {
+    position: relative;
+    z-index: 5;
     color: var(--t-text-low);
     margin: 0;
   }
 
+  /* ── Stage: houses the two halves + reveal text ── */
   .tamarinse-capsule__stage {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: min(44svh, 420px);
     width: 100%;
   }
 
+  /* ── Capsule halves ── */
   .tamarinse-capsule__half {
     position: relative;
-    z-index: 1;
+    z-index: 2;
     transition: transform 80ms linear;
+    flex-shrink: 0;
   }
 
+  /* Each half travels at least 110px (more on tall viewports) so the reveal
+     text block fits inside the gap between the halves. */
   .tamarinse-capsule__half--top {
-    transform: translateY(calc(var(--capsule-separation) * min(-16svh, -90px)));
+    transform: translateY(calc(var(--capsule-separation) * min(-14svh, -110px)));
   }
 
   .tamarinse-capsule__half--bottom {
-    transform: translateY(calc(var(--capsule-separation) * min(16svh, 90px)));
+    transform: translateY(calc(var(--capsule-separation) * max(14svh, 110px)));
   }
 
+  /* ── Shell ── */
   .tamarinse-capsule__shell {
     display: block;
-    width: clamp(90px, 18vw, 150px);
-    height: clamp(110px, 22vw, 190px);
-    background: linear-gradient(150deg, #ddd2bc, #b6a888 80%);
-    box-shadow:
-      inset 10px 0 22px rgb(255 255 255 / 45%),
-      inset -14px -6px 26px rgb(22 26 24 / 18%);
+    position: relative;
+    width: clamp(72px, 12vw, 108px);
+    height: clamp(88px, 14vw, 128px);
+    border: 1px solid rgb(180 170 140 / 0.25);
   }
 
   .tamarinse-capsule__half--top .tamarinse-capsule__shell {
-    border-radius: 999px 999px 14px 14px;
-    background: linear-gradient(150deg, #c3b391, #9a8a68 80%);
+    border-radius: 999px 999px 4px 4px;
+    background:
+      linear-gradient(165deg,
+        #cfc4a5 0%,
+        #bfb38e 30%,
+        #a89a74 70%,
+        #98895e 100%
+      );
+    box-shadow:
+      inset 6px 0 14px rgb(255 255 255 / 0.35),
+      inset -8px -3px 16px rgb(30 30 20 / 0.2),
+      0 -3px 16px rgb(170 160 120 / 0.12);
+    border-bottom: none;
   }
 
   .tamarinse-capsule__half--bottom .tamarinse-capsule__shell {
-    border-radius: 14px 14px 999px 999px;
+    border-radius: 4px 4px 999px 999px;
+    background:
+      linear-gradient(165deg,
+        #e0d7c2 0%,
+        #d4c9af 30%,
+        #c4b897 70%,
+        #b8ab8a 100%
+      );
+    box-shadow:
+      inset 6px 0 14px rgb(255 255 255 / 0.4),
+      inset -8px 3px 16px rgb(30 30 20 / 0.14),
+      0 4px 18px rgb(170 160 120 / 0.15);
+    border-top: none;
   }
 
+  /* Glossy highlight streak */
+  .tamarinse-capsule__shine {
+    position: absolute;
+    top: 12%;
+    left: 18%;
+    width: 26%;
+    height: 58%;
+    background: linear-gradient(
+      180deg,
+      rgb(255 255 255 / 0.4) 0%,
+      rgb(255 255 255 / 0.08) 50%,
+      transparent 100%
+    );
+    border-radius: 999px;
+    pointer-events: none;
+  }
+
+  .tamarinse-capsule__half--bottom .tamarinse-capsule__shine {
+    top: 20%;
+    height: 50%;
+    background: linear-gradient(
+      180deg,
+      rgb(255 255 255 / 0.3) 0%,
+      rgb(255 255 255 / 0.06) 50%,
+      transparent 100%
+    );
+  }
+
+  /* Seam band at the meeting edge of the top half */
+  .tamarinse-capsule__band {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg,
+      rgb(160 150 120 / 0.25),
+      rgb(200 190 160 / 0.45) 40%,
+      rgb(160 150 120 / 0.25)
+    );
+  }
+
+  /* ── Particle burst ── */
+  .tamarinse-capsule__particles {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .tamarinse-capsule__particle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--s, 3px);
+    height: var(--s, 3px);
+    border-radius: 50%;
+    background: rgb(180 170 140 / 0.4);
+    opacity: 0;
+    transform: rotate(calc(var(--i, 0) * 24deg)) translateY(calc(var(--capsule-separation, 0) * var(--d, 60px) * -1));
+    transition: opacity 0.6s ease calc(var(--i, 0) * 40ms);
+    will-change: transform;
+  }
+
+  .tamarinse-capsule[data-phase='open'] .tamarinse-capsule__particle {
+    opacity: 0.7;
+  }
+
+  .tamarinse-capsule[data-phase='ingredient'] .tamarinse-capsule__particle {
+    opacity: 0.15;
+    transition: opacity 1.2s ease;
+  }
+
+  .tamarinse-capsule[data-phase='after'] .tamarinse-capsule__particle,
+  .tamarinse-capsule[data-phase='closing'] .tamarinse-capsule__particle {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  /* ── Reveal area between halves ── */
   .tamarinse-capsule__reveal {
     position: absolute;
-    inset: 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(92%, 420px);
     display: grid;
     place-items: center;
-    z-index: 0;
+    /* Above the halves (z 2): a long description must never be swallowed
+       behind the bottom pill half. */
+    z-index: 3;
   }
 
   .tamarinse-capsule__ingredient {
     grid-area: 1 / 1;
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: var(--t-space-2xs);
     max-width: var(--t-copy-max);
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(10px);
     transition:
       opacity var(--t-dur-med) var(--t-ease-out),
       transform var(--t-dur-med) var(--t-ease-out);
@@ -183,11 +384,36 @@
     transform: translateY(0);
   }
 
+  /* ── Icon badge ── */
+  .tamarinse-capsule__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgb(var(--color-foreground-rgb) / 0.04);
+    color: var(--t-accent);
+    flex-shrink: 0;
+    transform: scale(0.5);
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .tamarinse-capsule__ingredient[data-active] .tamarinse-capsule__icon {
+    transform: scale(1);
+  }
+
+  .tamarinse-capsule__icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
   .tamarinse-capsule__ingredient strong {
     font-family: var(--t-font-heading);
     font-size: var(--t-type-h3);
     line-height: var(--t-leading-heading);
     font-weight: var(--t-weight-subheading);
+    text-wrap: balance;
   }
 
   .tamarinse-capsule__ingredient em {
@@ -195,14 +421,19 @@
     font-size: var(--t-type-body);
     line-height: var(--t-leading-body);
     color: var(--t-text-mid);
+    text-wrap: pretty;
+    max-width: 30ch;
   }
 
+  /* ── Copy block beneath stage ── */
   .tamarinse-capsule__copy {
+    position: relative;
+    z-index: 5;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: var(--t-space-sm);
-    min-height: 7rem;
+    min-height: 4.5rem;
   }
 
   .tamarinse-capsule__layer-one {
@@ -213,6 +444,7 @@
     margin: 0;
     opacity: 0;
     transform: translateY(10px);
+    text-wrap: pretty;
     transition:
       opacity var(--t-dur-med) var(--t-ease-out),
       transform var(--t-dur-med) var(--t-ease-out);
@@ -225,6 +457,7 @@
     font-weight: var(--t-weight-subheading);
     color: var(--t-text-hi);
     margin-block-end: var(--t-space-2xs);
+    text-wrap: balance;
   }
 
   .tamarinse-capsule[data-phase='open'] .tamarinse-capsule__layer-one,
@@ -233,6 +466,7 @@
     transform: translateY(0);
   }
 
+  /* ── Dots ── */
   .tamarinse-capsule__dots {
     display: flex;
     gap: var(--t-space-xs);
@@ -251,7 +485,9 @@
     border-radius: 50%;
     background: var(--t-text-low);
     opacity: 0.35;
-    transition: opacity var(--t-dur-fast) var(--t-ease-out);
+    transition:
+      opacity var(--t-dur-fast) var(--t-ease-out),
+      background var(--t-dur-fast) var(--t-ease-out);
   }
 
   .tamarinse-capsule__dot[data-active] {
@@ -259,7 +495,7 @@
     background: var(--t-accent);
   }
 
-  /* Reduced motion: static open capsule, everything visible, natural height */
+  /* ── Reduced motion: static open capsule ── */
   .tamarinse-capsule[data-static] {
     height: auto;
     --capsule-separation: 1;
@@ -277,12 +513,26 @@
     transform: none;
   }
 
+  .tamarinse-capsule[data-static] .tamarinse-capsule__icon {
+    transform: scale(1);
+  }
+
+  .tamarinse-capsule[data-static] .tamarinse-capsule__particles {
+    display: none;
+  }
+
   .tamarinse-capsule[data-static] .tamarinse-capsule__reveal {
     position: static;
+    transform: none;
+    width: auto;
     display: flex;
     flex-direction: column;
     gap: var(--t-space-md);
     padding: var(--t-space-md) 0;
+  }
+
+  .tamarinse-capsule[data-static] .tamarinse-capsule__ring {
+    opacity: 1;
   }
 {% endstylesheet %}
 
