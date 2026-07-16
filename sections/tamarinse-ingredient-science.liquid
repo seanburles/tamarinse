@@ -1,7 +1,8 @@
 {% comment %}
-  Ingredient Science (MASTER_PROMPT #8) — six cards with what-it-is /
-  why-we-chose-it / research orgs, plus the featured research orgs banner
-  (client brief's "featured companies banner", text treatment).
+  Ingredient Science (MASTER_PROMPT #8) — an ingredient index: sticky intro
+  rail on the left, numbered accordion of the six ingredients on the right
+  (exclusive open via details name=""). Replaces the six-card grid, which
+  stretched the page with repeated research-org lists.
 
   Primary data path: the Ingredient metaobject via metaobject_list dynamic
   source. Fallback path: editable blocks with defaults from
@@ -17,13 +18,18 @@
 
 <section class="tamarinse-science t-on-light" id="TamarinseScience-{{ section.id }}">
   <div class="tamarinse-science__inner">
-    <header class="tamarinse-science__header">
+    <header class="tamarinse-science__rail">
       <p class="t-eyebrow tamarinse-science__eyebrow">{{ section.settings.eyebrow }}</p>
       <h2 class="tamarinse-science__title">{{ section.settings.title }}</h2>
       <p class="tamarinse-science__intro">{{ section.settings.intro }}</p>
+
+      <div class="tamarinse-science__close">
+        <p class="tamarinse-science__close-title">{{ section.settings.close_title }}</p>
+        <p class="tamarinse-science__close-text">{{ section.settings.close_text }}</p>
+      </div>
     </header>
 
-    <div class="tamarinse-science__grid">
+    <div class="tamarinse-science__list">
       {%- if use_metaobjects -%}
         {%- for ingredient in section.settings.ingredients -%}
           {%- liquid
@@ -37,7 +43,9 @@
             what_it_is: ingredient.what_it_is,
             why_we_chose_it: ingredient.why_we_chose_it,
             research_orgs: orgs_joined,
-            orgs_label: section.settings.orgs_label
+            orgs_label: section.settings.orgs_label,
+            index: forloop.index,
+            open: forloop.first
           -%}
         {%- endfor -%}
       {%- else -%}
@@ -49,31 +57,18 @@
               why_we_chose_it: block.settings.why_we_chose_it,
               research_orgs: block.settings.research_orgs,
               orgs_label: section.settings.orgs_label,
+              index: forloop.index,
+              open: forloop.first,
               image: block.settings.image
             -%}
           </div>
         {%- endfor -%}
       {%- endif -%}
-    </div>
 
-    <footer class="tamarinse-science__close">
-      <h3 class="tamarinse-science__close-title">{{ section.settings.close_title }}</h3>
-      <p class="tamarinse-science__close-text">{{ section.settings.close_text }}</p>
-
-      {%- if section.settings.featured_orgs != blank -%}
-        {%- assign featured = section.settings.featured_orgs | newline_to_br | split: '<br />' -%}
-        <ul class="tamarinse-science__banner" aria-label="Featured research organizations">
-          {%- for org in featured -%}
-            {%- assign org_stripped = org | strip -%}
-            {%- if org_stripped != blank -%}
-              <li>{{ org_stripped }}</li>
-            {%- endif -%}
-          {%- endfor -%}
-        </ul>
+      {%- if section.settings.close_kicker != blank -%}
+        <p class="tamarinse-science__kicker">{{ section.settings.close_kicker }}</p>
       {%- endif -%}
-
-      <p class="tamarinse-science__close-kicker">{{ section.settings.close_kicker }}</p>
-    </footer>
+    </div>
   </div>
 </section>
 
@@ -88,11 +83,9 @@
   .tamarinse-science__inner {
     max-width: var(--t-content-max);
     margin-inline: auto;
-  }
-
-  .tamarinse-science__header {
-    max-width: var(--t-copy-max);
-    margin-block-end: var(--t-space-xl);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--t-space-xl);
   }
 
   .tamarinse-science__eyebrow {
@@ -114,138 +107,210 @@
     line-height: var(--t-leading-body);
     color: var(--t-text-mid);
     margin: 0;
+    max-width: var(--t-copy-max);
   }
 
-  .tamarinse-science__grid {
-    display: grid;
-    grid-template-columns: 1fr;
+  .tamarinse-science__close {
+    margin-block-start: var(--t-space-lg);
+    padding-block-start: var(--t-space-md);
+    border-block-start: 1px solid var(--t-border);
+    max-width: var(--t-copy-max);
+  }
+
+  .tamarinse-science__close-title {
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-body-lg);
+    font-weight: var(--t-weight-subheading);
+    margin: 0 0 var(--t-space-2xs);
+  }
+
+  .tamarinse-science__close-text {
+    font-size: var(--t-type-small);
+    line-height: var(--t-leading-body);
+    color: var(--t-text-mid);
+    margin: 0;
+  }
+
+  /* ---- Accordion ---- */
+
+  .tamarinse-science__list {
+    interpolate-size: allow-keywords;
+  }
+
+  .tamarinse-science__item {
+    border-block-start: 1px solid var(--t-border);
+  }
+
+  .tamarinse-science__item:last-of-type {
+    border-block-end: 1px solid var(--t-border);
+  }
+
+  .tamarinse-science__row {
+    display: flex;
+    align-items: baseline;
     gap: var(--t-space-md);
+    min-height: var(--t-touch-target);
+    padding: var(--t-space-md) 0;
+    cursor: pointer;
+    list-style: none;
   }
 
-  .tamarinse-ingredient-card {
-    display: flex;
-    flex-direction: column;
-    gap: var(--t-space-sm);
-    padding: var(--t-space-lg);
-    background: var(--t-card);
-    border: 1px solid var(--t-border);
-    border-radius: var(--t-radius-sm);
+  .tamarinse-science__row::-webkit-details-marker {
+    display: none;
   }
 
-  .tamarinse-ingredient-card__media {
-    display: flex;
-    justify-content: center;
+  .tamarinse-science__index {
+    flex: none;
+    font-size: var(--t-type-small);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--t-text-low);
+    transition: color var(--t-dur-fast) var(--t-ease-out);
   }
 
-  .tamarinse-ingredient-card__photo {
-    width: auto;
-    max-width: 100%;
-    height: 140px;
-    object-fit: contain;
-  }
-
-  .tamarinse-ingredient-card__name {
+  .tamarinse-science__name {
     font-family: var(--t-font-heading);
     font-size: var(--t-type-h3);
     line-height: var(--t-leading-heading);
     font-weight: var(--t-weight-subheading);
     margin: 0;
+    flex: 1;
   }
 
-  .tamarinse-ingredient-card__body {
+  .tamarinse-science__item[open] .tamarinse-science__index {
+    color: var(--t-accent);
+  }
+
+  .tamarinse-science__marker {
+    flex: none;
+    position: relative;
+    align-self: center;
+    width: 16px;
+    height: 16px;
+  }
+
+  .tamarinse-science__marker::before,
+  .tamarinse-science__marker::after {
+    content: '';
+    position: absolute;
+    inset: 50% 0 auto;
+    height: 1.5px;
+    background: var(--t-text-mid);
+    transition: transform var(--t-dur-fast) var(--t-ease-out);
+  }
+
+  .tamarinse-science__marker::after {
+    transform: rotate(90deg);
+  }
+
+  .tamarinse-science__item[open] .tamarinse-science__marker::after {
+    transform: rotate(0deg);
+  }
+
+  /* Animated expansion (progressive enhancement: older browsers snap open) */
+  .tamarinse-science__item::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition:
+      block-size var(--t-dur-med) var(--t-ease-out),
+      content-visibility var(--t-dur-med) allow-discrete;
+  }
+
+  .tamarinse-science__item[open]::details-content {
+    block-size: auto;
+  }
+
+  .tamarinse-science__panel {
+    padding-block-end: var(--t-space-lg);
+  }
+
+  .tamarinse-science__detail {
     display: flex;
-    flex-direction: column;
-    gap: var(--t-space-xs);
+    flex-direction: column-reverse;
+    gap: var(--t-space-md);
   }
 
-  .tamarinse-ingredient-card__what,
-  .tamarinse-ingredient-card__why {
+  .tamarinse-science__copy {
+    flex: 1;
+  }
+
+  .tamarinse-science__what,
+  .tamarinse-science__why {
     font-size: var(--t-type-body);
     line-height: var(--t-leading-body);
     color: var(--t-text-mid);
-    margin: 0;
-  }
-
-  .tamarinse-ingredient-card__orgs {
-    margin-block-start: auto;
-    padding-block-start: var(--t-space-sm);
-    border-block-start: 1px solid var(--t-border);
-  }
-
-  .tamarinse-ingredient-card__orgs-label {
-    color: var(--t-text-low);
     margin: 0 0 var(--t-space-xs);
+    max-width: 56ch;
+  }
+
+  .tamarinse-science__orgs-label {
+    color: var(--t-text-low);
+    margin: var(--t-space-sm) 0 var(--t-space-2xs);
     font-size: 0.6875rem;
   }
 
-  .tamarinse-ingredient-card__orgs-list {
-    list-style: none;
+  .tamarinse-science__orgs {
     margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--t-space-2xs) var(--t-space-sm);
-  }
-
-  .tamarinse-ingredient-card__orgs-list li {
     font-size: var(--t-type-small);
+    line-height: 1.9;
     color: var(--t-text-low);
+    max-width: 56ch;
   }
 
-  .tamarinse-science__close {
-    margin-block-start: var(--t-space-2xl);
-    text-align: center;
+  .tamarinse-science__orgs span::after {
+    content: '·';
+    margin-inline: 0.5em;
   }
 
-  .tamarinse-science__close-title {
-    font-family: var(--t-font-heading);
-    font-size: var(--t-type-h3);
-    font-weight: var(--t-weight-subheading);
-    margin: 0 0 var(--t-space-sm);
+  .tamarinse-science__orgs span:last-child::after {
+    content: none;
   }
 
-  .tamarinse-science__close-text {
-    max-width: var(--t-copy-max);
-    margin: 0 auto var(--t-space-lg);
-    font-size: var(--t-type-body-lg);
+  .tamarinse-science__media {
+    flex: none;
+    width: 150px;
+  }
+
+  .tamarinse-science__photo {
+    width: 100%;
+    height: auto;
+    mix-blend-mode: multiply; /* white product-photo backgrounds melt into the sand panel */
+  }
+
+  .tamarinse-science__kicker {
+    margin: var(--t-space-md) 0 0;
+    font-size: var(--t-type-small);
     line-height: var(--t-leading-body);
-    color: var(--t-text-mid);
-  }
-
-  .tamarinse-science__banner {
-    list-style: none;
-    margin: 0 auto var(--t-space-lg);
-    padding: var(--t-space-md) 0;
-    border-block: 1px solid var(--t-border);
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--t-space-sm) var(--t-space-lg);
-    max-width: var(--t-content-max);
-  }
-
-  .tamarinse-science__banner li {
-    font-size: var(--t-type-small);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
     color: var(--t-text-low);
   }
 
-  .tamarinse-science__close-kicker {
-    font-size: var(--t-type-body);
-    color: var(--t-text-mid);
-    margin: 0;
-  }
-
-  @media screen and (min-width: 750px) {
-    .tamarinse-science__grid {
-      grid-template-columns: repeat(2, 1fr);
+  @media (prefers-reduced-motion: reduce) {
+    .tamarinse-science__item::details-content,
+    .tamarinse-science__marker::before,
+    .tamarinse-science__marker::after {
+      transition: none;
     }
   }
 
-  @media screen and (min-width: 1100px) {
-    .tamarinse-science__grid {
-      grid-template-columns: repeat(3, 1fr);
+  @media screen and (min-width: 990px) {
+    .tamarinse-science__inner {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: var(--t-space-2xl);
+      align-items: start;
+    }
+
+    .tamarinse-science__rail {
+      position: sticky;
+      top: calc(var(--header-height, 64px) + var(--t-space-lg));
+    }
+
+    .tamarinse-science__detail {
+      flex-direction: row;
+      align-items: flex-start;
+    }
+
+    .tamarinse-science__media {
+      width: 180px;
     }
   }
 {% endstylesheet %}
@@ -310,6 +375,7 @@
       "type": "textarea",
       "id": "featured_orgs",
       "label": "Featured research orgs (one per line)",
+      "info": "No longer displayed as a separate banner — each ingredient row lists its own research organizations.",
       "default": "American Chemical Society (ACS)\nNational Institutes of Health (NIH)\nNational Cancer Institute (NCI)\nOffice of Dietary Supplements (ODS)\nNational Center for Complementary and Integrative Health (NCCIH)\nNational Library of Medicine (PubMed)\nTarleton State University\nThe University of Texas at Dallas"
     },
     {

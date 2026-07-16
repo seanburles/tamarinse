@@ -1,7 +1,8 @@
 {% doc %}
-  Renders one ingredient card for the Ingredient Science section and the
-  product page. Accepts either a metaobject entry or plain strings from a
-  section block, so both data paths render identically.
+  Renders one ingredient row for the Ingredient Science index — a native
+  <details> accordion item (number + name in the summary; photo, description,
+  and research orgs in the expanded panel). Accepts either a metaobject entry
+  or plain strings from a section block, so both data paths render identically.
 
   @param {string} name
   @param {string} what_it_is
@@ -9,6 +10,8 @@
   @param {string} research_orgs - newline- or comma-separated list (blocks) —
     metaobject callers pass the joined list value the same way
   @param {string} orgs_label
+  @param {number} index - 1-based position, printed as the row number
+  @param {boolean} open - opens this row by default (first row)
   @param {object} [image] - optional merchant-picked ingredient photo
 
   When no image is picked, known ingredients fall back to the bundled
@@ -30,49 +33,61 @@
   endif
 -%}
 
-<article class="tamarinse-ingredient-card">
-  {%- if image != blank -%}
-    <div class="tamarinse-ingredient-card__media">
-      {{
-        image
-        | image_url: width: 800
-        | image_tag: widths: '400, 800', class: 'tamarinse-ingredient-card__photo', loading: 'lazy', alt: image.alt
-      }}
+<details
+  class="tamarinse-science__item"
+  name="tamarinse-ingredient"
+  {% if open %}
+    open
+  {% endif %}
+>
+  <summary class="tamarinse-science__row">
+    <span class="tamarinse-science__index" aria-hidden="true">{{ index | prepend: '00' | slice: -2, 2 }}</span>
+    <h3 class="tamarinse-science__name">{{ name }}</h3>
+    <span class="tamarinse-science__marker" aria-hidden="true"></span>
+  </summary>
+  <div class="tamarinse-science__panel">
+    <div class="tamarinse-science__detail">
+      <div class="tamarinse-science__copy">
+        <p class="tamarinse-science__what">{{ what_it_is }}</p>
+        <p class="tamarinse-science__why">{{ why_we_chose_it }}</p>
+        {%- if research_orgs != blank -%}
+          {%- liquid
+            assign orgs = research_orgs | newline_to_br | split: '<br />'
+            if orgs.size == 1
+              assign orgs = research_orgs | split: ';'
+            endif
+          -%}
+          <p class="t-eyebrow tamarinse-science__orgs-label">{{ orgs_label | default: 'Research Organizations' }}</p>
+          <p class="tamarinse-science__orgs">
+            {%- for org in orgs -%}
+              {%- assign org_stripped = org | strip -%}
+              {%- if org_stripped != blank -%}
+                <span>{{ org_stripped }}</span>
+              {%- endif -%}
+            {%- endfor -%}
+          </p>
+        {%- endif -%}
+      </div>
+      {%- if image != blank -%}
+        <div class="tamarinse-science__media">
+          {{
+            image
+            | image_url: width: 480
+            | image_tag: widths: '240, 480', class: 'tamarinse-science__photo', loading: 'lazy', alt: image.alt
+          }}
+        </div>
+      {%- elsif photo_asset != blank -%}
+        <div class="tamarinse-science__media">
+          <img
+            src="{{ photo_asset | asset_url }}"
+            class="tamarinse-science__photo"
+            alt="{{ name | escape }}"
+            width="800"
+            height="540"
+            loading="lazy"
+          >
+        </div>
+      {%- endif -%}
     </div>
-  {%- elsif photo_asset != blank -%}
-    <div class="tamarinse-ingredient-card__media">
-      <img
-        src="{{ photo_asset | asset_url }}"
-        class="tamarinse-ingredient-card__photo"
-        alt="{{ name | escape }}"
-        width="800"
-        height="540"
-        loading="lazy"
-      >
-    </div>
-  {%- endif -%}
-  <h3 class="tamarinse-ingredient-card__name">{{ name }}</h3>
-  <div class="tamarinse-ingredient-card__body">
-    <p class="tamarinse-ingredient-card__what">{{ what_it_is }}</p>
-    <p class="tamarinse-ingredient-card__why">{{ why_we_chose_it }}</p>
   </div>
-  {%- if research_orgs != blank -%}
-    {%- liquid
-      assign orgs = research_orgs | newline_to_br | split: '<br />'
-      if orgs.size == 1
-        assign orgs = research_orgs | split: ';'
-      endif
-    -%}
-    <div class="tamarinse-ingredient-card__orgs">
-      <p class="t-eyebrow tamarinse-ingredient-card__orgs-label">{{ orgs_label | default: 'Research Organizations' }}</p>
-      <ul class="tamarinse-ingredient-card__orgs-list">
-        {%- for org in orgs -%}
-          {%- assign org_stripped = org | strip -%}
-          {%- if org_stripped != blank -%}
-            <li>{{ org_stripped }}</li>
-          {%- endif -%}
-        {%- endfor -%}
-      </ul>
-    </div>
-  {%- endif -%}
-</article>
+</details>
