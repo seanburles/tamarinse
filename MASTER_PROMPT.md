@@ -77,6 +77,7 @@ Horizon's own architecture is mobile-first — don't fight it with desktop-first
 - Three.js scene: single GLB bottle model (Draco-compressed, target <1-2MB), studio-style lighting (soft key + rim light), transparent/gradient background so it composites over the hero section's own background.
 - Idle state: continuous Y-axis rotation, one full rotation per 20-30 seconds, `requestAnimationFrame`-driven with delta-time so rotation speed is frame-rate independent.
 - No scroll-linked state (rev. 2026-07-16): the bottle opens label-forward and idles from there; scroll-scrubbing was removed with the static hero.
+- Grab-to-rotate (rev. 2026-07-16): pointer events (mouse, touch, pen) let visitors spin the bottle directly, with flick inertia on release; after a short hands-off delay it eases back to the label-forward sway. The canvas uses `touch-action: pan-y` so vertical swipes still scroll the page on touch devices.
 - Performance: cap pixel ratio at 2, pause the render loop entirely (don't just hide the canvas) when the canvas is out of viewport, and provide a static PNG fallback bottle image for reduced-motion preference / low-end device detection.
 - Respect `prefers-reduced-motion`: skip the continuous idle rotation and jump straight to the static label-forward pose.
 

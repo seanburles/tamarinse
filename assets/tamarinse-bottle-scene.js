@@ -6,6 +6,9 @@
  *   viewport; render loop pauses entirely (not just hides) when off screen.
  * - idle state: continuous Y rotation, one turn per --t-bottle-period
  *   (default 24s), delta-time driven so speed is frame-rate independent.
+ * - grab-to-rotate: pointer events (mouse/touch/pen) spin the jar directly,
+ *   with inertia on release; touch-action pan-y keeps vertical swipes
+ *   scrolling the page. After ~2s idle the jar eases back to label-forward.
  * - scroll state: progress from the shared scroll controller eases the bottle
  *   to a label-forward pose and locks it.
  * - fallbacks: prefers-reduced-motion → static label-forward pose (one frame,
@@ -36,6 +39,17 @@ const LABEL_FORWARD = 0;
 const LOCK_START = 0.05;
 const LOCK_END = 0.5;
 
+/* ---- Grab-to-rotate tuning ---- */
+/* A drag across the full element width spins the jar this many turns. */
+const DRAG_TURNS_PER_WIDTH = 1.4;
+/* Flick inertia: exponential decay rate and velocity floor/ceiling (rad/s). */
+const SPIN_DAMPING = 2.4;
+const SPIN_MIN = 0.04;
+const SPIN_MAX = 10;
+/* Hands-off delay before the jar eases back to the label-forward sway. */
+const RETURN_DELAY_S = 1.6;
+const RETURN_RATE = 3.2;
+
 class TamarinseBottleScene extends HTMLElement {
   #three = null;
   #renderer = null;
@@ -55,6 +69,58 @@ class TamarinseBottleScene extends HTMLElement {
   #visible = false;
   #initialized = false;
   #staticPose = false;
+
+  /* ---- Grab-to-rotate state ---- */
+  #userOffset = 0; /* radians added on top of the sway/lock pose */
+  #dragging = false;
+  #dragPointerId = null;
+  #dragLastX = 0;
+  #dragLastTime = 0;
+  #spinVelocity = 0; /* rad/s, inertia after release */
+  #restElapsed = 0; /* seconds since the jar came to rest */
+
+  #onPointerDown = (event) => {
+    if (!event.isPrimary || (event.pointerType === 'mouse' && event.button !== 0)) return;
+    this.#dragging = true;
+    this.#dragPointerId = event.pointerId;
+    this.#dragLastX = event.clientX;
+    this.#dragLastTime = event.timeStamp;
+    this.#spinVelocity = 0;
+    this.setAttribute('data-grabbing', '');
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch (error) {
+      /* pointer already released (fast tap) — drag ends on pointerup anyway */
+    }
+  };
+
+  #onPointerMove = (event) => {
+    if (!this.#dragging || event.pointerId !== this.#dragPointerId) return;
+    const dx = event.clientX - this.#dragLastX;
+    const dt = Math.max((event.timeStamp - this.#dragLastTime) / 1000, 1e-4);
+    this.#dragLastX = event.clientX;
+    this.#dragLastTime = event.timeStamp;
+
+    const width = this.clientWidth || 1;
+    const dRotation = (dx / width) * TWO_PI * DRAG_TURNS_PER_WIDTH;
+    this.#userOffset += dRotation;
+    /* Smoothed release velocity so a jittery last event can't fling it. */
+    this.#spinVelocity = this.#spinVelocity * 0.7 + (dRotation / dt) * 0.3;
+
+    /* Reduced motion / paused loop: direct manipulation still renders. */
+    if (this.#rafId === null) this.#renderFrame();
+  };
+
+  #onPointerEnd = (event) => {
+    if (!this.#dragging || event.pointerId !== this.#dragPointerId) return;
+    this.#dragging = false;
+    this.#dragPointerId = null;
+    this.#restElapsed = 0;
+    this.removeAttribute('data-grabbing');
+    const max = this.#staticPose ? 0 : SPIN_MAX;
+    this.#spinVelocity = Math.min(max, Math.max(-max, this.#spinVelocity));
+    if (Math.abs(this.#spinVelocity) < SPIN_MIN) this.#spinVelocity = 0;
+  };
 
   connectedCallback() {
     if (prefersReducedMotion()) {
@@ -135,6 +201,21 @@ class TamarinseBottleScene extends HTMLElement {
 
     this.appendChild(renderer.domElement);
     this.setAttribute('data-webgl-active', '');
+
+    /* Grab-to-rotate: pointer events cover mouse, touch, and pen. The canvas
+       gets touch-action: pan-y (hero stylesheet) so horizontal drags rotate
+       the jar while vertical swipes keep scrolling the page. */
+    const canvas = renderer.domElement;
+    canvas.addEventListener('pointerdown', this.#onPointerDown);
+    canvas.addEventListener('pointermove', this.#onPointerMove);
+    canvas.addEventListener('pointerup', this.#onPointerEnd);
+    canvas.addEventListener('pointercancel', this.#onPointerEnd);
+    this.#disposers.push(() => {
+      canvas.removeEventListener('pointerdown', this.#onPointerDown);
+      canvas.removeEventListener('pointermove', this.#onPointerMove);
+      canvas.removeEventListener('pointerup', this.#onPointerEnd);
+      canvas.removeEventListener('pointercancel', this.#onPointerEnd);
+    });
 
     this.#resize();
     const resizeObserver = new ResizeObserver(() => this.#resize());
@@ -464,13 +545,36 @@ class TamarinseBottleScene extends HTMLElement {
       const delta = Math.min((now - this.#lastTime) / 1000, 0.1);
       this.#lastTime = now;
 
-      if (this.#scrollBlend < 1) {
+      /* While the visitor holds, flicks, or has recently spun the jar, the
+         ambient sway pauses — their rotation is the rotation. */
+      const interacting = this.#dragging || this.#spinVelocity !== 0 || this.#userOffset !== 0;
+
+      if (this.#scrollBlend < 1 && !interacting) {
         this.#elapsed += delta;
         const phase = (this.#elapsed / this.#bottlePeriodSeconds()) * TWO_PI;
         this.#idleRotation = LABEL_FORWARD + Math.sin(phase) * 0.42;
         this.#lockBase = null;
-      } else if (this.#lockBase === null) {
+      } else if (this.#scrollBlend >= 1 && this.#lockBase === null) {
         this.#lockBase = this.#idleRotation;
+      }
+
+      if (!this.#dragging) {
+        if (this.#spinVelocity !== 0) {
+          /* Flick inertia with exponential decay. */
+          this.#userOffset += this.#spinVelocity * delta;
+          const decayed = this.#spinVelocity * Math.exp(-SPIN_DAMPING * delta);
+          this.#spinVelocity = Math.abs(decayed) < SPIN_MIN ? 0 : decayed;
+          this.#restElapsed = 0;
+        } else if (this.#userOffset !== 0) {
+          /* Hands off: wait, then ease back to the nearest label-forward
+             turn (multiple of 2π) so the return takes the shortest path. */
+          this.#restElapsed += delta;
+          if (this.#restElapsed >= RETURN_DELAY_S) {
+            const target = Math.round(this.#userOffset / TWO_PI) * TWO_PI;
+            const next = target + (this.#userOffset - target) * Math.exp(-RETURN_RATE * delta);
+            this.#userOffset = Math.abs(next - target) < 0.002 ? 0 : next;
+          }
+        }
       }
 
       this.#renderFrame();
@@ -497,7 +601,7 @@ class TamarinseBottleScene extends HTMLElement {
     if (deltaToLabel < -Math.PI) deltaToLabel += TWO_PI;
 
     const eased = this.#easeInOut(this.#scrollBlend);
-    this.#bottle.rotation.y = idle + deltaToLabel * eased;
+    this.#bottle.rotation.y = idle + deltaToLabel * eased + this.#userOffset;
 
     this.#renderer.render(this.#scene, this.#camera);
   }

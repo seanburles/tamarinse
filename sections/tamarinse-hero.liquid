@@ -177,6 +177,16 @@
     width: 100%;
     height: 100%;
     display: block;
+    /* Grab-to-rotate: horizontal drags spin the jar; pan-y keeps vertical
+       touch swipes scrolling the page instead of being swallowed. */
+    touch-action: pan-y;
+    cursor: grab;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .tamarinse-hero__scene[data-grabbing] canvas {
+    cursor: grabbing;
   }
 
   /* Fallback bottle: shown until WebGL activates, and permanently on
