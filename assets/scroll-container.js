@@ -58,6 +58,22 @@ if (SQUEEZE_QUERY.matches) {
 
 SQUEEZE_QUERY.addEventListener('change', () => {
   history.scrollRestoration = SQUEEZE_QUERY.matches ? 'manual' : 'auto';
+
+  const pw = document.querySelector(PAGE_WRAPPER_SELECTOR);
+  if (!pw) return;
+
+  if (SQUEEZE_QUERY.matches) {
+    // Entering desktop: .page-wrapper becomes scroll container.
+    // Transfer scroll from document → .page-wrapper, then zero the document
+    // so the hidden-overflow html element doesn't sit scrolled past its content.
+    pw.scrollTo({ top: document.documentElement.scrollTop, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+  } else {
+    // Entering mobile: document becomes scroll container.
+    // Transfer scroll from .page-wrapper → document, then zero .page-wrapper.
+    document.documentElement.scrollTop = pw.scrollTop;
+    pw.scrollTo({ top: 0, behavior: 'instant' });
+  }
 });
 
 /**

@@ -48,12 +48,7 @@
         </span>
       </div>
 
-      {%- comment -%}
-        onsubmit guard: the quiz is JS-only, so a native submit is never
-        useful — it would GET-navigate the page (white-flash reload) if the
-        module listener is missing, e.g. mid hot-reload DOM morph in theme dev.
-      {%- endcomment -%}
-      <form novalidate onsubmit="return false">
+      <div data-quiz-form>
         {%- for block in section.blocks -%}
           <fieldset
             class="tamarinse-quiz__step"
@@ -91,14 +86,14 @@
         {%- endfor -%}
 
         <div class="tamarinse-quiz__nav">
-          <button type="submit" class="t-btn t-btn--accent t-btn--block" data-quiz-next>
+          <button type="button" class="t-btn t-btn--accent t-btn--block" data-quiz-next>
             {{- section.settings.continue_label -}}
           </button>
           <button type="button" class="tamarinse-quiz__back" data-quiz-back hidden>
             {{- section.settings.back_label -}}
           </button>
         </div>
-      </form>
+      </div>
     </div>
 
     <div class="tamarinse-quiz__result" data-quiz-result tabindex="-1">
@@ -279,6 +274,7 @@
   }
 
   .tamarinse-quiz__option {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -289,6 +285,7 @@
     border: 1px solid var(--t-border);
     border-radius: 12px;
     cursor: pointer;
+    overflow: hidden;
     -webkit-tap-highlight-color: transparent;
     transition:
       border-color var(--t-dur-fast) var(--t-ease-out),
@@ -302,6 +299,10 @@
 
   .tamarinse-quiz__checkbox {
     position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 1px;
     opacity: 0;
     pointer-events: none;
   }

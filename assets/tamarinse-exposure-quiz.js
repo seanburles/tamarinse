@@ -9,10 +9,10 @@
  * (forward|back); reduced-motion users get instant swaps via the stylesheet.
  *
  * All listeners are DELEGATED on the custom element and every inner element
- * is queried lazily. The theme dev server and Horizon's soft navigations
- * morph section DOM in place — listeners bound to inner nodes (like the
- * <form>) die when the node is swapped, and an unintercepted submit then
- * triggers a full-page navigation (the "white screen slide" bug).
+ * is queried lazily. There is deliberately NO <form> element — a plain <div>
+ * wraps the fieldsets instead — so that Shopify-injected scripts, view
+ * transitions, or any other external code can never trigger a form submission
+ * and cause full-page navigation (the "white screen slide" bug).
  */
 
 /**
@@ -34,16 +34,25 @@ export function scoreExposure(total, max, tiers) {
 class TamarinseExposureQuiz extends HTMLElement {
   #current = 0;
 
-  #onSubmit = (event) => {
-    event.preventDefault();
-    if (this.#current >= this.#steps().length - 1) {
-      this.#showResult();
-    } else {
-      this.#goTo(this.#current + 1, 'forward');
-    }
-  };
-
   #onClick = (event) => {
+    if (event.target.closest('[data-quiz-next]')) {
+      event.stopPropagation();
+      if (this.#current >= this.#steps().length - 1) {
+        this.#showResult();
+      } else {
+        this.#goTo(this.#current + 1, 'forward');
+      }
+      return;
+    }
+
+    const option = event.target.closest('.tamarinse-quiz__option');
+    if (option) {
+      event.stopPropagation();
+      const cb = option.querySelector('.tamarinse-quiz__checkbox');
+      if (cb) cb.focus({ preventScroll: true });
+      return;
+    }
+
     if (event.target.closest('[data-quiz-back]')) {
       if (this.#current > 0) this.#goTo(this.#current - 1, 'back');
     } else if (event.target.closest('[data-quiz-reset]')) {
@@ -52,17 +61,23 @@ class TamarinseExposureQuiz extends HTMLElement {
     }
   };
 
+  /** Block change events on quiz checkboxes from reaching external handlers
+   *  (Shopify-injected scripts, analytics, etc.) that might misinterpret a
+   *  toggle as a filter/form change and trigger page navigation. Uses the
+   *  capture phase so it fires before any document-level capture listeners. */
+  #onFieldChange = (event) => {
+    event.stopImmediatePropagation();
+  };
+
   connectedCallback() {
-    /* Delegated on the custom element itself: survives inner DOM morphs. */
-    this.addEventListener('submit', this.#onSubmit);
     this.addEventListener('click', this.#onClick);
-    /* Children may not be parsed yet if this element was just inserted. */
+    this.addEventListener('change', this.#onFieldChange, true);
     queueMicrotask(() => this.#sync());
   }
 
   disconnectedCallback() {
-    this.removeEventListener('submit', this.#onSubmit);
     this.removeEventListener('click', this.#onClick);
+    this.removeEventListener('change', this.#onFieldChange, true);
   }
 
   #steps() {
