@@ -1,0 +1,18 @@
+---
+description: "Core Tamarinse project context — read first, every session"
+alwaysApply: true
+---
+
+Tamarinse™ is a Shopify Horizon-based storefront rebuild. Full context lives in three repo-root files — read them before writing code, not just this summary:
+
+- `BUILD_GUIDE.md` — theme architecture, folder structure, build order, safe deploy workflow
+- `MASTER_PROMPT.md` — homepage section-by-section content map, style tokens, WebGL hero bottle spec
+- `CONTENT.md` — verbatim approved copy (headlines, quiz questions, ingredient descriptions, timeline steps). Use this copy exactly as written for anything user-facing. Do not paraphrase, punch up, or invent new marketing copy — if a section needs copy not yet in CONTENT.md, flag it and ask rather than generating a placeholder that looks final.
+
+Non-negotiables:
+- All interactive/animated work (WebGL bottle, capsule scroll sequence, horizontal timeline, exposure assessment) is isolated in its own custom element with explicit mount/dispose lifecycle. Never attach global scroll listeners from inside a Horizon section template.
+- Build mobile-first: every section's base CSS targets the mobile viewport, with desktop as a `min-width` enhancement, never the reverse. Touch targets ≥44x44px. See `MASTER_PROMPT.md`'s "Mobile-First Requirements" section for specifics (horizontal scroll touch behavior, sticky bar safe-area, art-directed imagery, WebGL mobile device-tiering).
+- Never push to the live theme. Never use `--allow-live` / `-a` on any `shopify theme` command. All CLI commands run with `--environment dev` per `shopify.theme.toml`.
+- Everything on the homepage must be editable from the Shopify theme customizer — no hardcoded copy, arrays, or content strings in Liquid or JS. Page-specific copy goes in section/block schema settings (defaulted to the values in `CONTENT.md`); reusable structured content (ingredients, and anything else that repeats across sections/templates) goes in a Shopify metaobject, referenced via `metaobject_list` dynamic sources. `data/ingredients.json` is dev-time seed data for creating the metaobject entries — not a runtime data source.
+- Reviews section: build the UI to accept real/seeded review data. Do not hardcode fabricated review quotes or ratings into any template.
+- Health-related copy keeps its existing hedge language ("designed to," "supports," "clinically studied") — don't tighten it into stronger claims for punchiness.

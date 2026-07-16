@@ -1,0 +1,105 @@
+{
+  "_note": "Dev-time seed data for populating the 'Ingredient' metaobject in Shopify admin (Content > Metaobjects). Once those entries exist, THEY are the source of truth — sections should reference them via metaobject_list dynamic sources, not this file. Keep this file only as a reference/backup for reseeding.",
+  "ingredients": [
+    {
+      "id": "tamarind-seed-extract",
+      "name": "Tamarind Seed Extract",
+      "whatItIs": "A natural polysaccharide extracted from tamarind seeds.",
+      "whyWeChoseIt": "Forms part of the proprietary Tamarinse™ fiber matrix.",
+      "researchOrgs": [
+        "American Chemical Society (ACS)",
+        "ACS Omega",
+        "Tarleton State University",
+        "The University of Texas at Dallas",
+        "National Science Foundation (NSF)",
+        "U.S. Department of Energy (DOE)",
+        "Welch Foundation"
+      ]
+    },
+    {
+      "id": "okra-polysaccharides",
+      "name": "Okra Polysaccharides",
+      "whatItIs": "A soluble plant polysaccharide naturally found in okra.",
+      "whyWeChoseIt": "Supports formation of a viscous fiber matrix.",
+      "researchOrgs": [
+        "American Chemical Society (ACS)",
+        "ACS Omega",
+        "Tarleton State University",
+        "The University of Texas at Dallas",
+        "National Science Foundation (NSF)",
+        "U.S. Department of Energy (DOE)",
+        "Welch Foundation"
+      ]
+    },
+    {
+      "id": "fenugreek-extract",
+      "name": "Fenugreek Extract",
+      "whatItIs": "A source of soluble galactomannan polysaccharides.",
+      "whyWeChoseIt": "Strengthens the overall fiber matrix.",
+      "researchOrgs": [
+        "American Chemical Society (ACS)",
+        "ACS Omega",
+        "Tarleton State University",
+        "The University of Texas at Dallas",
+        "National Science Foundation (NSF)",
+        "U.S. Department of Energy (DOE)",
+        "Welch Foundation",
+        "National Institutes of Health (NIH) Natural Products Research Program"
+      ]
+    },
+    {
+      "id": "activated-coconut-charcoal",
+      "name": "Activated Coconut Charcoal",
+      "whatItIs": "An ultra-porous activated carbon derived from coconut shells.",
+      "whyWeChoseIt": "Provides additional adsorption capacity within the digestive tract.",
+      "researchOrgs": [
+        "American Academy of Clinical Toxicology (AACT)",
+        "European Association of Poisons Centres and Clinical Toxicologists (EAPCCT)",
+        "National Library of Medicine (PubMed)",
+        "StatPearls Publishing",
+        "University of Tennessee Health Science Center"
+      ]
+    },
+    {
+      "id": "organic-chlorella",
+      "name": "Organic Chlorella",
+      "whatItIs": "A nutrient-rich freshwater green algae.",
+      "whyWeChoseIt": "Supports antioxidant defenses and normal detoxification pathways.",
+      "researchOrgs": [
+        "National Institutes of Health (NIH)",
+        "Office of Dietary Supplements (ODS)",
+        "National Center for Complementary and Integrative Health (NCCIH)",
+        "National Library of Medicine (PubMed)",
+        "Chemosphere",
+        "Nutrition Journal",
+        "Clinical Nutrition"
+      ]
+    },
+    {
+      "id": "milk-thistle-extract",
+      "name": "Milk Thistle Extract",
+      "whatItIs": "A standardized extract containing silymarin.",
+      "whyWeChoseIt": "Supports healthy liver function and antioxidant activity.",
+      "researchOrgs": [
+        "National Institutes of Health (NIH)",
+        "Office of Dietary Supplements (ODS)",
+        "National Center for Complementary and Integrative Health (NCCIH)",
+        "National Cancer Institute (NCI)",
+        "National Library of Medicine (PubMed)",
+        "Phytotherapy Research",
+        "World Journal of Gastroenterology",
+        "Journal of Hepatology"
+      ]
+    }
+  ],
+  "featuredResearchOrgs": [
+    "American Chemical Society (ACS)",
+    "National Institutes of Health (NIH)",
+    "National Cancer Institute (NCI)",
+    "Office of Dietary Supplements (ODS)",
+    "National Center for Complementary and Integrative Health (NCCIH)",
+    "National Library of Medicine (PubMed)",
+    "Tarleton State University",
+    "The University of Texas at Dallas"
+  ]
+}

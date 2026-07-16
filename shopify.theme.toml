@@ -1,0 +1,6 @@
+[environments.dev]
+store = "hnmtjh-0i.myshopify.com"
+# "Tamarinse Dev Horizon" [unpublished], confirmed 2026-07-16 via:
+# shopify theme list --store hnmtjh-0i.myshopify.com
+# (live theme is elixir-1-5-sleep-supplement #189638214004 — never target it)
+theme = "191162679668"
