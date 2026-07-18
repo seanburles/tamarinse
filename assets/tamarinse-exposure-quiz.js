@@ -18,15 +18,16 @@
 /**
  * @param {number} total - sum of checked weights
  * @param {number} max - sum of all weights
- * @param {{ tier: string, threshold: number }[]} tiers - ascending thresholds
- *   (fraction of max at which the tier starts)
- * @returns {string} tier label
+ * @param {{ tier: string, threshold: number, text?: string }[]} tiers -
+ *   ascending thresholds (fraction of max at which the tier starts)
+ * @returns {{ tier: string, threshold: number, text?: string } | null}
+ *   the matched tier entry (label + optional per-tier result copy)
  */
 export function scoreExposure(total, max, tiers) {
   const ratio = max > 0 ? total / max : 0;
-  let result = tiers[0]?.tier || '';
-  for (const { tier, threshold } of tiers) {
-    if (ratio >= threshold) result = tier;
+  let result = tiers[0] || null;
+  for (const entry of tiers) {
+    if (ratio >= entry.threshold) result = entry;
   }
   return result;
 }
@@ -145,9 +146,14 @@ class TamarinseExposureQuiz extends HTMLElement {
       0
     );
 
-    const tier = scoreExposure(total, max, this.#tiers());
+    const match = scoreExposure(total, max, this.#tiers());
     const tierLabel = this.querySelector('[data-quiz-tier]');
-    if (tierLabel) tierLabel.textContent = tier;
+    if (tierLabel) tierLabel.textContent = match?.tier || '';
+
+    /* Per-tier supporting copy — every tier closes with the product
+       recommendation, worded for that exposure level. */
+    const resultText = this.querySelector('[data-quiz-result-text]');
+    if (resultText && match?.text) resultText.textContent = match.text;
 
     this.setAttribute('data-state', 'result');
     const result = this.querySelector('[data-quiz-result]');

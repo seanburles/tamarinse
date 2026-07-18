@@ -7,8 +7,8 @@
 
 <tamarinse-timeline class="tamarinse-hiw" id="TamarinseHiw-{{ section.id }}">
   <div class="tamarinse-hiw__header">
-    <p class="t-eyebrow tamarinse-hiw__eyebrow">{{ section.settings.eyebrow }}</p>
-    <h2 class="tamarinse-hiw__title" id="how-tamarinse-works">{{ section.settings.title }}</h2>
+    <p class="t-eyebrow t-eyebrow--ruled tamarinse-hiw__eyebrow">{{ section.settings.eyebrow }}</p>
+    <h2 class="tamarinse-hiw__title" id="how-tamarinse-works">{{ section.settings.title | replace: '™', '<sup class="tamarinse-hiw__tm">™</sup>' }}</h2>
   </div>
 
   <div class="tamarinse-hiw__track-wrapper">
@@ -26,8 +26,26 @@
                   class: 'tamarinse-hiw__step-image',
                   alt: block.settings.image.alt
               }}
-            {%- else -%}
-              <span class="tamarinse-hiw__step-badge" aria-hidden="true">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
+            {%- elsif block.settings.image_asset != blank -%}
+              {%- comment -%}
+                Bundled theme asset used until a merchant picks a real image
+                (image_picker settings cannot reference theme assets).
+              {%- endcomment -%}
+              <img
+                src="{{ block.settings.image_asset | asset_url }}"
+                alt=""
+                class="tamarinse-hiw__step-image"
+                width="1200"
+                height="960"
+                loading="lazy"
+              >
+            {%- endif -%}
+            {%- comment -%}
+              The step number stays over photos too — it keeps the horizontal
+              timeline reading as an ordered sequence.
+            {%- endcomment -%}
+            <span class="tamarinse-hiw__step-badge" aria-hidden="true">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
+            {%- if block.settings.image == blank and block.settings.image_asset == blank -%}
               <span class="tamarinse-hiw__step-glyph" aria-hidden="true">
                 {%- render 'tamarinse-hiw-icon', icon: block.settings.icon -%}
               </span>
@@ -125,6 +143,15 @@
     text-wrap: balance;
   }
 
+  /* Matches the hero's ™ treatment so the mark reads consistently site-wide */
+  .tamarinse-hiw__tm {
+    font-size: 0.35em;
+    vertical-align: super;
+    line-height: 0;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+  }
+
   .tamarinse-hiw__track {
     display: flex;
     gap: var(--t-space-md);
@@ -170,6 +197,8 @@
     object-fit: cover;
   }
 
+  /* Step number — glass chip, same treatment as the gallery caption chips,
+     so it stays legible over photography and plain panels alike */
   .tamarinse-hiw__step-badge {
     position: absolute;
     top: var(--t-space-sm);
@@ -180,8 +209,11 @@
     width: 36px;
     height: 36px;
     border-radius: 10px;
-    background: var(--t-accent);
-    color: #fff;
+    background: rgb(253 252 250 / 55%);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgb(255 255 255 / 45%);
+    color: var(--t-ink);
     font-family: var(--t-font-heading);
     font-size: var(--t-type-eyebrow);
     font-weight: var(--t-weight-semibold);
@@ -356,6 +388,12 @@
           "label": "Illustration"
         },
         {
+          "type": "text",
+          "id": "image_asset",
+          "label": "Bundled photo filename",
+          "info": "Theme asset used until a real image is picked above (e.g. tamarinse-hiw-exposure.webp)."
+        },
+        {
           "type": "checkbox",
           "id": "footnote_marker",
           "label": "Show * footnote marker",
@@ -375,6 +413,7 @@
           "settings": {
             "title": "Exposure",
             "icon": "exposure",
+            "image_asset": "tamarinse-hiw-exposure.webp",
             "text": "Every day, you're exposed to microplastics and other unwanted compounds through food, water, beverages, packaging, and the environment."
           }
         },
@@ -383,6 +422,7 @@
           "settings": {
             "title": "Activates",
             "icon": "activates",
+            "image_asset": "tamarinse-hiw-activates.webp",
             "text": "The delayed-release capsule is designed to bypass stomach acid before releasing the Tamarinse™ blend where it's intended to work."
           }
         },
@@ -391,6 +431,7 @@
           "settings": {
             "title": "Binds",
             "icon": "binds",
+            "image_asset": "tamarinse-hiw-binds.webp",
             "text": "The proprietary blend forms a natural fiber matrix that helps bind targeted compounds within the digestive tract."
           }
         },
@@ -399,6 +440,7 @@
           "settings": {
             "title": "Supports",
             "icon": "supports",
+            "image_asset": "tamarinse-hiw-supports.webp",
             "text": "Clinically studied plant-based ingredients work together to support healthy digestive function and the body's natural elimination processes."
           }
         },
@@ -407,6 +449,7 @@
           "settings": {
             "title": "Naturally Eliminates",
             "icon": "eliminates",
+            "image_asset": "tamarinse-hiw-eliminates.webp",
             "text": "Bound compounds are carried through the digestive system and eliminated naturally rather than remaining available for absorption.",
             "footnote_marker": true
           }

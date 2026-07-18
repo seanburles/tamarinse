@@ -18,18 +18,22 @@
             alt: section.settings.image.alt
         }}
       {%- else -%}
+        {%- comment -%}
+          Trimmed copy of the hires photo (whitespace cropped to the bottle,
+          24px breathing room) so the bottle fills the media column.
+        {%- endcomment -%}
         <img
-          src="{{ 'tamarinse-bottle-photo-hires.jpg' | asset_url }}"
+          src="{{ 'tamarinse-bottle-photo-trimmed.webp' | asset_url }}"
           class="tamarinse-meet__image"
           alt="Tamarinse™ bottle"
-          width="1290"
-          height="1632"
+          width="543"
+          height="1053"
           loading="lazy"
         >
       {%- endif -%}
     </div>
     <div class="tamarinse-meet__content">
-      <p class="t-eyebrow tamarinse-meet__eyebrow">{{ section.settings.eyebrow }}</p>
+      <p class="t-eyebrow t-eyebrow--ruled-both tamarinse-meet__eyebrow">{{ section.settings.eyebrow }}</p>
       <h2 class="tamarinse-meet__title">{{ section.settings.title }}</h2>
       <p class="tamarinse-meet__text">{{ section.settings.text }}</p>
       {%- if section.settings.cta_label != blank -%}
@@ -59,7 +63,8 @@
   }
 
   .tamarinse-meet__media {
-    width: min(86vw, 420px);
+    /* The trimmed render is nearly all bottle — narrower column, same presence */
+    width: min(62vw, 330px);
   }
 
   .tamarinse-meet__image {

@@ -132,6 +132,27 @@
   font-weight: var(--t-weight-semibold);
 }
 
+/* Ruled eyebrows — the hairline-rule label treatment from the brand's print
+   materials ("WHAT'S INSIDE"). --ruled draws a leading rule for start-aligned
+   headers; --ruled-both flanks centered labels. */
+.t-eyebrow--ruled,
+.t-eyebrow--ruled-both {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.875em;
+}
+
+.t-eyebrow--ruled::before,
+.t-eyebrow--ruled-both::before,
+.t-eyebrow--ruled-both::after {
+  content: '';
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.35;
+}
+
 .t-btn {
   display: inline-flex;
   align-items: center;
@@ -154,8 +175,15 @@
     transform var(--t-dur-fast) var(--t-ease-out);
 }
 
+/* Gentle lift on hover; press compresses — motion states every button shares */
+@media (hover: hover) {
+  .t-btn:hover {
+    transform: translateY(-1px);
+  }
+}
+
 .t-btn:active {
-  transform: scale(0.98);
+  transform: translateY(0) scale(0.98);
 }
 
 .t-btn--primary {
@@ -172,8 +200,153 @@
   color: var(--t-white);
 }
 
+/* Shared ™ mark — smaller than surrounding type (footer, text blocks, etc.)
+   Wrapped at render time in snippets/text.liquid (richtext forbids <sup>). */
+.tamarinse-tm {
+  font-size: 0.4em;
+  vertical-align: super;
+  line-height: 0;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+/* Shopify injects a floating hCaptcha badge for form bot protection —
+   hide the chrome only; challenge flows still work when required.
+   Shopify uses both an id and a class depending on storefront version. */
+#shop-hcaptcha-badge-container,
+.shop-hcaptcha-badge-container,
+#shop-hcaptcha-badge-container *,
+.shop-hcaptcha-badge-container * {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  max-width: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  inset: -9999px auto auto -9999px !important;
+  clip: rect(0, 0, 0, 0) !important;
+  clip-path: inset(50%) !important;
+  border: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 .t-btn--accent:hover {
   background: var(--t-accent-deep);
+}
+
+/* ---- Tan capsule button — "the pill that splits open" ----
+   Two gelatin halves (::before = body, ::after = cap) sit over a speckled
+   contents fill (the button's own background — negative-z pseudos paint
+   above it but below the label, so no extra markup is needed). On hover
+   the halves slide apart at the seam and the granules show through. */
+.t-btn--pill {
+  position: relative;
+  isolation: isolate; /* contains the negative-z halves */
+  border: none;
+  color: var(--t-ink);
+  /* Interior: deep tan gelatin lining scattered with ingredient granules
+     (dark seed + green herb specks), visible only when the capsule opens */
+  background:
+    radial-gradient(circle at 22% 32%, rgb(25 23 18 / 45%) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 47% 72%, rgb(9 90 46 / 55%) 0 1.2px, transparent 1.9px),
+    radial-gradient(circle at 68% 38%, rgb(25 23 18 / 40%) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 85% 64%, rgb(9 90 46 / 50%) 0 1.2px, transparent 1.9px),
+    radial-gradient(circle at 33% 58%, rgb(9 90 46 / 45%) 0 1px, transparent 1.6px),
+    linear-gradient(to bottom, #7e6e4b, #6b5c3e);
+  background-size:
+    37px 100%,
+    43px 100%,
+    31px 100%,
+    47px 100%,
+    41px 100%,
+    100% 100%;
+  background-repeat: repeat-x;
+  box-shadow: inset 0 1px 4px rgb(25 23 18 / 35%);
+}
+
+/* The halves are photoreal capsule renders (client-supplied, split in two):
+   tamarinse-pill-half-left/right.webp — alpha webp with the straight body
+   section pre-stretched so the domes keep their true shape at button
+   proportions. Relative url() resolves to the same CDN assets directory as
+   this stylesheet. The tan gradient underlay backfills the pseudo's
+   radius-clipped corners where the photo's silhouette runs slightly inside
+   the box, so the speckled interior never peeks through at rest. */
+.t-btn--pill::before,
+.t-btn--pill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 53%; /* halves overlap 6% at the seam when closed */
+  z-index: -1;
+  filter: drop-shadow(0 6px 12px rgb(25 23 18 / 22%));
+  transition:
+    transform 340ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    filter 340ms var(--t-ease-out);
+}
+
+/* Body half: dome left, cut edge at the seam */
+.t-btn--pill::before {
+  left: 0;
+  border-radius: var(--t-radius-pill) 3px 3px var(--t-radius-pill);
+  background:
+    url('tamarinse-pill-half-left.webp') center / 100% 100% no-repeat,
+    linear-gradient(to bottom, #d6c69f, #a59570 55%, #8a7a55);
+}
+
+/* Cap half: cut edge at the seam, dome right — paints over the body's cut
+   edge (later pseudo wins in the negative-z stack), selling the overlap */
+.t-btn--pill::after {
+  right: 0;
+  border-radius: 3px var(--t-radius-pill) var(--t-radius-pill) 3px;
+  background:
+    url('tamarinse-pill-half-right.webp') center / 100% 100% no-repeat,
+    linear-gradient(to bottom, #ddcfab, #ab9b76 55%, #93835d);
+}
+
+@media (hover: hover) {
+  /* Splitting open catches the light: the halves lift and brighten */
+  .t-btn--pill:hover::before {
+    transform: translateX(-0.5em) rotate(-1.5deg);
+    filter: drop-shadow(0 8px 16px rgb(25 23 18 / 26%)) brightness(1.05);
+  }
+
+  .t-btn--pill:hover::after {
+    transform: translateX(0.5em) rotate(1.5deg);
+    filter: drop-shadow(0 8px 16px rgb(25 23 18 / 26%)) brightness(1.05);
+  }
+}
+
+/* Keyboard parity: focus opens the capsule too */
+.t-btn--pill:focus-visible {
+  outline: 2px solid var(--t-accent);
+  outline-offset: 3px;
+}
+
+.t-btn--pill:focus-visible::before {
+  transform: translateX(-0.5em) rotate(-1.5deg);
+}
+
+.t-btn--pill:focus-visible::after {
+  transform: translateX(0.5em) rotate(1.5deg);
+}
+
+.t-btn--pill:active::before,
+.t-btn--pill:active::after {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-btn--pill::before,
+  .t-btn--pill::after {
+    transition: none;
+    transform: none !important;
+  }
 }
 
 .t-btn--ghost {

@@ -74,10 +74,14 @@
           block-size var(--animation-speed-slow) var(--animation-easing);
       }
 
-      /* Disable transitions when the content toggle is not caused by the direct user interaction, e.g. opening the filters on mobile. */
-      &:not(:focus-within)::details-content,
-      &:not(:focus-within) .details-content {
-        transition: none;
+      /*
+        Don’t gate animation on :focus-within — mobile taps often open
+        <summary> without focusing it, which made accordions snap open/closed.
+        Callers that need an instant toggle add .details-content--no-animation
+        (see header-drawer.js).
+      */
+      .details-content--no-animation {
+        transition: none !important;
       }
 
       &:not([open]) {
@@ -97,10 +101,6 @@
             block-size: 0;
             opacity: 0;
             overflow-y: clip;
-          }
-
-          &:focus-within {
-            overflow-y: visible;
           }
         }
       }

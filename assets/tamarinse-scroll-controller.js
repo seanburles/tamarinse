@@ -183,6 +183,62 @@ export function onVisibilityChange(element, callback) {
   return () => observer.disconnect();
 }
 
+/**
+ * Low-pass filter for scroll progress: consumers feed raw progress into
+ * set(), and the wrapped callback receives an exponentially-smoothed value
+ * on requestAnimationFrame until it settles.
+ *
+ * Why: raw scroll-mapped animation reads as "too sensitive" — every
+ * micro-flick lands instantly — and on iOS the toolbar collapse changes
+ * window.innerHeight mid-scroll, which makes pin progress (and anything
+ * driven by it) visibly jump. The filter turns both into short eases.
+ * The first sample applies immediately (restored scroll positions must not
+ * animate in from 0).
+ *
+ * @param {(progress: number) => void} callback - receives smoothed progress
+ * @param {number} [rate] - filter response in 1/s; higher tracks tighter
+ * @returns {{ set(value: number): void, dispose(): void }}
+ */
+export function smoothProgress(callback, rate = 8) {
+  let current = null;
+  let target = 0;
+  let rafId = null;
+  let last = 0;
+
+  const tick = (now) => {
+    rafId = null;
+    const dt = Math.min(0.1, (now - last) / 1000);
+    last = now;
+    current += (target - current) * (1 - Math.exp(-rate * dt));
+    if (Math.abs(target - current) < 0.0004) {
+      current = target;
+      callback(current);
+      return;
+    }
+    callback(current);
+    rafId = requestAnimationFrame(tick);
+  };
+
+  return {
+    set(value) {
+      target = value;
+      if (current === null) {
+        current = value;
+        callback(current);
+        return;
+      }
+      if (rafId === null) {
+        last = performance.now();
+        rafId = requestAnimationFrame(tick);
+      }
+    },
+    dispose() {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      rafId = null;
+    },
+  };
+}
+
 export function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }

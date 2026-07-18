@@ -4,9 +4,13 @@
 
 <section class="tamarinse-closing" id="TamarinseClosing-{{ section.id }}">
   <div class="tamarinse-closing__inner">
+    {% render 'tamarinse-flourish' %}
     <h2 class="tamarinse-closing__headline">{{ section.settings.headline | replace: '™', '<sup class="tamarinse-closing__tm">™</sup>' }}</h2>
+    {%- if section.settings.accent_line != blank -%}
+      <p class="tamarinse-closing__accent">{{ section.settings.accent_line }}</p>
+    {%- endif -%}
     {%- if section.settings.cta_label != blank -%}
-      <a class="t-btn t-btn--accent" href="{{ section.settings.cta_link | default: routes.all_products_collection_url }}">
+      <a class="t-btn t-btn--pill" href="{{ section.settings.cta_link | default: routes.all_products_collection_url }}">
         {{- section.settings.cta_label -}}
       </a>
     {%- endif -%}
@@ -15,22 +19,35 @@
 
 {% stylesheet %}
   .tamarinse-closing {
-    display: block;
     background: var(--t-tint);
     color: var(--t-text-hi);
+    /* Same shell as FAQ / Meet — content-max column, shared side gutter */
     padding: var(--t-space-section) var(--t-space-md);
-    min-height: 80svh;
+    min-height: 52svh;
     display: flex;
     align-items: center;
+    justify-content: center;
   }
 
   .tamarinse-closing__inner {
+    width: 100%;
     max-width: var(--t-content-max);
     margin-inline: auto;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    text-align: center;
     gap: var(--t-space-lg);
+  }
+
+  /* Closing gets a larger brand sprig than the default flourish */
+  .tamarinse-closing__inner .tamarinse-flourish__sprig {
+    width: 44px;
+    height: 28px;
+  }
+
+  .tamarinse-closing__inner .tamarinse-flourish__rule {
+    width: 3.25rem;
   }
 
   .tamarinse-closing__headline {
@@ -39,8 +56,21 @@
     line-height: var(--t-leading-tight);
     font-weight: var(--t-weight-display);
     margin: 0;
-    max-width: 16ch;
+    /* Own the content column — was 16ch and read as a stub beside empty tint */
+    max-width: 22ch;
     text-wrap: balance;
+  }
+
+  /* Optional italic serif aside. Empty by default — the content doc keeps
+     the closing to the headline + CTA only. */
+  .tamarinse-closing__accent {
+    font-family: var(--t-font-heading);
+    font-style: italic;
+    font-size: var(--t-type-h3);
+    font-weight: 500;
+    color: var(--t-text-mid);
+    margin: calc(var(--t-space-lg) * -0.5) 0 0;
+    max-width: var(--t-copy-max);
   }
 
   /* Matches the hero's ™ treatment so the mark reads consistently site-wide */
@@ -67,6 +97,12 @@
       "id": "headline",
       "label": "Headline",
       "default": "Microplastics aren't going away. Your daily defense starts with Tamarinse™."
+    },
+    {
+      "type": "text",
+      "id": "accent_line",
+      "label": "Accent line (italic)",
+      "info": "Optional short aside under the headline. Leave blank to match the content doc."
     },
     {
       "type": "text",

@@ -10,10 +10,10 @@
 
 {%- capture tiers_json -%}
   [
-    {"tier": {{ section.settings.tier_low | json }}, "threshold": 0},
-    {"tier": {{ section.settings.tier_moderate | json }}, "threshold": {{ section.settings.threshold_moderate | divided_by: 100.0 }}},
-    {"tier": {{ section.settings.tier_high | json }}, "threshold": {{ section.settings.threshold_high | divided_by: 100.0 }}},
-    {"tier": {{ section.settings.tier_very_high | json }}, "threshold": {{ section.settings.threshold_very_high | divided_by: 100.0 }}}
+    {"tier": {{ section.settings.tier_low | json }}, "threshold": 0, "text": {{ section.settings.result_text_low | json }}},
+    {"tier": {{ section.settings.tier_moderate | json }}, "threshold": {{ section.settings.threshold_moderate | divided_by: 100.0 }}, "text": {{ section.settings.result_text_moderate | json }}},
+    {"tier": {{ section.settings.tier_high | json }}, "threshold": {{ section.settings.threshold_high | divided_by: 100.0 }}, "text": {{ section.settings.result_text_high | json }}},
+    {"tier": {{ section.settings.tier_very_high | json }}, "threshold": {{ section.settings.threshold_very_high | divided_by: 100.0 }}, "text": {{ section.settings.result_text_very_high | json }}}
   ]
 {%- endcapture -%}
 
@@ -26,7 +26,7 @@
 >
   <div class="tamarinse-quiz__inner">
     <header class="tamarinse-quiz__header">
-      <p class="t-eyebrow tamarinse-quiz__eyebrow">{{ section.settings.eyebrow }}</p>
+      <p class="t-eyebrow t-eyebrow--ruled-both tamarinse-quiz__eyebrow">{{ section.settings.eyebrow }}</p>
       <h2 class="tamarinse-quiz__title">{{ section.settings.title }}</h2>
       <p class="tamarinse-quiz__intro">{{ section.settings.intro }}</p>
     </header>
@@ -101,9 +101,8 @@
         {{ section.settings.result_prefix }}
         <strong data-quiz-tier></strong>
       </p>
-      {%- if section.settings.result_text != blank -%}
-        <p class="tamarinse-quiz__result-text">{{ section.settings.result_text }}</p>
-      {%- endif -%}
+      {%- comment -%} Always rendered: the JS swaps in the matched tier's copy {%- endcomment -%}
+      <p class="tamarinse-quiz__result-text" data-quiz-result-text>{{ section.settings.result_text }}</p>
       <div class="tamarinse-quiz__result-actions">
         {%- if section.settings.result_cta_label != blank -%}
           <a class="t-btn t-btn--accent" href="{{ section.settings.result_cta_link | default: routes.all_products_collection_url }}">
@@ -539,8 +538,33 @@
     {
       "type": "textarea",
       "id": "result_text",
-      "label": "Result supporting text",
-      "default": "Exposure adds up quietly, through everyday routines. Tamarinse™ was designed for exactly this."
+      "label": "Result supporting text (fallback)",
+      "default": "Exposure adds up quietly, through everyday routines. Tamarinse™ was designed for exactly this.",
+      "info": "Shown if the matching tier's text below is left blank."
+    },
+    {
+      "type": "textarea",
+      "id": "result_text_low",
+      "label": "Supporting text — tier 1",
+      "default": "Even careful routines can't avoid the microplastics already in food, water, and air. Tamarinse™ was designed as simple daily support for exactly that baseline — a good fit for keeping it that way."
+    },
+    {
+      "type": "textarea",
+      "id": "result_text_moderate",
+      "label": "Supporting text — tier 2",
+      "default": "Several of your everyday habits are recognized microplastic sources, and that kind of exposure adds up quietly. This cumulative pattern is what Tamarinse™ was designed for — you're a good candidate for daily support."
+    },
+    {
+      "type": "textarea",
+      "id": "result_text_high",
+      "label": "Supporting text — tier 3",
+      "default": "Your routine includes many of the most common everyday exposure sources — the exact pattern Tamarinse™ was formulated around. Starting daily support now is a strong fit for habits like yours."
+    },
+    {
+      "type": "textarea",
+      "id": "result_text_very_high",
+      "label": "Supporting text — tier 4",
+      "default": "Your answers cover most of the major everyday exposure sources. Routines like this are exactly what daily binding support was made for — Tamarinse™ is a strong candidate for your daily lineup."
     },
     {
       "type": "text",
@@ -831,22 +855,38 @@
         {
           "type": "question",
           "settings": {
-            "question": "What do you drink from most days?",
+            "question": "What do you drink most days?",
             "option1_label": "Bottled water", "option1_icon": "bottle", "option1_weight": 3,
             "option2_label": "Coffee with a plastic lid", "option2_icon": "cup", "option2_weight": 2,
-            "option3_label": "Shaker or plastic bottles", "option3_icon": "shaker", "option3_weight": 2,
-            "option4_label": "Tea from tea bags", "option4_icon": "teabag", "option4_weight": 1,
-            "option5_label": "Mostly glass or steel", "option5_icon": "jar", "option5_weight": 0
+            "option3_label": "Tea from tea bags", "option3_icon": "teabag", "option3_weight": 1,
+            "option4_label": "Mostly glass or steel", "option4_icon": "jar", "option4_weight": 0
           }
         },
         {
           "type": "question",
           "settings": {
-            "question": "How do you store and reheat food?",
+            "question": "Do you carry a bottle with you?",
+            "option1_label": "Plastic water bottle daily", "option1_icon": "bottle", "option1_weight": 2,
+            "option2_label": "Protein shaker bottle", "option2_icon": "shaker", "option2_weight": 2,
+            "option3_label": "Steel or glass bottle", "option3_icon": "jar", "option3_weight": 0
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "How do you store leftovers?",
             "option1_label": "Plastic containers", "option1_icon": "container", "option1_weight": 2,
-            "option2_label": "Microwave in plastic packaging", "option2_icon": "microwave", "option2_weight": 3,
-            "option3_label": "Plastic bags or cling wrap", "option3_icon": "bag", "option3_weight": 1,
-            "option4_label": "Mostly glass containers", "option4_icon": "jar", "option4_weight": 0
+            "option2_label": "Plastic bags or cling wrap", "option2_icon": "bag", "option2_weight": 1,
+            "option3_label": "Mostly glass containers", "option3_icon": "jar", "option3_weight": 0
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "How do you reheat food?",
+            "option1_label": "Microwave in plastic containers", "option1_icon": "microwave", "option1_weight": 3,
+            "option2_label": "Microwave in original packaging", "option2_icon": "package", "option2_weight": 3,
+            "option3_label": "Transferred to glass or ceramic first", "option3_icon": "jar", "option3_weight": 0
           }
         },
         {
@@ -861,19 +901,35 @@
         {
           "type": "question",
           "settings": {
-            "question": "How do you usually eat?",
+            "question": "When cooking doesn't happen…",
             "option1_label": "Takeout or delivery often", "option1_icon": "takeout", "option1_weight": 2,
-            "option2_label": "Processed or packaged foods", "option2_icon": "package", "option2_weight": 2,
-            "option3_label": "Seafood twice a week or more", "option3_icon": "fish", "option3_weight": 1
+            "option2_label": "Frozen or ready meals", "option2_icon": "package", "option2_weight": 2,
+            "option3_label": "Rarely — mostly home cooking", "option3_icon": "none", "option3_weight": 0
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "What's on your plate most weeks?",
+            "option1_label": "Seafood twice a week or more", "option1_icon": "fish", "option1_weight": 1,
+            "option2_label": "Processed or packaged snacks", "option2_icon": "package", "option2_weight": 2,
+            "option3_label": "Neither of these", "option3_icon": "none", "option3_weight": 0
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "What do you wear to move?",
+            "option1_label": "Synthetic athletic clothing weekly", "option1_icon": "shirt", "option1_weight": 1,
+            "option2_label": "Mostly natural fibers", "option2_icon": "none", "option2_weight": 0
           }
         },
         {
           "type": "question",
           "settings": {
             "question": "And day to day?",
-            "option1_label": "Synthetic workout clothing", "option1_icon": "shirt", "option1_weight": 1,
-            "option2_label": "Paper receipts at work", "option2_icon": "receipt", "option2_weight": 1,
-            "option3_label": "Neither of these", "option3_icon": "none", "option3_weight": 0
+            "option1_label": "Paper receipts most days", "option1_icon": "receipt", "option1_weight": 1,
+            "option2_label": "None of these", "option2_icon": "none", "option2_weight": 0
           }
         }
       ]

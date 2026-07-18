@@ -13,6 +13,7 @@ export class PaginatedListAspectRatioHelper {
   #ASPECT_RATIOS = {
     square: '1',
     portrait: '0.8',
+    tall: '0.667',
     landscape: '1.778',
   };
 

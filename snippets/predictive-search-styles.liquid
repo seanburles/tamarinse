@@ -594,16 +594,38 @@
     width: var(--icon-size-xs);
   }
 
+  /*
+    Wrapping product columns — auto-fit so cards sit side-by-side and wrap.
+    Lone cards keep a natural card width (not ~25% of a fixed 4-col grid).
+  */
   .predictive-search-results__wrapper-products {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(8.75rem, 1fr));
+    justify-content: start;
     padding-block-end: var(--padding-sm);
     gap: var(--gap-md);
     transition: height var(--animation-speed-medium) var(--animation-easing);
+    width: 100%;
+  }
 
-    @container (min-width: 550px) {
-      grid-template-columns: repeat(4, 1fr);
+  .predictive-search-results__wrapper-products:has(> :only-child) {
+    grid-template-columns: minmax(8.75rem, 12rem);
+  }
+
+  @media screen and (min-width: 750px) {
+    .predictive-search-results__wrapper-products {
+      grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
     }
+
+    .predictive-search-results__wrapper-products:has(> :only-child) {
+      grid-template-columns: minmax(11rem, 13.5rem);
+    }
+  }
+
+  .predictive-search-results__wrapper-products > .predictive-search-results__card {
+    min-width: 0;
+    width: 100%;
+    max-width: none;
   }
 
   .predictive-search-results__wrapper-products:last-child {

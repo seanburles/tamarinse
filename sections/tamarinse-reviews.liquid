@@ -1,69 +1,141 @@
 {% comment %}
-  Reviews (MASTER_PROMPT #13) — luxury layout. Badge (rating/count/source) is
-  section settings; each review is an editable block, swappable for real
-  reviews or a review-app feed with no code change (BUILD_GUIDE section 8).
-  Default quotes and the 4.8/4,000+ badge are reused verbatim from the
-  client's published "What Our Customers Say" section on tamarinse.com.
+  Reviews (MASTER_PROMPT #13) — luxury layout, shares the media-rail language
+  of the lifestyle gallery: an edge-bleeding horizontal rail with scroll-snap,
+  slow auto-drift, and glass arrows. The rail opens with a dark score card
+  (rating / count / source from section settings); each review is an editable
+  block, swappable for real reviews or a review-app feed with no code change
+  (BUILD_GUIDE section 8). Default quotes and the 4.8/4,000+ badge are reused
+  verbatim from the client's published "What Our Customers Say" section on
+  tamarinse.com.
 {% endcomment %}
 
 <section class="tamarinse-reviews t-on-light" id="TamarinseReviews-{{ section.id }}">
-  <div class="tamarinse-reviews__inner">
-    <header class="tamarinse-reviews__header">
-      <p class="t-eyebrow tamarinse-reviews__eyebrow">{{ section.settings.eyebrow }}</p>
-      <h2 class="tamarinse-reviews__title">{{ section.settings.title }}</h2>
+  <header class="tamarinse-reviews__header">
+    <p class="t-eyebrow t-eyebrow--ruled tamarinse-reviews__eyebrow">{{ section.settings.eyebrow }}</p>
+    <h2 class="tamarinse-reviews__title">{{ section.settings.title }}</h2>
+  </header>
 
-      {%- if section.settings.show_badge -%}
-        {%- render 'tamarinse-reviews-badge',
-          rating: section.settings.badge_rating,
-          count: section.settings.badge_count,
-          source: section.settings.badge_source
+  <tamarinse-media-rail class="tamarinse-reviews__rail-wrap">
+    <div
+      class="tamarinse-reviews__rail"
+      data-rail
+      tabindex="0"
+      role="group"
+      aria-label="{{ section.settings.title | default: 'Customer reviews' | escape }}"
+    >
+      {%- if section.settings.show_badge and section.settings.badge_count > 0 -%}
+        {%- liquid
+          # Fifth star fills fractionally so a 4.8 doesn't read as a fabricated 5.0.
+          assign whole_stars = section.settings.badge_rating | floor
+          assign fraction_pct = section.settings.badge_rating | minus: whole_stars | times: 100 | round
+          assign partial_index = whole_stars | plus: 1
+
+          # Thousands separator; round counts read as "at least" with a plus.
+          assign badge_count = section.settings.badge_count
+          if badge_count >= 1000
+            assign thousands = badge_count | divided_by: 1000
+            assign remainder = badge_count | modulo: 1000
+            assign rem_str = remainder | prepend: '000' | slice: -3, 3
+            assign count_label = thousands | append: ',' | append: rem_str
+            if remainder == 0
+              assign count_label = count_label | append: '+'
+            endif
+          else
+            assign count_label = badge_count
+          endif
         -%}
+        <div class="tamarinse-reviews__card tamarinse-reviews__card--score">
+          <p class="tamarinse-reviews__score-figure">
+            {{ section.settings.badge_rating -}}
+            <span class="tamarinse-reviews__score-outof">/5</span>
+          </p>
+          <p class="tamarinse-reviews__score-stars" aria-hidden="true">
+            {%- for i in (1..5) -%}
+              {%- if i <= whole_stars -%}
+                <span class="tamarinse-reviews__score-star">&#9733;</span>
+              {%- elsif fraction_pct > 0 and i == partial_index -%}
+                <span class="tamarinse-reviews__score-star tamarinse-reviews__score-star--partial"
+                  ><span class="tamarinse-reviews__score-star-fill" style="width: {{ fraction_pct }}%;">&#9733;</span
+                  ><span class="tamarinse-reviews__score-star-base">&#9733;</span></span
+                >
+              {%- else -%}
+                <span class="tamarinse-reviews__score-star tamarinse-reviews__score-star--empty">&#9733;</span>
+              {%- endif -%}
+            {%- endfor -%}
+          </p>
+          <p class="tamarinse-reviews__score-count">
+            From {{ count_label }}
+            {{ section.settings.badge_source }}
+          </p>
+        </div>
       {%- endif -%}
-    </header>
 
-    <div class="tamarinse-reviews__grid">
       {%- for block in section.blocks -%}
         <figure class="tamarinse-reviews__card" {{ block.shopify_attributes }}>
           <span class="tamarinse-reviews__deco" aria-hidden="true">&ldquo;</span>
           <div class="tamarinse-reviews__stars" aria-label="{{ block.settings.rating }} out of 5 stars">
             {%- for i in (1..5) -%}
-              <span class="tamarinse-reviews__star{% if i > block.settings.rating %} tamarinse-reviews__star--empty{% endif %}" aria-hidden="true">&#9733;</span>
+              <span
+                class="tamarinse-reviews__star{% if i > block.settings.rating %} tamarinse-reviews__star--empty{% endif %}"
+                aria-hidden="true"
+                >&#9733;</span
+              >
             {%- endfor -%}
           </div>
           <blockquote class="tamarinse-reviews__quote">{{ block.settings.quote }}</blockquote>
           <figcaption class="tamarinse-reviews__attribution">
             <span class="tamarinse-reviews__avatar" aria-hidden="true">{{ block.settings.name | slice: 0 }}</span>
-            <span class="tamarinse-reviews__meta">
-              <span class="tamarinse-reviews__name">{{ block.settings.name }}</span>
-              {%- if block.settings.role != blank -%}
-                <span class="tamarinse-reviews__role">
-                  <svg class="tamarinse-reviews__check" width="12" height="12" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm45.66,85.66-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32Z"/></svg>
-                  {{ block.settings.role -}}
-                </span>
-              {%- endif -%}
-            </span>
+            <span class="tamarinse-reviews__name">{{ block.settings.name }}</span>
+            {%- if block.settings.role != blank -%}
+              <span class="tamarinse-reviews__role">
+                <svg
+                  class="tamarinse-reviews__check"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 256 256"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm45.66,85.66-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32Z"/>
+                </svg>
+                {{ block.settings.role -}}
+              </span>
+            {%- endif -%}
           </figcaption>
         </figure>
       {%- endfor -%}
     </div>
-  </div>
+
+    <div class="tamarinse-reviews__nav">
+      <button type="button" class="tamarinse-reviews__arrow" data-rail-prev aria-label="Previous">
+        <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+          <path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"/>
+        </svg>
+      </button>
+      <button type="button" class="tamarinse-reviews__arrow" data-rail-next aria-label="Next">
+        <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+          <path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"/>
+        </svg>
+      </button>
+    </div>
+  </tamarinse-media-rail>
 </section>
+
+<script src="{{ 'tamarinse-media-rail.js' | asset_url }}" type="module"></script>
 
 {% stylesheet %}
   .tamarinse-reviews {
     display: block;
     background: var(--t-tint);
     color: var(--t-text-hi);
-    padding: var(--t-space-section) var(--t-space-md);
-  }
-
-  .tamarinse-reviews__inner {
-    max-width: var(--t-content-max);
-    margin-inline: auto;
+    padding: var(--t-space-section) 0;
+    overflow: hidden;
   }
 
   .tamarinse-reviews__header {
-    max-width: var(--t-copy-max);
+    max-width: var(--t-content-max);
+    margin-inline: auto;
+    padding-inline: var(--t-space-md);
     margin-block-end: var(--t-space-xl);
   }
 
@@ -77,36 +149,70 @@
     font-size: var(--t-type-h2);
     line-height: var(--t-leading-heading);
     font-weight: var(--t-weight-heading);
-    margin: 0 0 var(--t-space-sm);
+    max-width: var(--t-copy-max);
+    margin: 0;
     text-wrap: balance;
   }
 
-  .tamarinse-reviews__grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--t-space-sm);
+  /* ---- Rail: same edge-bleed scroller as the lifestyle gallery ---- */
+  .tamarinse-reviews__rail-wrap {
+    display: block;
+    position: relative;
   }
 
+  .tamarinse-reviews__rail {
+    display: flex;
+    align-items: stretch;
+    gap: var(--t-space-sm);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    /* Cards bleed off both edges — the rail starts at the content column
+       but scrolls edge to edge, matching the gallery's scroller. */
+    padding-inline: max(var(--t-space-md), calc((100vw - var(--t-content-max)) / 2));
+    /* Block padding leaves room for the hover lift + shadow. */
+    padding-block: var(--t-space-2xs) var(--t-space-sm);
+    scrollbar-width: none;
+  }
+
+  .tamarinse-reviews__rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tamarinse-reviews__rail:focus-visible {
+    outline: 2px solid var(--t-accent);
+    outline-offset: 4px;
+  }
+
+  /* ---- Cards ---- */
   .tamarinse-reviews__card {
     position: relative;
+    flex: none;
+    scroll-snap-align: center;
     display: flex;
     flex-direction: column;
-    gap: 0.625rem;
+    gap: var(--t-space-xs);
+    width: clamp(17.5rem, 80vw, 23rem);
     margin: 0;
-    padding: var(--t-space-md) var(--t-space-md) var(--t-space-sm);
+    padding: var(--t-space-lg) var(--t-space-md) var(--t-space-md);
     background: var(--t-card);
     border: 1px solid var(--t-border);
-    border-radius: var(--t-radius-sm);
-    border-top: 3px solid var(--t-accent);
+    border-radius: 20px;
     overflow: hidden;
+    transition: transform var(--t-dur-fast) var(--t-ease-out), box-shadow var(--t-dur-fast) var(--t-ease-out);
+  }
+
+  .tamarinse-reviews__card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px -24px rgb(25 23 18 / 35%);
   }
 
   .tamarinse-reviews__deco {
     position: absolute;
-    top: -0.15em;
-    right: var(--t-space-sm);
+    top: 0;
+    inset-inline-end: var(--t-space-sm);
     font-family: var(--t-font-heading);
-    font-size: 5rem;
+    font-size: 7rem;
     line-height: 1;
     color: var(--t-accent);
     opacity: 0.08;
@@ -117,28 +223,33 @@
   .tamarinse-reviews__stars {
     color: var(--t-accent-2);
     letter-spacing: 0.15em;
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
   }
 
   .tamarinse-reviews__star--empty {
     opacity: 0.25;
   }
 
+  /* The voice of the card — set in the brand serif so quotes read as
+     editorial pull-quotes, not UI copy. */
   .tamarinse-reviews__quote {
-    font-size: var(--t-type-small);
-    line-height: 1.55;
+    font-family: var(--t-font-heading);
+    font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem);
+    font-weight: var(--t-weight-medium);
+    line-height: 1.5;
     margin: 0;
-    color: var(--t-text-mid);
+    color: var(--t-text-hi);
     text-wrap: pretty;
   }
 
   .tamarinse-reviews__attribution {
     margin-block-start: auto;
-    padding-block-start: 0.625rem;
+    padding-block-start: var(--t-space-sm);
     border-top: 1px solid var(--t-border);
     display: flex;
     align-items: center;
     gap: 0.625rem;
+    min-width: 0;
   }
 
   .tamarinse-reviews__avatar {
@@ -157,24 +268,25 @@
     flex-shrink: 0;
   }
 
-  .tamarinse-reviews__meta {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-  }
-
   .tamarinse-reviews__name {
     font-size: var(--t-type-eyebrow);
     font-weight: var(--t-weight-semibold);
     line-height: 1.3;
   }
 
+  /* Verified chip — soft accent-tint pill, echoing the gallery caption chips */
   .tamarinse-reviews__role {
-    font-size: var(--t-type-eyebrow);
-    color: var(--t-text-low);
+    margin-inline-start: auto;
     display: inline-flex;
     align-items: center;
-    gap: 3px;
+    gap: 4px;
+    padding: 0.25rem 0.625rem;
+    border-radius: var(--t-radius-pill);
+    background: var(--t-accent-tint);
+    color: var(--t-accent-deep);
+    font-size: var(--t-type-eyebrow);
+    font-weight: var(--t-weight-medium);
+    white-space: nowrap;
   }
 
   .tamarinse-reviews__check {
@@ -182,15 +294,117 @@
     flex-shrink: 0;
   }
 
+  /* ---- Score card: dark opener that carries the rating badge ---- */
+  .tamarinse-reviews__card--score {
+    justify-content: center;
+    gap: var(--t-space-2xs);
+    width: clamp(15rem, 70vw, 19rem);
+    background: var(--t-ink);
+    border-color: transparent;
+    color: var(--t-bg);
+    /* A faint warm glow keeps the dark panel from reading flat */
+    background-image: radial-gradient(120% 90% at 20% 0%, rgb(154 138 104 / 22%), transparent 60%);
+  }
+
+  .tamarinse-reviews__score-figure {
+    font-family: var(--t-font-heading);
+    font-size: clamp(4rem, 3rem + 3vw, 5.5rem);
+    font-weight: var(--t-weight-display);
+    line-height: 1;
+    margin: 0;
+  }
+
+  .tamarinse-reviews__score-outof {
+    font-size: 0.35em;
+    font-weight: var(--t-weight-medium);
+    color: rgb(250 246 238 / 55%);
+    margin-inline-start: 0.15em;
+  }
+
+  .tamarinse-reviews__score-stars {
+    color: var(--t-accent-2);
+    letter-spacing: 0.15em;
+    font-size: 1.0625rem;
+    margin: 0;
+  }
+
+  .tamarinse-reviews__score-star--empty {
+    opacity: 0.25;
+  }
+
+  .tamarinse-reviews__score-star--partial {
+    position: relative;
+    display: inline-block;
+  }
+
+  .tamarinse-reviews__score-star-base {
+    opacity: 0.25;
+  }
+
+  .tamarinse-reviews__score-star-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .tamarinse-reviews__score-count {
+    font-size: var(--t-type-small);
+    color: rgb(250 246 238 / 70%);
+    margin: var(--t-space-2xs) 0 0;
+    max-width: 16ch;
+    text-wrap: balance;
+  }
+
+  /* ---- Glass arrows, matching the gallery ---- */
+  .tamarinse-reviews__nav {
+    display: none;
+    justify-content: flex-end;
+    gap: var(--t-space-xs);
+    max-width: var(--t-content-max);
+    margin: var(--t-space-md) auto 0;
+    padding-inline: var(--t-space-md);
+  }
+
+  .tamarinse-reviews__arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--t-touch-target);
+    height: var(--t-touch-target);
+    border-radius: 50%;
+    border: 1px solid var(--t-border);
+    background: rgb(253 252 250 / 65%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--t-ink);
+    cursor: pointer;
+    transition: background-color var(--t-dur-fast) var(--t-ease-out), border-color var(--t-dur-fast) var(--t-ease-out),
+      transform var(--t-dur-fast) var(--t-ease-out);
+  }
+
+  .tamarinse-reviews__arrow:hover {
+    border-color: var(--t-text-mid);
+  }
+
+  .tamarinse-reviews__arrow:active {
+    transform: scale(0.94);
+  }
+
   @media screen and (min-width: 750px) {
-    .tamarinse-reviews__grid {
-      grid-template-columns: repeat(2, 1fr);
+    .tamarinse-reviews__nav {
+      display: flex;
     }
   }
 
-  @media screen and (min-width: 990px) {
-    .tamarinse-reviews__grid {
-      grid-template-columns: repeat(3, 1fr);
+  @media (prefers-reduced-motion: reduce) {
+    .tamarinse-reviews__card,
+    .tamarinse-reviews__arrow {
+      transition: none;
+    }
+
+    .tamarinse-reviews__card:hover {
+      transform: none;
     }
   }
 {% endstylesheet %}
@@ -218,13 +432,14 @@
     },
     {
       "type": "header",
-      "content": "Badge"
+      "content": "Rating card"
     },
     {
       "type": "checkbox",
       "id": "show_badge",
-      "label": "Show rating badge",
-      "default": true
+      "label": "Show rating card",
+      "default": true,
+      "info": "Dark card at the start of the rail with the overall rating."
     },
     {
       "type": "range",

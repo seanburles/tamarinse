@@ -52,15 +52,28 @@
 {% stylesheet %}
   .tamarinse-reviews-badge {
     display: inline-flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: var(--t-space-xs);
+    column-gap: 0.5rem;
+    row-gap: 0.15rem;
     margin: 0;
     font-size: var(--t-type-small);
+    line-height: 1.3;
   }
 
+  /* Flex row so the 5th star never orphans onto its own line */
   .tamarinse-reviews-badge__stars {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 0.12em;
     color: var(--t-accent-2);
-    letter-spacing: 0.15em;
+    white-space: nowrap;
+  }
+
+  .tamarinse-reviews-badge__star {
+    flex: none;
+    line-height: 1;
   }
 
   .tamarinse-reviews-badge__star--empty {
@@ -85,5 +98,6 @@
 
   .tamarinse-reviews-badge__text {
     color: var(--t-text-low);
+    min-width: 0;
   }
 {% endstylesheet %}

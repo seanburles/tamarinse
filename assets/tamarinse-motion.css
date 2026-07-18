@@ -1,0 +1,81 @@
+/*
+  Tamarinse™ shared motion
+  ------------------------
+  Scroll-triggered section headline + image reveals — quiet, editorial, slow.
+  Only armed when <html> has .t-motion (set by tamarinse-reveal.js), so a
+  JS failure never leaves content stuck at opacity: 0.
+*/
+
+html.t-motion [data-t-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 1rem, 0);
+  transition:
+    opacity 1000ms var(--t-ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
+    transform 1000ms var(--t-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+  transition-delay: calc(var(--t-reveal-delay, 0) * 110ms);
+}
+
+html.t-motion [data-t-reveal].is-revealed {
+  opacity: 1;
+  transform: none;
+}
+
+html.t-motion [data-t-reveal='eyebrow'] {
+  transform: translate3d(0, 0.55rem, 0);
+  transition-duration: 900ms;
+}
+
+html.t-motion [data-t-reveal='headline'] {
+  transform: translate3d(0, 1.25rem, 0);
+  transition-duration: 1250ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html.t-motion [data-t-reveal='left'] {
+  transform: translate3d(-1rem, 0, 0);
+}
+
+html.t-motion [data-t-reveal='right'] {
+  transform: translate3d(1rem, 0, 0);
+}
+
+html.t-motion [data-t-reveal='left'].is-revealed,
+html.t-motion [data-t-reveal='right'].is-revealed {
+  transform: none;
+}
+
+/*
+  Below-fold images: soft opacity only (no translate — avoids CLS feel).
+  Include transform in the transition list so section hover scales
+  (advisory portraits, gallery, etc.) still ease — a lone `transition:
+  opacity` shorthand was wiping those and making mobile hover snap.
+*/
+html.t-motion img[data-t-img] {
+  opacity: 0;
+  transition:
+    opacity 800ms var(--t-ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
+    transform var(--t-dur-slow, 600ms) var(--t-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+html.t-motion img[data-t-img].is-revealed {
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  [class^='tamarinse-'] a:not(.t-btn):not(.tamarinse-header-cta):hover {
+    text-decoration-thickness: 1px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.t-motion [data-t-reveal],
+  html.t-motion [data-t-reveal='eyebrow'],
+  html.t-motion [data-t-reveal='headline'],
+  html.t-motion [data-t-reveal='left'],
+  html.t-motion [data-t-reveal='right'],
+  html.t-motion img[data-t-img] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}

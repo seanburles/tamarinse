@@ -1,0 +1,239 @@
+/**
+ * Tamarinse — shared card-deck scroll reveal styles.
+ *
+ * Consumed by "The Problem" and "Everyday Exposure". The companion custom
+ * element (tamarinse-panel-stack.js) writes two custom properties on every
+ * [data-stack-card]:
+ *
+ *   --stack-enter  0 → 1  card slides up as an inset rounded card, settles
+ *   --stack-exit   0 → 1  the next card covers it: recede, round, dim
+ *
+ * Defaults (--stack-enter: 1, --stack-exit: 0) render every card settled,
+ * so styles are inert until the element scrubs them. Static fallbacks
+ * (reduced motion via [data-static], or JS never registering the element
+ * via :not(:defined)) collapse the deck into a plain stacked flow.
+ */
+
+tamarinse-panel-stack {
+  display: block;
+  /* 170svh of scroll per card transition + the pinned viewport itself.
+     Raised from 130svh (client 2026-07-18): more travel per card slows the
+     deck down so a single swipe can't blow through a whole transition. */
+  height: calc((var(--stack-count, 1) - 1) * 170svh + 100svh);
+  background: var(--t-bg);
+  --stack-radius: 28px;
+}
+
+.t-stack__sticky {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+}
+
+/* ── Cards ── */
+
+.t-stack__card {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  background: var(--t-surface);
+  /* Rounded while sliding in, flat when settled, rounded again as it recedes */
+  border-radius: calc(
+    (1 - var(--stack-enter, 1)) * var(--stack-radius) +
+    var(--stack-exit, 0) * var(--stack-radius)
+  );
+  transform:
+    translateY(calc((1 - var(--stack-enter, 1)) * 102%))
+    scale(calc(1 - (1 - var(--stack-enter, 1)) * 0.04 - var(--stack-exit, 0) * 0.06));
+  will-change: transform;
+}
+
+/* Cards after the first start below the fold until the JS scrubs them in
+   (prevents a flash of the last card covering the deck before first paint) */
+.t-stack__card + .t-stack__card {
+  --stack-enter: 0;
+}
+
+/* Horizontal variant (PDP, client 2026-07-18): cards sweep in from the left
+   and settle rightward instead of sliding up. Same progress machinery. */
+tamarinse-panel-stack[data-direction='horizontal'] .t-stack__card {
+  transform:
+    translateX(calc((1 - var(--stack-enter, 1)) * -102%))
+    scale(calc(1 - (1 - var(--stack-enter, 1)) * 0.04 - var(--stack-exit, 0) * 0.06));
+}
+
+tamarinse-panel-stack[data-direction='horizontal'] .t-stack__media img {
+  transform: scale(1.08) translateX(calc((1 - var(--stack-enter, 1)) * 5%));
+}
+
+/* Dim the outgoing card as the next one covers it */
+.t-stack__card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: rgb(12 15 13);
+  opacity: calc(var(--stack-exit, 0) * 0.45);
+  pointer-events: none;
+}
+
+.t-stack__media {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.t-stack__media picture,
+.t-stack__media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Per-card focal point: keeps the photo's subject in frame when the
+     cover-crop tightens (portrait/mobile viewports). Set by the section. */
+  object-position: var(--stack-focal-x, 50%) 50%;
+}
+
+/* Counter-parallax: the photo drifts against the card's slide, then rests */
+.t-stack__media img {
+  transform: scale(1.08) translateY(calc((1 - var(--stack-enter, 1)) * -5%));
+  will-change: transform;
+}
+
+.t-stack__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--t-photo-scrim);
+  pointer-events: none;
+}
+
+/* ── Copy ── */
+
+.t-stack__copy {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: var(--t-content-max);
+  margin: 0 auto;
+  /* Extra bottom padding keeps the last line clear of the sticky
+     add-to-cart bar that overlays the viewport bottom */
+  padding: var(--t-space-xl) var(--t-space-md) clamp(7rem, 16svh, 10.5rem);
+  /* Fade the words out first as the card is covered */
+  opacity: calc(1 - var(--stack-exit, 0) * 1.6);
+}
+
+/* Staggered text reveal: each element maps its own window of --stack-enter
+   (offset by --sr-delay) to a 0→1 progress used for fade + rise. Delays sit
+   late (≥0.5) so the lines land after the card has mostly settled — while
+   the card is still sliding, relative motion inside it reads as noise.
+   Delays must satisfy delay + 0.25 <= 1 so every line fully lands. */
+.t-stack-reveal {
+  --sr: clamp(0, calc((var(--stack-enter, 1) - var(--sr-delay, 0.6)) / 0.25), 1);
+  opacity: calc(var(--sr) * var(--sr));
+  transform: translateY(calc((1 - var(--sr)) * 3.25rem));
+}
+
+/* ── Progress rail: counter over ticks, right edge ── */
+
+.t-stack__progress {
+  position: absolute;
+  z-index: 4;
+  inset-inline-end: clamp(0.875rem, 3vw, 2.5rem);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--t-space-xs);
+  color: var(--t-photo-text);
+  pointer-events: none;
+  /* Glass pill keeps the rail legible over bright areas of the photos */
+  padding: 0.875rem 0.625rem;
+  border-radius: var(--t-radius-pill, 999px);
+  background: rgb(16 20 18 / 22%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgb(255 255 255 / 14%);
+}
+
+.t-stack__count {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+}
+
+.t-stack__count-total {
+  color: rgb(255 255 255 / 55%);
+}
+
+.t-stack__tick {
+  width: 2px;
+  height: 1.5rem;
+  border-radius: 1px;
+  background: rgb(255 255 255 / 30%);
+  transition:
+    background-color var(--t-dur-fast, 200ms) var(--t-ease-out),
+    height var(--t-dur-fast, 200ms) var(--t-ease-out);
+}
+
+.t-stack__tick[data-active] {
+  height: 2.5rem;
+  background: var(--t-photo-text);
+}
+
+/* ── Static fallback: reduced motion, or the custom element never loaded ── */
+
+tamarinse-panel-stack[data-static],
+tamarinse-panel-stack:not(:defined) {
+  height: auto;
+}
+
+tamarinse-panel-stack[data-static] .t-stack__sticky,
+tamarinse-panel-stack:not(:defined) .t-stack__sticky {
+  position: static;
+  height: auto;
+  overflow: visible;
+}
+
+tamarinse-panel-stack[data-static] .t-stack__card,
+tamarinse-panel-stack:not(:defined) .t-stack__card {
+  position: relative;
+  min-height: 92svh;
+  border-radius: 0;
+  transform: none;
+}
+
+tamarinse-panel-stack[data-static] .t-stack__card::after,
+tamarinse-panel-stack:not(:defined) .t-stack__card::after {
+  content: none;
+}
+
+tamarinse-panel-stack[data-static] .t-stack__media img,
+tamarinse-panel-stack:not(:defined) .t-stack__media img {
+  transform: none;
+}
+
+tamarinse-panel-stack[data-static] .t-stack__copy,
+tamarinse-panel-stack:not(:defined) .t-stack__copy {
+  opacity: 1;
+}
+
+tamarinse-panel-stack[data-static] .t-stack-reveal,
+tamarinse-panel-stack:not(:defined) .t-stack-reveal {
+  opacity: 1;
+  transform: none;
+}
+
+tamarinse-panel-stack[data-static] .t-stack__progress,
+tamarinse-panel-stack:not(:defined) .t-stack__progress {
+  display: none;
+}

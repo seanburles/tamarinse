@@ -63,6 +63,17 @@
   {% endif %}
   {{- block.shopify_attributes -}}
 >
+  {%- comment -%}
+    Seed-style Shop CTA — a compact accent pill beside the utilities so the
+    header always offers a clear purchase path, not just icons.
+  {%- endcomment -%}
+  <a
+    class="tamarinse-header-cta"
+    href="{{ routes.all_products_collection_url }}"
+  >
+    Shop
+  </a>
+
   {% if shop.customer_accounts_enabled %}
     {% liquid
       assign account_actions_style = ''

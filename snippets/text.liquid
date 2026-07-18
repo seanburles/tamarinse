@@ -90,11 +90,11 @@
 
 {% if fallback_text != blank and visible_text == blank %}
   <div {{ attributes | strip_newlines | strip }}>
-    {{ fallback_text }}
+    {{ fallback_text | replace: '™', '<span class="tamarinse-tm">™</span>' }}
   </div>
 {% elsif plain_text != blank %}
   <{{ element }} {{ attributes | strip_newlines | strip }}>
-    {{ block.settings.text }}
+    {{ block.settings.text | replace: '™', '<span class="tamarinse-tm">™</span>' }}
   </{{ element }}>
 {% endif %}
 

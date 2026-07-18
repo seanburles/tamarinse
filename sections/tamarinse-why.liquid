@@ -6,7 +6,7 @@
 <section class="tamarinse-why" id="TamarinseWhy-{{ section.id }}">
   <div class="tamarinse-why__inner">
     <header class="tamarinse-why__header">
-      <p class="t-eyebrow tamarinse-why__eyebrow">{{ section.settings.eyebrow }}</p>
+      <p class="t-eyebrow t-eyebrow--ruled tamarinse-why__eyebrow">{{ section.settings.eyebrow }}</p>
       <h2 class="tamarinse-why__title">{{ section.settings.title }}</h2>
     </header>
     <div class="tamarinse-why__pillars">
@@ -100,10 +100,32 @@
     transform: translateY(0);
   }
 
+  /* Hover: the top rule and index warm to brand green — a quiet acknowledgment
+     rather than a card lift. transition-delay is reset so hover feedback is
+     immediate (the stagger delay is only for the entrance). */
+  @media (hover: hover) {
+    .tamarinse-why__pillar[data-revealed] {
+      transition:
+        border-color var(--t-dur-fast) var(--t-ease-out),
+        opacity var(--t-dur-slow) var(--t-ease-out),
+        transform var(--t-dur-slow) var(--t-ease-out);
+      transition-delay: 0s;
+    }
+
+    .tamarinse-why__pillar[data-revealed]:hover {
+      border-block-start-color: var(--t-accent);
+    }
+
+    .tamarinse-why__pillar[data-revealed]:hover .tamarinse-why__pillar-index {
+      color: var(--t-accent);
+    }
+  }
+
   .tamarinse-why__pillar-index {
     font-size: var(--t-type-small);
     color: var(--t-text-low);
     letter-spacing: 0.1em;
+    transition: color var(--t-dur-fast) var(--t-ease-out);
   }
 
   .tamarinse-why__pillar-title {

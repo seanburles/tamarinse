@@ -16,10 +16,10 @@
   endif
 -%}
 
-<section class="tamarinse-science t-on-light" id="TamarinseScience-{{ section.id }}">
+<section class="tamarinse-science t-on-light" id="science">
   <div class="tamarinse-science__inner">
     <header class="tamarinse-science__rail">
-      <p class="t-eyebrow tamarinse-science__eyebrow">{{ section.settings.eyebrow }}</p>
+      <p class="t-eyebrow t-eyebrow--ruled tamarinse-science__eyebrow">{{ section.settings.eyebrow }}</p>
       <h2 class="tamarinse-science__title">{{ section.settings.title }}</h2>
       <p class="tamarinse-science__intro">{{ section.settings.intro }}</p>
 
@@ -139,6 +139,7 @@
 
   .tamarinse-science__item {
     border-block-start: 1px solid var(--t-border);
+    interpolate-size: allow-keywords;
   }
 
   .tamarinse-science__item:last-of-type {
@@ -207,17 +208,25 @@
     transform: rotate(0deg);
   }
 
-  /* Animated expansion (progressive enhancement: older browsers snap open) */
+  /* Animated expand/collapse (progressive enhancement: older browsers snap) */
   .tamarinse-science__item::details-content {
     block-size: 0;
     overflow: clip;
+    opacity: 0;
     transition:
       block-size var(--t-dur-med) var(--t-ease-out),
+      opacity var(--t-dur-med) var(--t-ease-out),
       content-visibility var(--t-dur-med) allow-discrete;
   }
 
   .tamarinse-science__item[open]::details-content {
     block-size: auto;
+    opacity: 1;
+
+    @starting-style {
+      block-size: 0;
+      opacity: 0;
+    }
   }
 
   .tamarinse-science__panel {
@@ -275,10 +284,13 @@
     width: 150px;
   }
 
+  /* Bundled photos are true-alpha webp (client 2026-07-18) — no blend-mode
+     needed. The old mix-blend-mode: multiply approach flashed the white
+     matte while the accordion's ::details-content transition ran, because
+     browsers suppress blending inside an animating composited layer. */
   .tamarinse-science__photo {
     width: 100%;
     height: auto;
-    mix-blend-mode: multiply; /* white product-photo backgrounds melt into the sand panel */
   }
 
   .tamarinse-science__kicker {

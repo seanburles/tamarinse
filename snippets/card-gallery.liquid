@@ -44,15 +44,23 @@
   endif
 
   assign ratio = '1'
+  assign ratio_value = 1.0
   case block_settings.image_ratio
     when 'landscape'
       assign ratio = '16 / 9'
+      assign ratio_value = 1.778
     when 'portrait'
       assign ratio = '4 / 5'
+      assign ratio_value = 0.8
+    when 'tall'
+      assign ratio = '2 / 3'
+      assign ratio_value = 0.667
     when 'square'
       assign ratio = '1'
+      assign ratio_value = 1.0
     when 'adapt'
       assign ratio = product.featured_media.preview_image.aspect_ratio | default: '1'
+      assign ratio_value = product.featured_media.preview_image.aspect_ratio | default: 1.0
   endcase
 
   if block_settings.image_ratio == 'adapt' and block_settings.constrain_to_viewport
@@ -144,11 +152,23 @@
             assign class = class | append: ' constrain-height'
           endif
 
+          # Letterbox media whose aspect ratio differs from the gallery window
+          # instead of cover-cropping it (e.g. a landscape shot in a tall window).
+          assign slide_media_fit = media_fit
+          if slide_media_fit == blank
+            assign media_ratio = media.preview_image.aspect_ratio | default: 1.0
+            assign ratio_diff = media_ratio | minus: ratio_value | abs
+            if ratio_diff > 0.1
+              assign slide_media_fit = 'contain'
+              assign class = class | append: ' product-media-container--letterboxed'
+            endif
+          endif
+
           capture slideshow_children
             render 'product-media', media: media, sizes: sizes, loading: loading, preview_image_only: true
           endcapture
 
-          render 'slideshow-slide', slide_id: media.id, index: forloop.index0, hidden: hidden, class: class, attributes: attributes, children: slideshow_children, media_fit: media_fit
+          render 'slideshow-slide', slide_id: media.id, index: forloop.index0, hidden: hidden, class: class, attributes: attributes, children: slideshow_children, media_fit: slide_media_fit
         endfor
       endcapture
 
@@ -215,6 +235,13 @@
 
   .card-gallery svg {
     aspect-ratio: var(--gallery-aspect-ratio, var(--ratio));
+  }
+
+  /* Letterboxed slides (media narrower/wider than the gallery window) sit on
+     the baseline so the image stays flush with the card text, matching where
+     cover-fit slides end. */
+  .card-gallery .product-media-container--letterboxed img {
+    object-position: center bottom;
   }
 
   .product-card-gallery__title-placeholder {

@@ -1,142 +1,265 @@
 {% comment %}
-  The Problem (MASTER_PROMPT #4) — full-screen immersive photography, one
-  statistic per screen, minimal copy. Block-based: statistic + source citation
+  The Problem (MASTER_PROMPT #4) — scroll-pinned card-deck reveal. Each
+  statistic is a full-bleed photo card that slides up over the previous one
+  while the copy scrubs in with a stagger (shared machinery:
+  tamarinse-panel-stack.js/.css). Block-based: statistic + source citation
   + art-directed desktop/mobile images (CONTENT.md: stats need real cited
   sources before launch — source field is required rendering, not optional
   decoration).
 {% endcomment %}
 
-<section class="tamarinse-problem" id="TamarinseProblem-{{ section.id }}">
+{{ 'tamarinse-panel-stack.css' | asset_url | stylesheet_tag }}
+
+<tamarinse-panel-stack
+  class="tamarinse-problem"
+  id="TamarinseProblem-{{ section.id }}"
+  style="--stack-count: {{ section.blocks.size }};"
+  {% if section.settings.slide_direction == 'side' %}data-direction="horizontal"{% endif %}
+>
   {%- if section.settings.title != blank -%}
     <h2 class="visually-hidden">{{ section.settings.title }}</h2>
   {%- endif -%}
 
-  {%- for block in section.blocks -%}
-    {%- liquid
-      # A merchant-picked image wins; otherwise fall back to a bundled theme
-      # asset (image_picker settings cannot reference theme assets directly).
-      assign has_photo = false
-      if block.settings.image != blank or block.settings.asset_fallback != blank
-        assign has_photo = true
-      endif
-    -%}
-    <div class="tamarinse-problem__panel{% if has_photo %} tamarinse-problem__panel--photo{% endif %}" {{ block.shopify_attributes }}>
-      <div class="tamarinse-problem__media" aria-hidden="{% if has_photo %}false{% else %}true{% endif %}">
-        {%- if block.settings.image != blank -%}
-          <picture>
-            {%- if block.settings.image_mobile != blank -%}
-              <source
-                media="(max-width: 749px)"
-                srcset="
-                  {{ block.settings.image_mobile | image_url: width: 500 }} 500w,
-                  {{ block.settings.image_mobile | image_url: width: 800 }} 800w,
-                  {{ block.settings.image_mobile | image_url: width: 1200 }} 1200w
-                "
-                sizes="100vw"
-                width="{{ block.settings.image_mobile.width }}"
-                height="{{ block.settings.image_mobile.height }}"
-              >
-            {%- endif -%}
-            {{
-              block.settings.image
-              | image_url: width: 2560
-              | image_tag:
-                widths: '832, 1200, 1600, 1920, 2560',
-                sizes: '100vw',
-                class: 'tamarinse-problem__image',
-                loading: 'lazy',
-                alt: block.settings.image.alt
-            }}
-          </picture>
-        {%- elsif block.settings.asset_fallback != blank -%}
-          <img
-            src="{{ block.settings.asset_fallback | asset_url }}"
-            class="tamarinse-problem__image"
-            alt=""
-            width="1820"
-            height="1024"
-            loading="lazy"
-          >
+  <div class="t-stack__sticky">
+    {%- if section.settings.intro_title != blank -%}
+      {%- comment -%}
+        Pinned deck title (client rev. 2): top-left like Everyday Exposure's,
+        so the first stat stays unobstructed. Rises in as the section pins,
+        rides over every card, and lifts away as the LAST card arrives.
+        Driven by --stack-progress + --stack-count (smoothed scroll).
+      {%- endcomment -%}
+      <span class="tamarinse-problem__top-scrim" aria-hidden="true"></span>
+      <p class="tamarinse-problem__intro-title{% unless section.settings.animate_title %} tamarinse-problem__intro-title--static{% endunless %}" aria-hidden="true">
+        <span>{{ section.settings.intro_title }}</span>
+      </p>
+    {%- endif -%}
+
+    {%- for block in section.blocks -%}
+      {%- liquid
+        # A merchant-picked image wins; otherwise fall back to a bundled theme
+        # asset (image_picker settings cannot reference theme assets directly).
+        assign has_photo = false
+        if block.settings.image != blank or block.settings.asset_fallback != blank
+          assign has_photo = true
+        endif
+      -%}
+      <div
+        class="t-stack__card tamarinse-problem__card"
+        data-stack-card
+        style="--stack-focal-x: {{ block.settings.focal_x | default: 50 }}%;"
+        {{ block.shopify_attributes }}
+      >
+        <div class="t-stack__media" aria-hidden="{% if has_photo %}false{% else %}true{% endif %}">
+          {%- if block.settings.image != blank -%}
+            <picture>
+              {%- if block.settings.image_mobile != blank -%}
+                <source
+                  media="(max-width: 749px)"
+                  srcset="
+                    {{ block.settings.image_mobile | image_url: width: 500 }} 500w,
+                    {{ block.settings.image_mobile | image_url: width: 800 }} 800w,
+                    {{ block.settings.image_mobile | image_url: width: 1200 }} 1200w
+                  "
+                  sizes="100vw"
+                  width="{{ block.settings.image_mobile.width }}"
+                  height="{{ block.settings.image_mobile.height }}"
+                >
+              {%- endif -%}
+              {{
+                block.settings.image
+                | image_url: width: 2560
+                | image_tag:
+                  widths: '832, 1200, 1600, 1920, 2560',
+                  sizes: '100vw',
+                  loading: 'lazy',
+                  alt: block.settings.image.alt
+              }}
+            </picture>
+          {%- elsif block.settings.asset_fallback != blank -%}
+            <img
+              src="{{ block.settings.asset_fallback | asset_url }}"
+              alt=""
+              width="1820"
+              height="1024"
+              loading="lazy"
+            >
+          {%- endif -%}
+        </div>
+        {%- if has_photo -%}
+          <span class="t-stack__scrim" aria-hidden="true"></span>
         {%- endif -%}
-        <span class="tamarinse-problem__scrim"></span>
+        <figure class="t-stack__copy tamarinse-problem__figure">
+          <p class="t-eyebrow t-eyebrow--ruled t-stack-reveal tamarinse-problem__eyebrow" style="--sr-delay: 0.5;">
+            {{- section.settings.eyebrow | default: 'The problem' }} — {{ forloop.index | prepend: '0' | slice: -2, 2 -}}
+          </p>
+          <blockquote class="tamarinse-problem__stat t-stack-reveal" style="--sr-delay: 0.62;">{{ block.settings.statistic }}</blockquote>
+          {%- if block.settings.source != blank -%}
+            <figcaption class="tamarinse-problem__source t-stack-reveal" style="--sr-delay: 0.74;">{{ block.settings.source }}</figcaption>
+          {%- endif -%}
+        </figure>
       </div>
-      <figure class="tamarinse-problem__figure">
-        <blockquote class="tamarinse-problem__stat">{{ block.settings.statistic }}</blockquote>
-        {%- if block.settings.source != blank -%}
-          <figcaption class="tamarinse-problem__source">{{ block.settings.source }}</figcaption>
-        {%- endif -%}
-      </figure>
+    {%- endfor -%}
+
+    <div class="t-stack__progress" aria-hidden="true">
+      <span class="t-stack__count">
+        <span data-stack-index>01</span>
+        <span class="t-stack__count-total">{{ section.blocks.size | prepend: '0' | slice: -2, 2 }}</span>
+      </span>
+      {%- for block in section.blocks -%}
+        <span class="t-stack__tick" data-stack-tick{% if forloop.first %} data-active{% endif %}></span>
+      {%- endfor -%}
     </div>
-  {%- endfor -%}
-</section>
+  </div>
+</tamarinse-panel-stack>
+
+<script src="{{ 'tamarinse-panel-stack.js' | asset_url }}" type="module"></script>
 
 {% stylesheet %}
-  .tamarinse-problem {
-    display: block;
-    background: var(--t-bg);
-    color: var(--t-text-hi);
-  }
-
-  .tamarinse-problem__panel {
-    position: relative;
-    min-height: 100svh;
-    display: flex;
-    align-items: flex-end;
-    padding: var(--t-space-xl) var(--t-space-md);
-  }
-
-  .tamarinse-problem__media {
+  /* Top-left shade so the pinned title stays legible over bright skies —
+     same treatment as Everyday Exposure's, weighted to the title corner. */
+  .tamarinse-problem__top-scrim {
     position: absolute;
-    inset: 0;
-    overflow: hidden;
-    background: var(--t-surface);
+    inset-inline: 0;
+    top: 0;
+    height: 44%;
+    z-index: 4;
+    background:
+      radial-gradient(130% 115% at 0% 0%, rgb(16 20 18 / 62%), rgb(16 20 18 / 26%) 55%, transparent 78%),
+      linear-gradient(to bottom, rgb(16 20 18 / 30%), transparent 70%);
+    pointer-events: none;
   }
 
-  .tamarinse-problem__image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .tamarinse-problem__scrim {
+  /* Pinned deck title, top-left (client rev. 2 — matches Everyday Exposure).
+     Two progress windows on the pin's smoothed --stack-progress:
+     entrance 0 → 0.06 (rise + fade in as the section pins), exit as the
+     LAST card arrives — its start is derived from --stack-count, so the
+     title holds through every slide regardless of how many the client adds.
+     Pure CSS math, no extra listeners, inherits the scroll smoothing. */
+  .tamarinse-problem__intro-title {
     position: absolute;
-    inset: 0;
-  }
-
-  /* Photo panels: white copy over a dark scrim. Placeholder panels stay light. */
-  .tamarinse-problem__panel--photo .tamarinse-problem__scrim {
-    background: var(--t-photo-scrim);
-  }
-
-  .tamarinse-problem__panel--photo .tamarinse-problem__stat {
+    z-index: 5;
+    inset-inline: var(--t-space-md);
+    top: calc(var(--header-height, 64px) + var(--t-space-md));
+    margin: 0;
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-h2);
+    line-height: var(--t-leading-heading);
+    font-weight: var(--t-weight-heading);
+    text-align: left;
     color: var(--t-photo-text);
+    text-shadow: 0 2px 24px rgb(12 15 13 / 45%);
+    pointer-events: none;
+    --intro-in: clamp(0, calc(var(--stack-progress, 0) / 0.06), 1);
+    --intro-exit-start: calc((var(--stack-count, 3) - 2) / (var(--stack-count, 3) - 1));
+    --intro-out: clamp(
+      0,
+      calc((var(--stack-progress, 0) - var(--intro-exit-start)) / 0.14),
+      1
+    );
+    opacity: calc(var(--intro-in) * (1 - var(--intro-out)));
   }
 
-  .tamarinse-problem__panel--photo .tamarinse-problem__source {
-    color: var(--t-photo-text-mid);
+  .tamarinse-problem__intro-title span {
+    display: block;
+    max-width: 14ch;
+    text-wrap: balance;
+    transform: translateY(calc((1 - var(--intro-in)) * 1.75rem - var(--intro-out) * 2rem));
+  }
+
+  /* Section checkbox opt-out: the title simply stays pinned */
+  .tamarinse-problem__intro-title--static {
+    opacity: 1;
+  }
+
+  .tamarinse-problem__intro-title--static span {
+    transform: none;
+  }
+
+  @media (min-width: 990px) {
+    .tamarinse-problem__intro-title {
+      inset-inline-start: clamp(2rem, 5vw, 4.5rem);
+    }
+  }
+
+  /* Static fallback (reduced motion / element never registered): the deck
+     is a plain flow — the scrim goes, and the title becomes a normal
+     heading above the cards (the visually-hidden h2 still serves AT). */
+  tamarinse-panel-stack[data-static] .tamarinse-problem__top-scrim,
+  tamarinse-panel-stack:not(:defined) .tamarinse-problem__top-scrim {
+    display: none;
+  }
+
+  tamarinse-panel-stack[data-static] .tamarinse-problem__intro-title,
+  tamarinse-panel-stack:not(:defined) .tamarinse-problem__intro-title {
+    position: static;
+    color: var(--t-text-hi);
+    text-shadow: none;
+    opacity: 1;
+    padding: var(--t-space-xl) var(--t-space-md) var(--t-space-lg);
+  }
+
+  tamarinse-panel-stack[data-static] .tamarinse-problem__intro-title span,
+  tamarinse-panel-stack:not(:defined) .tamarinse-problem__intro-title span {
+    transform: none;
+  }
+
+  /* Client 2026-07-18: "The problem" must be emphasized and the section has
+     to read easily. The label steps up from a muted eyebrow to a full-white,
+     larger lockup, and the copy gets a deeper scrim + soft shadow so the
+     stats stay legible over every photo. */
+  .tamarinse-problem__eyebrow {
+    color: var(--t-photo-text);
+    font-size: var(--t-type-body);
+    letter-spacing: 0.2em;
+    margin: 0 0 var(--t-space-sm);
   }
 
   .tamarinse-problem__figure {
-    position: relative;
     margin: 0;
-    max-width: var(--t-content-max);
-    margin-inline: auto;
-    width: 100%;
   }
 
   .tamarinse-problem__stat {
     font-family: var(--t-font-heading);
     font-size: var(--t-type-h2);
-    line-height: var(--t-leading-heading);
-    max-width: 22ch;
+    /* A touch looser than the heading token — these stats run 3–4 lines
+       at display size, and tight leading is what made them hard to read */
+    line-height: 1.22;
+    color: var(--t-photo-text);
+    max-width: 20ch;
     margin: 0 0 var(--t-space-sm);
     text-wrap: balance;
+    text-shadow: 0 2px 28px rgb(12 15 13 / 45%);
   }
 
   .tamarinse-problem__source {
     font-size: var(--t-type-small);
-    color: var(--t-text-mid);
+    color: var(--t-photo-text);
+    opacity: 0.85;
     letter-spacing: 0.04em;
+  }
+
+  /* Deeper, taller legibility gradient than the shared scrim — the stat
+     block sits low on the photo, so darkness concentrates where the words
+     are and the photo stays open above. */
+  .tamarinse-problem__card .t-stack__scrim {
+    background: linear-gradient(
+      to top,
+      rgb(16 20 18 / 92%),
+      rgb(16 20 18 / 55%) 40%,
+      rgb(16 20 18 / 10%) 72%,
+      transparent
+    );
+  }
+
+  /* Cards without photography stay light — flip the copy back to ink */
+  .tamarinse-problem__card:not(:has(.t-stack__scrim)) .tamarinse-problem__stat {
+    color: var(--t-text-hi);
+    text-shadow: none;
+  }
+
+  .tamarinse-problem__card:not(:has(.t-stack__scrim)) .tamarinse-problem__eyebrow,
+  .tamarinse-problem__card:not(:has(.t-stack__scrim)) .tamarinse-problem__source {
+    color: var(--t-text-mid);
   }
 {% endstylesheet %}
 
@@ -154,6 +277,37 @@
       "id": "title",
       "label": "Accessible section title",
       "default": "The problem: everyday microplastics exposure"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow label",
+      "default": "The problem"
+    },
+    {
+      "type": "text",
+      "id": "intro_title",
+      "label": "Pinned title",
+      "default": "The Problem",
+      "info": "Top-left statement that rides over the cards. Leave blank to disable."
+    },
+    {
+      "type": "checkbox",
+      "id": "animate_title",
+      "label": "Animate pinned title",
+      "default": true,
+      "info": "On: the title rises in as the section pins and lifts away at the last card. Off: it simply stays pinned."
+    },
+    {
+      "type": "select",
+      "id": "slide_direction",
+      "label": "Card slide direction",
+      "options": [
+        { "value": "up", "label": "Bottom to top" },
+        { "value": "side", "label": "Left to right" }
+      ],
+      "default": "up",
+      "info": "The product page uses left to right as a variation on the homepage."
     },
     {
       "type": "paragraph",
@@ -187,10 +341,21 @@
           "label": "Image (portrait crop, mobile)"
         },
         {
+          "type": "range",
+          "id": "focal_x",
+          "label": "Focal point (horizontal)",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 50,
+          "info": "Where the photo's subject sits, left to right. Keeps it in frame when narrow screens crop the image."
+        },
+        {
           "type": "text",
           "id": "asset_fallback",
           "label": "Bundled photo filename",
-          "info": "Theme asset used until a real image is picked above (e.g. tamarinse-photo-containers.jpg)."
+          "info": "Theme asset used until a real image is picked above (e.g. tamarinse-photo-containers.webp)."
         }
       ]
     }
@@ -205,24 +370,25 @@
           "type": "statistic",
           "settings": {
             "statistic": "You could be ingesting up to a credit card's worth of plastic every week.",
-            "source": "WWF × University of Newcastle analysis, 2019 — verify before launch",
-            "asset_fallback": "tamarinse-photo-containers.jpg"
+            "source": "Senathirajah et al., Journal of Hazardous Materials, 2021",
+            "asset_fallback": "tamarinse-photo-containers.webp"
           }
         },
         {
           "type": "statistic",
           "settings": {
             "statistic": "Microplastics were detected in the blood of nearly 8 in 10 people tested.",
-            "source": "Environment International, 2022 — verify before launch",
-            "asset_fallback": "tamarinse-photo-tap-water.jpg"
+            "source": "Leslie et al., Environment International, 2022",
+            "asset_fallback": "tamarinse-photo-tap-water.webp",
+            "focal_x": 72
           }
         },
         {
           "type": "statistic",
           "settings": {
             "statistic": "A single liter of bottled water can contain around 240,000 plastic particles.",
-            "source": "Proceedings of the National Academy of Sciences, 2024 — verify before launch",
-            "asset_fallback": "tamarinse-photo-bottled-water.jpg"
+            "source": "Qian et al., Proceedings of the National Academy of Sciences, 2024",
+            "asset_fallback": "tamarinse-photo-bottled-water.webp"
           }
         }
       ]

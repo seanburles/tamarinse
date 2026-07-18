@@ -80,9 +80,9 @@
     "problem": {
       "type": "tamarinse-problem",
       "blocks": {
-        "stat1": { "type": "statistic", "settings": { "statistic": "You could be ingesting up to a credit card's worth of plastic every week.", "source": "WWF × University of Newcastle analysis, 2019 — verify before launch", "asset_fallback": "tamarinse-photo-containers.jpg" } },
-        "stat2": { "type": "statistic", "settings": { "statistic": "Microplastics were detected in the blood of nearly 8 in 10 people tested.", "source": "Environment International, 2022 — verify before launch", "asset_fallback": "tamarinse-photo-tap-water.jpg" } },
-        "stat3": { "type": "statistic", "settings": { "statistic": "A single liter of bottled water can contain around 240,000 plastic particles.", "source": "Proceedings of the National Academy of Sciences, 2024 — verify before launch", "asset_fallback": "tamarinse-photo-bottled-water.jpg" } }
+        "stat1": { "type": "statistic", "settings": { "statistic": "You could be ingesting up to a credit card's worth of plastic every week.", "source": "Senathirajah et al., Journal of Hazardous Materials, 2021", "asset_fallback": "tamarinse-photo-containers.webp" } },
+        "stat2": { "type": "statistic", "settings": { "statistic": "Microplastics were detected in the blood of nearly 8 in 10 people tested.", "source": "Leslie et al., Environment International, 2022", "asset_fallback": "tamarinse-photo-tap-water.webp", "focal_x": 72 } },
+        "stat3": { "type": "statistic", "settings": { "statistic": "A single liter of bottled water can contain around 240,000 plastic particles.", "source": "Qian et al., Proceedings of the National Academy of Sciences, 2024", "asset_fallback": "tamarinse-photo-bottled-water.webp" } }
       },
       "block_order": ["stat1", "stat2", "stat3"]
     },
@@ -128,7 +128,7 @@
       "type": "tamarinse-quality-standards",
       "blocks": {
         "std1": { "type": "standard", "settings": { "label": "USDA Organic", "icon": "leaf" } },
-        "std2": { "type": "standard", "settings": { "label": "Physician Formulated", "icon": "stethoscope" } },
+        "std2": { "type": "standard", "settings": { "label": "Physician Formulated", "icon": "asclepius" } },
         "std3": { "type": "standard", "settings": { "label": "Clinically Studied Ingredients", "icon": "flask" } },
         "std4": { "type": "standard", "settings": { "label": "Manufactured in the USA", "icon": "flag" } },
         "std5": { "type": "standard", "settings": { "label": "Third-Party Tested (when available)", "icon": "shield" } }
@@ -141,9 +141,9 @@
         "title": "Recommended by experts."
       },
       "blocks": {
-        "m1": { "type": "member", "settings": { "name": "Dr. Hubbard", "credentials": "Florida, USA", "portrait_asset": "tamarinse-advisor-hubbard.png" } },
-        "m2": { "type": "member", "settings": { "name": "Dr. Anita Gupta", "credentials": "California, USA", "portrait_asset": "tamarinse-advisor-gupta.png" } },
-        "m3": { "type": "member", "settings": { "name": "Dr. Jones", "credentials": "Maryland, USA", "portrait_asset": "tamarinse-advisor-jones.png" } }
+        "m1": { "type": "member", "settings": { "name": "Dr. Hubbard", "credentials": "Florida, USA", "portrait_asset": "tamarinse-advisor-hubbard.webp" } },
+        "m2": { "type": "member", "settings": { "name": "Dr. Anita Gupta", "credentials": "California, USA", "portrait_asset": "tamarinse-advisor-gupta.webp" } },
+        "m3": { "type": "member", "settings": { "name": "Dr. Jones", "credentials": "Maryland, USA", "portrait_asset": "tamarinse-advisor-jones.webp" } }
       },
       "block_order": ["m1", "m2", "m3"]
     },
@@ -159,9 +159,33 @@
     "everyday": {
       "type": "tamarinse-everyday-exposure",
       "blocks": {
-        "photo1": { "type": "photo", "settings": { "caption": "Parents making lunch", "asset_fallback": "tamarinse-photo-lunch.jpg" } },
-        "photo2": { "type": "photo", "settings": { "caption": "Coffee shops", "asset_fallback": "tamarinse-photo-coffee.jpg" } },
-        "photo3": { "type": "photo", "settings": { "caption": "Takeout meals", "asset_fallback": "tamarinse-photo-takeout.jpg" } }
+        "photo1": {
+          "type": "photo",
+          "settings": {
+            "caption": "At home",
+            "headline": "Plastic wrap. Cutting boards. Storage containers.",
+            "detail": "Everyday food prep sheds microscopic plastic particles straight into the meals you make for your family.",
+            "asset_fallback": "tamarinse-photo-lunch.webp"
+          }
+        },
+        "photo2": {
+          "type": "photo",
+          "settings": {
+            "caption": "Your morning coffee",
+            "headline": "A hot drink through a plastic-lined lid.",
+            "detail": "Most single-use cups and lids are lined with polyethylene — and heat helps particles migrate into your drink.",
+            "asset_fallback": "tamarinse-photo-coffee.webp"
+          }
+        },
+        "photo3": {
+          "type": "photo",
+          "settings": {
+            "caption": "Dinner on the go",
+            "headline": "Hot food, plastic containers.",
+            "detail": "Takeout packaging in direct contact with hot food is one of the most common exposure routes of all.",
+            "asset_fallback": "tamarinse-photo-takeout.webp"
+          }
+        }
       },
       "block_order": ["photo1", "photo2", "photo3"]
     },

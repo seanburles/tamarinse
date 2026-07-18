@@ -1,0 +1,386 @@
+{% comment %}
+  Lifestyle Media Rail — Seed-style horizontal scroller of mixed-shape frames
+  (square, vertical, horizontal, pill). Each frame is a block: merchant image
+  (or bundled asset placeholder), optional Shopify-hosted video, optional
+  glass caption chip, optional link. Drifts slowly on its own; any pointer,
+  touch, or keyboard interaction hands control back to the visitor.
+{% endcomment %}
+
+<section class="tamarinse-gallery" id="TamarinseGallery-{{ section.id }}">
+  <header class="tamarinse-gallery__header">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="t-eyebrow t-eyebrow--ruled-both tamarinse-gallery__eyebrow">{{ section.settings.eyebrow }}</p>
+    {%- endif -%}
+    {%- if section.settings.title != blank -%}
+      <h2 class="tamarinse-gallery__title">{{ section.settings.title }}</h2>
+    {%- endif -%}
+  </header>
+
+  <tamarinse-media-rail class="tamarinse-gallery__rail-wrap">
+    <div class="tamarinse-gallery__rail" data-rail tabindex="0" role="group" aria-label="{{ section.settings.title | default: 'Lifestyle gallery' | escape }}">
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign shape = block.settings.shape
+          assign tag = 'div'
+          if block.settings.link != blank
+            assign tag = 'a'
+          endif
+        -%}
+        <{{ tag }}
+          {% if tag == 'a' %}href="{{ block.settings.link }}"{% endif %}
+          class="tamarinse-gallery__frame tamarinse-gallery__frame--{{ shape }}"
+          {{ block.shopify_attributes }}
+        >
+          {%- if block.settings.video != blank -%}
+            {{
+              block.settings.video
+              | video_tag: autoplay: true, loop: true, muted: true, controls: false, playsinline: true, class: 'tamarinse-gallery__media'
+            }}
+          {%- elsif block.settings.video_asset != blank -%}
+            <video
+              class="tamarinse-gallery__media"
+              autoplay
+              muted
+              loop
+              playsinline
+              preload="auto"
+              {% if block.settings.video_poster_asset != blank %}
+                poster="{{ block.settings.video_poster_asset | asset_url }}"
+              {% endif %}
+              aria-label="{{ block.settings.caption | escape }}"
+            >
+              <source src="{{ block.settings.video_asset | asset_url }}" type="video/mp4">
+            </video>
+          {%- elsif block.settings.image != blank -%}
+            {{
+              block.settings.image
+              | image_url: width: 900
+              | image_tag: class: 'tamarinse-gallery__media', loading: 'lazy', widths: '450, 660, 900'
+            }}
+          {%- elsif block.settings.image_asset != blank -%}
+            <img
+              src="{{ block.settings.image_asset | asset_url }}"
+              alt="{{ block.settings.caption | escape }}"
+              class="tamarinse-gallery__media"
+              loading="lazy"
+              width="900"
+              height="900"
+            >
+          {%- endif -%}
+
+          {%- if block.settings.caption != blank -%}
+            <span class="tamarinse-gallery__caption">{{ block.settings.caption }}</span>
+          {%- endif -%}
+        </{{ tag }}>
+      {%- endfor -%}
+    </div>
+
+    <div class="tamarinse-gallery__nav" aria-hidden="false">
+      <button type="button" class="tamarinse-gallery__arrow" data-rail-prev aria-label="Previous">
+        <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"/></svg>
+      </button>
+      <button type="button" class="tamarinse-gallery__arrow" data-rail-next aria-label="Next">
+        <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"/></svg>
+      </button>
+    </div>
+  </tamarinse-media-rail>
+</section>
+
+<script src="{{ 'tamarinse-media-rail.js' | asset_url }}" type="module"></script>
+
+{% stylesheet %}
+  .tamarinse-gallery {
+    display: block;
+    background: var(--t-bg);
+    color: var(--t-text-hi);
+    padding: var(--t-space-section) 0;
+    overflow: hidden;
+  }
+
+  .tamarinse-gallery__header {
+    max-width: var(--t-content-max);
+    margin-inline: auto;
+    padding-inline: var(--t-space-md);
+    text-align: center;
+    margin-block-end: var(--t-space-xl);
+  }
+
+  .tamarinse-gallery__eyebrow {
+    color: var(--t-text-low);
+    margin: 0 0 var(--t-space-sm);
+  }
+
+  .tamarinse-gallery__title {
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-h2);
+    line-height: var(--t-leading-heading);
+    font-weight: var(--t-weight-heading);
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .tamarinse-gallery__rail-wrap {
+    display: block;
+    position: relative;
+  }
+
+  .tamarinse-gallery__rail {
+    display: flex;
+    align-items: center;
+    gap: var(--t-space-sm);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    /* Frames bleed off both edges — the rail starts at the content column
+       but scrolls edge to edge, like Seed's scroller. */
+    padding-inline: max(var(--t-space-md), calc((100vw - var(--t-content-max)) / 2));
+    padding-block: var(--t-space-2xs);
+    scrollbar-width: none;
+  }
+
+  .tamarinse-gallery__rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tamarinse-gallery__rail:focus-visible {
+    outline: 2px solid var(--t-accent);
+    outline-offset: 4px;
+  }
+
+  /* ---- Frames: mixed shapes give the rail its rhythm ---- */
+  .tamarinse-gallery__frame {
+    position: relative;
+    flex: none;
+    scroll-snap-align: center;
+    overflow: hidden;
+    border-radius: 20px;
+    background: var(--t-surface);
+    text-decoration: none;
+    /* height drives layout; width follows from the aspect ratio */
+    height: clamp(280px, 44vw, 430px);
+  }
+
+  .tamarinse-gallery__frame--square {
+    aspect-ratio: 1;
+  }
+
+  .tamarinse-gallery__frame--vertical {
+    aspect-ratio: 9 / 14;
+  }
+
+  .tamarinse-gallery__frame--horizontal {
+    aspect-ratio: 14 / 9;
+    height: clamp(200px, 32vw, 310px);
+  }
+
+  .tamarinse-gallery__frame--pill {
+    aspect-ratio: 14 / 9;
+    height: clamp(200px, 32vw, 310px);
+    border-radius: var(--t-radius-pill);
+  }
+
+  .tamarinse-gallery__media {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform var(--t-dur-slow) var(--t-ease-out);
+  }
+
+  .tamarinse-gallery__frame:hover .tamarinse-gallery__media {
+    transform: scale(1.03);
+  }
+
+  /* Glass caption chip */
+  .tamarinse-gallery__caption {
+    position: absolute;
+    inset-inline-start: var(--t-space-sm);
+    inset-block-end: var(--t-space-sm);
+    max-width: calc(100% - var(--t-space-sm) * 2);
+    padding: 0.375rem 0.875rem;
+    border-radius: var(--t-radius-pill);
+    background: rgb(253 252 250 / 55%);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgb(255 255 255 / 45%);
+    color: var(--t-ink);
+    font-family: var(--t-font-body);
+    font-size: var(--t-type-eyebrow);
+    font-weight: var(--t-weight-medium);
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .tamarinse-gallery__frame--pill .tamarinse-gallery__caption {
+    inset-inline-start: 50%;
+    transform: translateX(-50%);
+  }
+
+  /* ---- Glass arrows ---- */
+  .tamarinse-gallery__nav {
+    display: none;
+    justify-content: flex-end;
+    gap: var(--t-space-xs);
+    max-width: var(--t-content-max);
+    margin: var(--t-space-md) auto 0;
+    padding-inline: var(--t-space-md);
+  }
+
+  .tamarinse-gallery__arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--t-touch-target);
+    height: var(--t-touch-target);
+    border-radius: 50%;
+    border: 1px solid var(--t-border);
+    background: rgb(253 252 250 / 65%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--t-ink);
+    cursor: pointer;
+    transition:
+      background-color var(--t-dur-fast) var(--t-ease-out),
+      border-color var(--t-dur-fast) var(--t-ease-out),
+      transform var(--t-dur-fast) var(--t-ease-out);
+  }
+
+  .tamarinse-gallery__arrow:hover {
+    border-color: var(--t-text-mid);
+  }
+
+  .tamarinse-gallery__arrow:active {
+    transform: scale(0.94);
+  }
+
+  @media screen and (min-width: 750px) {
+    .tamarinse-gallery__nav {
+      display: flex;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tamarinse-gallery__media,
+    .tamarinse-gallery__arrow {
+      transition: none;
+    }
+
+    .tamarinse-gallery__frame:hover .tamarinse-gallery__media {
+      transform: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Tamarinse Media Rail",
+  "tag": "section",
+  "class": "tamarinse-gallery-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "In daily life"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Made for the everyday ritual."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "media",
+      "name": "Media frame",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "image_asset",
+          "label": "Placeholder asset filename",
+          "info": "Used when no image is selected (e.g. tamarinse-gallery-sink.webp)."
+        },
+        {
+          "type": "video",
+          "id": "video",
+          "label": "Video (optional)",
+          "info": "Plays muted on loop and replaces the image. Takes priority over bundled video."
+        },
+        {
+          "type": "text",
+          "id": "video_asset",
+          "label": "Bundled video filename",
+          "info": "Theme asset fallback (e.g. tamarinse-video-bottle.mp4)."
+        },
+        {
+          "type": "text",
+          "id": "video_poster_asset",
+          "label": "Bundled video poster filename",
+          "info": "Optional still shown before playback (e.g. tamarinse-video-lifestyle-kitchen-h-poster.webp)."
+        },
+        {
+          "type": "select",
+          "id": "shape",
+          "label": "Shape",
+          "options": [
+            { "value": "square", "label": "Square" },
+            { "value": "vertical", "label": "Vertical" },
+            { "value": "horizontal", "label": "Horizontal" },
+            { "value": "pill", "label": "Horizontal pill" }
+          ],
+          "default": "square"
+        },
+        {
+          "type": "text",
+          "id": "caption",
+          "label": "Caption chip"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link (optional)"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Tamarinse Media Rail",
+      "category": "Tamarinse",
+      "blocks": [
+        {
+          "type": "media",
+          "settings": { "image_asset": "tamarinse-gallery-sink.webp", "shape": "square", "caption": "Part of the morning routine" }
+        },
+        {
+          "type": "media",
+          "settings": { "image_asset": "tamarinse-gallery-capsules-hand.webp", "shape": "vertical", "caption": "Two capsules, once a day" }
+        },
+        {
+          "type": "media",
+          "settings": { "image_asset": "tamarinse-gallery-kitchen.webp", "shape": "pill", "caption": "At home on the counter" }
+        },
+        {
+          "type": "media",
+          "settings": { "image_asset": "tamarinse-gallery-gymbag.webp", "shape": "vertical", "caption": "Travels wherever you do" }
+        },
+        {
+          "type": "media",
+          "settings": { "image_asset": "tamarinse-gallery-morning.webp", "shape": "horizontal", "caption": "Designed for daily life" }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

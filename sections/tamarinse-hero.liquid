@@ -1,23 +1,63 @@
 {% comment %}
-  Tamarinse Hero — static, confident opener (client rev. 2026-07-16).
-  No scroll-pinning or scrubbing: one full-viewport screen, copy beside the
-  slowly rotating 3D bottle, with a single staggered entrance animation on
-  load. All copy is editable; defaults come from CONTENT.md.
+  Tamarinse Hero — pinned opener (client rev. 2026-07-18).
+  The section is a tall scroll track with a sticky full-viewport stage:
+  scrolling scrubs the bottle turntable, and the hero holds on screen until
+  the bottle completes one full rotation ("scroll-jack" via CSS sticky —
+  no wheel/touch hijacking, so accessibility and momentum stay native).
+  All copy is editable; defaults come from CONTENT.md.
 {% endcomment %}
 
 <section
   class="tamarinse-hero"
   id="TamarinseHero-{{ section.id }}"
-  style="--t-bottle-period: {{ section.settings.rotation_seconds }}s;"
+  style="--t-bottle-period: {{ section.settings.rotation_seconds }}s; --hero-scroll-length: {{ section.settings.scroll_length | default: 160 }}vh;"
 >
-  <div class="tamarinse-hero__inner">
+  <div class="tamarinse-hero__sticky">
+    <div class="tamarinse-hero__inner">
     <div class="tamarinse-hero__content">
+      {%- if section.settings.award_text != blank -%}
+        {%- comment -%}
+          Award lockup — set like an engraving instead of a promo chip. An
+          em-dash in the setting splits it into a quiet lead line and a
+          laurel-flanked prize line (festival-laurel style); without a dash
+          the whole text sits between the laurels.
+        {%- endcomment -%}
+        {%- assign award_parts = section.settings.award_text | split: '—' -%}
+        <p class="tamarinse-hero__award">
+          {%- if award_parts.size == 2 -%}
+            <span class="tamarinse-hero__award-lead">{{ award_parts[0] | strip }}</span>
+          {%- endif -%}
+          <span class="tamarinse-hero__award-main">
+            <svg class="tamarinse-hero__laurel" viewBox="0 0 22 30" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" aria-hidden="true">
+              <path d="M19 29 C11.5 25 8 17 9.5 2.5"/>
+              <path d="M9.5 3 C6 4.5 4 7.5 4 11"/>
+              <path d="M9 8.5 C5.5 10 3.5 13 3.5 16.5"/>
+              <path d="M9.5 14 C6.5 15.5 5 18.5 5.5 22"/>
+              <path d="M11 19.5 C8.5 21 7.5 24 8.5 27"/>
+              <path d="M9.5 3 C12.5 5 14 8 13.5 11.5"/>
+              <path d="M9 8.5 C12 10.5 13.5 13.5 13 17"/>
+              <path d="M9.5 14 C12.5 16 13.5 19 12.5 22.5"/>
+            </svg>
+            <span>{{ award_parts.last | strip }}</span>
+            <svg class="tamarinse-hero__laurel tamarinse-hero__laurel--right" viewBox="0 0 22 30" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" aria-hidden="true">
+              <path d="M19 29 C11.5 25 8 17 9.5 2.5"/>
+              <path d="M9.5 3 C6 4.5 4 7.5 4 11"/>
+              <path d="M9 8.5 C5.5 10 3.5 13 3.5 16.5"/>
+              <path d="M9.5 14 C6.5 15.5 5 18.5 5.5 22"/>
+              <path d="M11 19.5 C8.5 21 7.5 24 8.5 27"/>
+              <path d="M9.5 3 C12.5 5 14 8 13.5 11.5"/>
+              <path d="M9 8.5 C12 10.5 13.5 13.5 13 17"/>
+              <path d="M9.5 14 C12.5 16 13.5 19 12.5 22.5"/>
+            </svg>
+          </span>
+        </p>
+      {%- endif -%}
       <h1 class="tamarinse-hero__headline">{{ section.settings.headline | replace: '™', '<sup class="tamarinse-hero__tm">™</sup>' }}</h1>
       <p class="tamarinse-hero__subheadline">{{ section.settings.subheadline }}</p>
       <div class="tamarinse-hero__actions">
         {%- if section.settings.primary_cta_label != blank -%}
           <a
-            class="t-btn t-btn--accent"
+            class="t-btn t-btn--pill"
             href="{{ section.settings.primary_cta_link | default: routes.all_products_collection_url }}"
           >
             {{- section.settings.primary_cta_label -}}
@@ -42,29 +82,40 @@
             {%- assign badges = 'badge_1,badge_2,badge_3' | split: ',' -%}
             {%- for key in badges -%}
               {%- if section.settings[key] != blank -%}
-                {{
-                  section.settings[key]
-                  | image_url: width: 160
-                  | image_tag: class: 'tamarinse-hero__badge', loading: 'lazy', alt: section.settings[key].alt
-                }}
+                <span class="tamarinse-hero__badge-cell">
+                  {{
+                    section.settings[key]
+                    | image_url: width: 160
+                    | image_tag: class: 'tamarinse-hero__badge', loading: 'lazy', alt: section.settings[key].alt
+                  }}
+                </span>
               {%- endif -%}
             {%- endfor -%}
           {%- else -%}
             {%- comment -%} Bundled certification badges (tamarinse.com) {%- endcomment -%}
-            <img src="{{ 'tamarinse-badge-usda.png' | asset_url }}" class="tamarinse-hero__badge" alt="USDA Organic" width="400" height="400" loading="lazy">
-            <img src="{{ 'tamarinse-badge-usa.png' | asset_url }}" class="tamarinse-hero__badge" alt="Made in USA" width="400" height="400" loading="lazy">
-            <img src="{{ 'tamarinse-badge-gmp.png' | asset_url }}" class="tamarinse-hero__badge" alt="Good Manufacturing Practice certified" width="400" height="400" loading="lazy">
+            <span class="tamarinse-hero__badge-cell"><img src="{{ 'tamarinse-badge-usda.webp' | asset_url }}" class="tamarinse-hero__badge" alt="USDA Organic" width="400" height="400" loading="lazy"></span>
+            <span class="tamarinse-hero__badge-cell"><img src="{{ 'tamarinse-badge-usa.webp' | asset_url }}" class="tamarinse-hero__badge" alt="Made in USA" width="400" height="400" loading="lazy"></span>
+            <span class="tamarinse-hero__badge-cell"><img src="{{ 'tamarinse-badge-gmp.webp' | asset_url }}" class="tamarinse-hero__badge" alt="Good Manufacturing Practice certified" width="400" height="400" loading="lazy"></span>
           {%- endif -%}
         </div>
       {%- endif -%}
     </div>
 
-    <tamarinse-bottle-scene
+    {%- comment -%}
+      Scroll-scrubbed 360° turntable — frames rendered from the product
+      video with the studio backdrop keyed out. Grab-to-rotate included.
+      data-scroll-root points at the tall section wrapper: progress through
+      its pinned range drives exactly one full rotation.
+    {%- endcomment -%}
+    <tamarinse-bottle-sequence
       class="tamarinse-hero__scene"
-      data-environment="{{ 'brown_photostudio_02_1k.exr' | asset_url }}"
-      data-logo="{{ 'tamarinse-logo.png' | asset_url }}"
+      data-scroll-root=".tamarinse-hero"
+      data-frame-count="120"
+      data-frames-desktop="{{ 'tamarinse-bottle-frame-000.webp' | asset_url }}"
+      data-frames-mobile="{{ 'tamarinse-bottle-frame-m-000.webp' | asset_url }}"
       aria-hidden="true"
     >
+      <canvas class="tamarinse-hero__canvas"></canvas>
       <div class="tamarinse-hero__fallback">
         {%- if section.settings.fallback_image != blank -%}
           {{
@@ -77,31 +128,67 @@
               alt: section.settings.fallback_image.alt
           }}
         {%- else -%}
-          {%- comment -%} Bundled product photo (tamarinse.com) until a merchant image is picked {%- endcomment -%}
-          <img
-            src="{{ 'tamarinse-bottle-photo-hires.jpg' | asset_url }}"
-            class="tamarinse-hero__fallback-image"
-            alt="Tamarinse™ bottle"
-            width="1290"
-            height="1632"
-          >
+          {%- comment -%}
+            First frame of the turntable sequence — identical to what the
+            canvas paints, so the swap to the live scrubber is seamless.
+          {%- endcomment -%}
+          <picture>
+            <source
+              media="(max-width: 749px)"
+              srcset="{{ 'tamarinse-bottle-frame-m-000.webp' | asset_url }}"
+              width="365"
+              height="704"
+            >
+            <img
+              src="{{ 'tamarinse-bottle-frame-000.webp' | asset_url }}"
+              class="tamarinse-hero__fallback-image"
+              alt="Tamarinse™ bottle"
+              width="597"
+              height="1152"
+            >
+          </picture>
         {%- endif -%}
       </div>
-    </tamarinse-bottle-scene>
+    </tamarinse-bottle-sequence>
+    </div>
   </div>
 </section>
 
-<script src="{{ 'tamarinse-bottle-scene.js' | asset_url }}" type="module"></script>
+<script src="{{ 'tamarinse-bottle-sequence.js' | asset_url }}" type="module"></script>
 
 {% stylesheet %}
   .tamarinse-hero {
     display: block;
     background: var(--t-bg);
     color: var(--t-text-hi);
-    min-height: calc(100svh - var(--header-height, 64px));
-    padding: var(--t-space-lg) var(--t-space-md) var(--t-space-xl);
+    /* Scroll-jack track: the extra height is the scrub distance the visitor
+       travels while the sticky stage below holds the hero on screen for one
+       full bottle rotation. */
+    height: calc(100svh + var(--hero-scroll-length, 160vh));
+  }
+
+  .tamarinse-hero__sticky {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    overflow: hidden;
     display: flex;
     align-items: center;
+    /* Top pad clears the overlaying header while pinned */
+    padding: calc(var(--header-height, 64px) + var(--t-space-2xs)) var(--t-space-md) var(--t-space-lg);
+  }
+
+  /* Reduced motion (set by the sequence element): no pin, no dead scroll —
+     back to a single confident screen. */
+  .tamarinse-hero[data-static] {
+    height: auto;
+  }
+
+  .tamarinse-hero[data-static] .tamarinse-hero__sticky {
+    position: static;
+    height: auto;
+    min-height: calc(100svh - var(--header-height, 64px));
+    overflow: visible;
   }
 
   .tamarinse-hero__inner {
@@ -122,6 +209,55 @@
     max-width: var(--t-copy-max);
     gap: var(--t-space-sm);
     animation: tamarinse-hero-rise 900ms var(--t-ease-out) both;
+  }
+
+  /* Award lockup — the one place the accent green appears in the hero besides
+     the CTA. Set like an engraving: a quiet lead line over a laurel-flanked
+     prize line, no chip fill, so it reads as an honor rather than a sticker. */
+  .tamarinse-hero__award {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.3rem;
+    margin: 0 0 var(--t-space-2xs);
+  }
+
+  .tamarinse-hero__award-lead {
+    display: block;
+    width: 100%;
+    color: var(--t-text-low);
+    font-size: 0.6875rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: var(--t-weight-medium);
+    text-align: center;
+    /* Cancel trailing letter-spacing so the line optically centers */
+    margin-inline-end: -0.22em;
+  }
+
+  .tamarinse-hero__award-main {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625em;
+    color: var(--t-accent-deep);
+    font-family: var(--t-font-heading);
+    font-size: 0.9375rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    font-weight: var(--t-weight-semibold);
+    white-space: nowrap;
+  }
+
+  .tamarinse-hero__laurel {
+    width: auto;
+    height: 1.7em;
+    flex: none;
+    opacity: 0.8;
+  }
+
+  .tamarinse-hero__laurel--right {
+    transform: scaleX(-1);
   }
 
   .tamarinse-hero__headline {
@@ -167,6 +303,10 @@
     margin-block-start: var(--t-space-md);
   }
 
+  .tamarinse-hero__badge-cell {
+    display: inline-flex;
+  }
+
   .tamarinse-hero__badge {
     width: 48px;
     height: 48px;
@@ -174,11 +314,20 @@
     border-radius: 50%;
   }
 
+  /* Hairline dividers between certifications, echoing the brand poster's
+     badge strip */
+  .tamarinse-hero__badge-cell + .tamarinse-hero__badge-cell {
+    padding-inline-start: var(--t-space-sm);
+    border-inline-start: 1px solid var(--t-border);
+  }
+
   .tamarinse-hero__scene {
     position: relative;
     display: block;
-    width: min(78vw, 340px);
-    aspect-ratio: 4 / 5;
+    /* Height-driven box matching the turntable frames' aspect (597:1152)
+       so the bottle fills the canvas edge to edge */
+    height: min(52svh, 480px);
+    aspect-ratio: 597 / 1152;
     animation: tamarinse-hero-fade 1100ms var(--t-ease-out) 150ms both;
   }
 
@@ -200,8 +349,7 @@
     cursor: grabbing;
   }
 
-  /* Fallback bottle: shown until WebGL activates, and permanently on
-     low-tier devices */
+  /* Fallback bottle photo: shown until the turntable's first frame paints */
   .tamarinse-hero__fallback {
     position: absolute;
     inset: 0;
@@ -211,15 +359,26 @@
     transition: opacity var(--t-dur-slow) var(--t-ease-out);
   }
 
-  .tamarinse-hero__scene[data-webgl-active] .tamarinse-hero__fallback {
+  .tamarinse-hero__scene[data-active] .tamarinse-hero__fallback {
     opacity: 0;
+  }
+
+  .tamarinse-hero__fallback picture {
+    display: contents;
   }
 
   .tamarinse-hero__fallback-image {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
-    mix-blend-mode: multiply; /* melts the photo's white backdrop into the page */
+  }
+
+  /* Merchant-picked photos may have a white studio backdrop — melt it into
+     the page. The bundled sequence frame is transparent and skips this. */
+  .tamarinse-hero__fallback-image[src*='.jpg'],
+  .tamarinse-hero__fallback-image[src$='.jpeg'],
+  .tamarinse-hero__fallback-image[src*='.webp'] {
+    mix-blend-mode: multiply;
   }
 
   @keyframes tamarinse-hero-rise {
@@ -252,17 +411,24 @@
   }
 
   @media screen and (min-width: 990px) {
+    /* Center the copy + bottle as one composition with a fixed gap instead
+       of space-between, which pinned the bottle to the container's right
+       edge and left a dead zone in the middle. */
     .tamarinse-hero__inner {
       flex-direction: row;
-      justify-content: space-between;
-      gap: var(--t-space-xl);
+      justify-content: center;
+      gap: clamp(var(--t-space-xl), 6vw, 6.5rem);
     }
 
     .tamarinse-hero__content {
       align-items: flex-start;
       text-align: left;
-      flex: 1 1 50%;
+      flex: 0 1 34rem;
       min-width: 0;
+    }
+
+    .tamarinse-hero__award {
+      align-items: flex-start;
     }
 
     /* The split layout leaves the copy ~50% of the row minus the bottle
@@ -278,7 +444,7 @@
 
     .tamarinse-hero__scene {
       flex: 0 0 auto;
-      width: min(38vw, 460px);
+      height: min(64svh, 680px);
     }
   }
 {% endstylesheet %}
@@ -307,6 +473,13 @@
       "id": "subheadline",
       "label": "Subheadline",
       "default": "Physician Formulated • USDA Organic • Clinically Studied Ingredients. Made in the USA"
+    },
+    {
+      "type": "text",
+      "id": "award_text",
+      "label": "Award line",
+      "default": "Award-Winning Ingredients — 2026 Earth Prize Winner",
+      "info": "Shown as a green chip above the headline. Leave blank to hide."
     },
     {
       "type": "text",
@@ -375,6 +548,17 @@
       "step": 1,
       "unit": "s",
       "default": 24
+    },
+    {
+      "type": "range",
+      "id": "scroll_length",
+      "label": "Pinned rotation scroll distance",
+      "min": 100,
+      "max": 300,
+      "step": 10,
+      "unit": "vh",
+      "default": 160,
+      "info": "How far the visitor scrolls while the hero stays pinned for one full bottle turn. Longer = slower rotation."
     }
   ],
   "presets": [

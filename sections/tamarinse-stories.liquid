@@ -1,0 +1,858 @@
+{% comment %}
+  Stories rail (MASTER_PROMPT #13 "video stories") — Seed-style mixed-media
+  scroller. Same language as the lifestyle gallery: frames in varied shapes
+  (vertical story, square, horizontal, pill), each a video, still, or link.
+  Videos use a custom glass player (no native chrome). Without footage the
+  rail still ships beautiful on poster images alone.
+{% endcomment %}
+
+<section class="tamarinse-stories" id="TamarinseStories-{{ section.id }}">
+  <header class="tamarinse-stories__header">
+    <p class="t-eyebrow t-eyebrow--ruled tamarinse-stories__eyebrow">{{ section.settings.eyebrow }}</p>
+    <h2 class="tamarinse-stories__title">{{ section.settings.title }}</h2>
+  </header>
+
+  <tamarinse-media-rail class="tamarinse-stories__rail-wrap">
+    <div class="tamarinse-stories__rail" data-rail tabindex="0" role="group" aria-label="{{ section.settings.title | default: 'Stories' | escape }}">
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign shape = block.settings.shape | default: 'vertical'
+          assign has_video = false
+          if block.settings.video != blank or block.settings.video_asset != blank
+            assign has_video = true
+          endif
+          assign is_link = false
+          if block.settings.link != blank and has_video == false
+            assign is_link = true
+          endif
+        -%}
+
+        {%- if is_link -%}
+          <a
+            href="{{ block.settings.link }}"
+            class="tamarinse-stories__card tamarinse-stories__card--{{ shape }} tamarinse-stories__card--link"
+            {%- if block.settings.link contains '//' %}
+            target="_blank"
+            rel="noopener"
+            {% endif -%}
+            {{ block.shopify_attributes }}
+          >
+        {%- else -%}
+          <tamarinse-story-card
+            class="tamarinse-stories__card tamarinse-stories__card--{{ shape }}{% if has_video %} tamarinse-stories__card--video{% endif %}"
+            {{ block.shopify_attributes }}
+          >
+        {%- endif -%}
+
+          {%- if has_video -%}
+            <template data-story-video>
+              {%- if block.settings.video != blank -%}
+                {%- comment -%}
+                  No autoplay/muted in markup — we play() from the user gesture
+                  so unmute works. Autoplay+muted fights the mute toggle.
+                {%- endcomment -%}
+                {{
+                  block.settings.video
+                  | video_tag: controls: false, autoplay: false, muted: false, loop: true, playsinline: true, preload: 'none', class: 'tamarinse-stories__video'
+                }}
+              {%- else -%}
+                {%- comment -%}
+                  Theme-asset fallback for local/dev footage. Shopify `video`
+                  settings only accept Files uploads — this path lets us test
+                  bundled mp4s without leaving the theme.
+                {%- endcomment -%}
+                <video
+                  class="tamarinse-stories__video"
+                  playsinline
+                  preload="none"
+                  loop
+                >
+                  <source src="{{ block.settings.video_asset | asset_url }}" type="video/mp4">
+                </video>
+              {%- endif -%}
+            </template>
+          {%- endif -%}
+
+          <span class="tamarinse-stories__poster">
+            {%- if block.settings.poster != blank -%}
+              {{
+                block.settings.poster
+                | image_url: width: 900
+                | image_tag: widths: '360, 540, 720, 900', sizes: '(min-width: 750px) 28vw, 70vw', class: 'tamarinse-stories__poster-image', loading: 'lazy', alt: block.settings.name
+              }}
+            {%- elsif block.settings.poster_asset != blank -%}
+              <img
+                src="{{ block.settings.poster_asset | asset_url }}"
+                alt="{{ block.settings.name | escape }}"
+                class="tamarinse-stories__poster-image"
+                width="720"
+                height="1280"
+                loading="lazy"
+              >
+            {%- endif -%}
+            <span class="tamarinse-stories__scrim" aria-hidden="true"></span>
+          </span>
+
+          {%- if has_video -%}
+            <button type="button" class="tamarinse-stories__play" data-story-play aria-label="Play {{ block.settings.name | default: 'story' | escape }}">
+              <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,40V216a15.86,15.86,0,0,0,8.12,13.95,16,16,0,0,0,16.2-.3L232.4,141.51a15.95,15.95,0,0,0,0-27Z"/></svg>
+            </button>
+          {%- elsif is_link -%}
+            <span class="tamarinse-stories__affordance" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"/></svg>
+            </span>
+          {%- endif -%}
+
+          {%- comment -%}
+            Custom player chrome — only mounts into the DOM once play starts
+            (cloned from this template by the custom element).
+          {%- endcomment -%}
+          {%- if has_video -%}
+            <template data-story-controls>
+              <div class="tamarinse-stories__controls" data-story-controls-root>
+                <button type="button" class="tamarinse-stories__ctrl tamarinse-stories__ctrl--close" data-story-stop aria-label="Close video">
+                  <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>
+                </button>
+                <button type="button" class="tamarinse-stories__ctrl tamarinse-stories__ctrl--mute" data-story-mute aria-label="Mute">
+                  <svg class="tamarinse-stories__icon-unmute" width="16" height="16" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M155.51,24.81a8,8,0,0,0-8.42.88L77.25,80H32A16,16,0,0,0,16,96v64a16,16,0,0,0,16,16H77.25l69.84,54.31A8,8,0,0,0,160,224V32A8,8,0,0,0,155.51,24.81ZM144,207.64,84.91,161.69A7.94,7.94,0,0,0,80,160H32V96H80a7.94,7.94,0,0,0,4.91-1.69L144,48.36Zm54-106.08a40,40,0,0,1,0,52.88,8,8,0,1,1-12-10.58,24,24,0,0,0,0-31.72,8,8,0,0,1,12-10.58Z"/></svg>
+                  <svg class="tamarinse-stories__icon-mute" width="16" height="16" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M53.92,34.62A8,8,0,1,0,42.08,45.38L73.55,80H32A16,16,0,0,0,16,96v64a16,16,0,0,0,16,16H77.25l69.84,54.31A8,8,0,0,0,160,224V168.7l42.08,46.28a8,8,0,1,0,11.84-10.76ZM144,207.64,84.91,161.69A7.94,7.94,0,0,0,80,160H32V96H80a8,8,0,0,0,2.51-.41L144,143.7Zm70.42-65.13a8,8,0,0,1-11.25-1.35,40.1,40.1,0,0,0-6.46-7.15L215.5,115a8,8,0,0,1-1.08-11.3Z"/></svg>
+                </button>
+                {%- comment -%} Centered resume control — only visible while paused {%- endcomment -%}
+                <button type="button" class="tamarinse-stories__resume" data-story-resume aria-label="Play">
+                  <svg width="22" height="22" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,40V216a15.86,15.86,0,0,0,8.12,13.95,16,16,0,0,0,16.2-.3L232.4,141.51a15.95,15.95,0,0,0,0-27Z"/></svg>
+                </button>
+                <div class="tamarinse-stories__scrub">
+                  <div class="tamarinse-stories__scrub-track" data-story-scrub>
+                    <div class="tamarinse-stories__scrub-fill" data-story-progress></div>
+                  </div>
+                </div>
+              </div>
+            </template>
+          {%- endif -%}
+
+          {%- if block.settings.name != blank or block.settings.role != blank -%}
+            <span class="tamarinse-stories__chip">
+              {%- if block.settings.name != blank -%}
+                <span class="tamarinse-stories__name">{{ block.settings.name }}</span>
+              {%- endif -%}
+              {%- if block.settings.role != blank -%}
+                <span class="tamarinse-stories__role">{{ block.settings.role }}</span>
+              {%- endif -%}
+            </span>
+          {%- endif -%}
+
+        {%- if is_link -%}
+          </a>
+        {%- else -%}
+          </tamarinse-story-card>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+
+    <div class="tamarinse-stories__nav">
+      <button type="button" class="tamarinse-stories__arrow" data-rail-prev aria-label="Previous">
+        <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"/></svg>
+      </button>
+      <button type="button" class="tamarinse-stories__arrow" data-rail-next aria-label="Next">
+        <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"/></svg>
+      </button>
+    </div>
+  </tamarinse-media-rail>
+</section>
+
+<script src="{{ 'tamarinse-media-rail.js' | asset_url }}" type="module"></script>
+
+<script type="module">
+  if (!customElements.get('tamarinse-story-card')) {
+    customElements.define(
+      'tamarinse-story-card',
+      class extends HTMLElement {
+        #onTime = null;
+        #video = null;
+
+        connectedCallback() {
+          this.querySelector('[data-story-play]')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.play();
+          });
+        }
+
+        disconnectedCallback() {
+          this.stop();
+        }
+
+        play() {
+          const template = this.querySelector('template[data-story-video]');
+          if (!template || this.hasAttribute('data-playing')) return;
+
+          for (const other of document.querySelectorAll('tamarinse-story-card[data-playing]')) {
+            other.stop();
+          }
+
+          this.append(template.content.cloneNode(true));
+          const controlsTpl = this.querySelector('template[data-story-controls]');
+          if (controlsTpl) this.append(controlsTpl.content.cloneNode(true));
+
+          this.setAttribute('data-playing', '');
+          this.#video = this.querySelector('video.tamarinse-stories__video, video');
+          if (!this.#video) return;
+
+          /* Play() is called from the Play button gesture — start with sound. */
+          this.#applyMuted(false);
+          const start = this.#video.play?.();
+          if (start?.catch) {
+            start.catch(() => {
+              /* Browser blocked sound — fall back to muted playback */
+              this.#applyMuted(true);
+              this.#video.play?.().catch(() => {});
+            });
+          }
+
+          this.#bindControls();
+        }
+
+        stop() {
+          if (this.#video && this.#onTime) {
+            this.#video.removeEventListener('timeupdate', this.#onTime);
+          }
+          this.querySelector('video')?.remove();
+          this.querySelector('[data-story-controls-root]')?.remove();
+          this.#video = null;
+          this.#onTime = null;
+          this.removeAttribute('data-playing');
+          this.removeAttribute('data-paused');
+          this.removeAttribute('data-muted');
+        }
+
+        #setPaused(paused) {
+          if (paused) this.setAttribute('data-paused', '');
+          else this.removeAttribute('data-paused');
+        }
+
+        /** Keep muted IDL + attribute + volume in sync (WebKit is picky). */
+        #applyMuted(muted) {
+          if (!this.#video) return;
+          this.#video.muted = muted;
+          this.#video.defaultMuted = muted;
+          if (muted) {
+            this.#video.setAttribute('muted', '');
+          } else {
+            this.#video.removeAttribute('muted');
+            if (this.#video.volume === 0) this.#video.volume = 1;
+          }
+          this.#syncMuteUi();
+        }
+
+        #bindControls() {
+          const root = this.querySelector('[data-story-controls-root]');
+          if (!root || !this.#video) return;
+
+          root.querySelector('[data-story-stop]')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.stop();
+          });
+
+          root.querySelector('[data-story-mute]')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.#applyMuted(!this.#video.muted);
+          });
+
+          const resume = () => {
+            this.#video.play?.();
+            this.#setPaused(false);
+          };
+
+          const pause = () => {
+            this.#video.pause?.();
+            this.#setPaused(true);
+          };
+
+          root.querySelector('[data-story-resume]')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            resume();
+          });
+
+          /* Tap the video to pause/resume — ignore if a control was the target */
+          this.#video.addEventListener('click', (e) => {
+            if (e.target.closest?.('[data-story-controls-root]')) return;
+            if (this.#video.paused) resume();
+            else pause();
+          });
+
+          this.#video.addEventListener('pause', () => this.#setPaused(true));
+          this.#video.addEventListener('play', () => this.#setPaused(false));
+          this.#video.addEventListener('volumechange', () => this.#syncMuteUi());
+
+          this.#onTime = () => {
+            const fill = root.querySelector('[data-story-progress]');
+            if (!fill || !this.#video.duration) return;
+            fill.style.width = `${(this.#video.currentTime / this.#video.duration) * 100}%`;
+          };
+          this.#video.addEventListener('timeupdate', this.#onTime);
+          this.#video.addEventListener('ended', () => this.stop());
+
+          /* Scrub by tapping the track */
+          root.querySelector('[data-story-scrub]')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const track = e.currentTarget;
+            const rect = track.getBoundingClientRect();
+            const ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+            if (this.#video.duration) this.#video.currentTime = ratio * this.#video.duration;
+          });
+
+          this.#syncMuteUi();
+          this.#setPaused(this.#video.paused);
+        }
+
+        #syncMuteUi() {
+          if (!this.#video) return;
+          const muted = this.#video.muted || this.#video.volume === 0;
+          this.toggleAttribute('data-muted', muted);
+          const btn = this.querySelector('[data-story-mute]');
+          if (btn) btn.setAttribute('aria-label', muted ? 'Unmute' : 'Mute');
+        }
+      }
+    );
+  }
+</script>
+
+{% stylesheet %}
+  .tamarinse-stories {
+    display: block;
+    background: var(--t-bg);
+    color: var(--t-text-hi);
+    padding: var(--t-space-section) 0;
+    overflow: hidden;
+  }
+
+  .tamarinse-stories__header {
+    max-width: var(--t-content-max);
+    margin-inline: auto;
+    padding-inline: var(--t-space-md);
+    margin-block-end: var(--t-space-xl);
+  }
+
+  .tamarinse-stories__eyebrow {
+    color: var(--t-text-low);
+    margin: 0 0 var(--t-space-sm);
+  }
+
+  .tamarinse-stories__title {
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-h2);
+    line-height: var(--t-leading-heading);
+    font-weight: var(--t-weight-heading);
+    margin: 0;
+    max-width: 24ch;
+    text-wrap: balance;
+  }
+
+  .tamarinse-stories__rail-wrap {
+    display: block;
+    position: relative;
+  }
+
+  .tamarinse-stories__rail {
+    display: flex;
+    align-items: center;
+    gap: var(--t-space-sm);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    padding-inline: max(var(--t-space-md), calc((100vw - var(--t-content-max)) / 2));
+    padding-block: var(--t-space-2xs) var(--t-space-sm);
+    scrollbar-width: none;
+  }
+
+  .tamarinse-stories__rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tamarinse-stories__rail:focus-visible {
+    outline: 2px solid var(--t-accent);
+    outline-offset: 4px;
+  }
+
+  /* ---- Cards: mixed shapes give the rail its rhythm (gallery language) ---- */
+  .tamarinse-stories__card {
+    position: relative;
+    display: block;
+    flex: none;
+    scroll-snap-align: center;
+    height: clamp(320px, 50vw, 460px);
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--t-surface);
+    text-decoration: none;
+    color: inherit;
+    transition: transform var(--t-dur-fast) var(--t-ease-out);
+  }
+
+  .tamarinse-stories__card--vertical {
+    aspect-ratio: 9 / 14;
+  }
+
+  .tamarinse-stories__card--square {
+    aspect-ratio: 1;
+  }
+
+  .tamarinse-stories__card--horizontal {
+    aspect-ratio: 14 / 9;
+    height: clamp(220px, 34vw, 320px);
+  }
+
+  .tamarinse-stories__card--pill {
+    aspect-ratio: 14 / 9;
+    height: clamp(220px, 34vw, 320px);
+    border-radius: var(--t-radius-pill);
+    /* Size queries so corner controls can clear the stadium caps */
+    container-type: size;
+  }
+
+  @media (hover: hover) {
+    .tamarinse-stories__card:hover {
+      transform: translateY(-4px);
+    }
+  }
+
+  .tamarinse-stories__poster,
+  .tamarinse-stories__poster-image,
+  .tamarinse-stories__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .tamarinse-stories__poster-image {
+    transition: transform var(--t-dur-slow) var(--t-ease-out);
+  }
+
+  .tamarinse-stories__card:hover .tamarinse-stories__poster-image {
+    transform: scale(1.035);
+  }
+
+  .tamarinse-stories__video {
+    z-index: 2;
+    background: #000;
+    cursor: pointer;
+  }
+
+  .tamarinse-stories__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgb(16 20 18 / 58%), transparent 45%);
+    pointer-events: none;
+  }
+
+  .tamarinse-stories__card[data-playing] .tamarinse-stories__scrim {
+    opacity: 0;
+  }
+
+  /* ---- Glass play / link affordance (centered — corners clip on pills) ---- */
+  .tamarinse-stories__play,
+  .tamarinse-stories__affordance,
+  .tamarinse-stories__resume {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 1px solid rgb(255 255 255 / 45%);
+    background: rgb(253 252 250 / 55%);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    color: var(--t-ink);
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+    transition:
+      background-color var(--t-dur-fast) var(--t-ease-out),
+      transform var(--t-dur-fast) var(--t-ease-out),
+      opacity var(--t-dur-fast) var(--t-ease-out);
+  }
+
+  .tamarinse-stories__affordance {
+    /* Links keep a small corner affordance — not a play CTA */
+    top: var(--t-space-md);
+    right: var(--t-space-md);
+    left: auto;
+    width: var(--t-touch-target);
+    height: var(--t-touch-target);
+    transform: none;
+  }
+
+  .tamarinse-stories__card--pill .tamarinse-stories__affordance {
+    top: 50%;
+    right: auto;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 56px;
+    height: 56px;
+  }
+
+  .tamarinse-stories__play svg,
+  .tamarinse-stories__resume svg {
+    margin-inline-start: 2px;
+  }
+
+  .tamarinse-stories__play:hover,
+  .tamarinse-stories__resume:hover {
+    background: rgb(253 252 250 / 78%);
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+
+  .tamarinse-stories__card[data-playing] .tamarinse-stories__play {
+    display: none;
+  }
+
+  /* Resume control lives in the player chrome — hidden while playing */
+  .tamarinse-stories__resume {
+    z-index: 4;
+    pointer-events: none;
+    opacity: 0;
+    color: var(--t-ink);
+    box-shadow: 0 8px 24px -12px rgb(16 20 18 / 45%);
+  }
+
+  .tamarinse-stories__card[data-paused] .tamarinse-stories__resume {
+    pointer-events: auto;
+    opacity: 1;
+  }
+
+  .tamarinse-stories__card[data-paused]::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: rgb(16 20 18 / 22%);
+    pointer-events: none;
+  }
+
+  /* ---- Custom player chrome ---- */
+  .tamarinse-stories__controls {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    /* Keep corner controls inside the rounded mask */
+    --story-ctrl-inset: max(var(--t-space-md), 1rem);
+  }
+
+  /*
+    Stadium ends are half the card height — 1.75rem parks 40px buttons
+    outside the curve. Inset from cqh keeps them inside the caps.
+  */
+  .tamarinse-stories__card--pill .tamarinse-stories__controls {
+    --story-ctrl-inset: max(2.5rem, calc(0.16 * 100cqh));
+  }
+
+  .tamarinse-stories__ctrl {
+    pointer-events: auto;
+    position: absolute;
+    top: var(--story-ctrl-inset);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid rgb(255 255 255 / 40%);
+    background: rgb(16 20 18 / 40%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #fff;
+    cursor: pointer;
+    transition: background-color var(--t-dur-fast) var(--t-ease-out);
+  }
+
+  .tamarinse-stories__ctrl:hover {
+    background: rgb(16 20 18 / 62%);
+  }
+
+  .tamarinse-stories__ctrl--close {
+    right: var(--story-ctrl-inset);
+  }
+
+  .tamarinse-stories__ctrl--mute {
+    left: var(--story-ctrl-inset);
+  }
+
+  /* Icon swap driven by card[data-muted] — more reliable than SVG [hidden] */
+  .tamarinse-stories__icon-mute {
+    display: none;
+  }
+
+  .tamarinse-stories__card[data-muted] .tamarinse-stories__icon-unmute {
+    display: none;
+  }
+
+  .tamarinse-stories__card[data-muted] .tamarinse-stories__icon-mute {
+    display: block;
+  }
+
+  .tamarinse-stories__scrub {
+    pointer-events: auto;
+    position: absolute;
+    inset-inline: var(--story-ctrl-inset);
+    bottom: var(--story-ctrl-inset);
+  }
+
+  .tamarinse-stories__scrub-track {
+    position: relative;
+    /* Tall hit area, thin visual bar */
+    height: 24px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .tamarinse-stories__scrub-track::before {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 3px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 28%);
+  }
+
+  .tamarinse-stories__scrub-fill {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    translate: 0 -50%;
+    height: 3px;
+    width: 0;
+    background: #fff;
+    border-radius: 999px;
+    transition: width 80ms linear;
+    pointer-events: none;
+  }
+
+  /* ---- Identity / caption chip ---- */
+  .tamarinse-stories__chip {
+    position: absolute;
+    inset-inline-start: var(--t-space-sm);
+    inset-block-end: var(--t-space-sm);
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    max-width: calc(100% - var(--t-space-sm) * 2);
+    padding: 0.375rem 0.75rem;
+    border-radius: var(--t-radius-pill);
+    background: rgb(253 252 250 / 18%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgb(255 255 255 / 28%);
+    color: var(--t-photo-text);
+    pointer-events: none;
+  }
+
+  .tamarinse-stories__card--pill .tamarinse-stories__chip {
+    inset-inline-start: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+  }
+
+  .tamarinse-stories__name {
+    font-family: var(--t-font-heading);
+    font-size: 0.9375rem;
+    font-weight: var(--t-weight-subheading);
+    line-height: 1.2;
+  }
+
+  .tamarinse-stories__role {
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--t-photo-text-mid);
+  }
+
+  .tamarinse-stories__card[data-playing] .tamarinse-stories__chip {
+    display: none;
+  }
+
+  /* ---- Nav arrows ---- */
+  .tamarinse-stories__nav {
+    display: none;
+    justify-content: flex-end;
+    gap: var(--t-space-xs);
+    max-width: var(--t-content-max);
+    margin: var(--t-space-md) auto 0;
+    padding-inline: var(--t-space-md);
+  }
+
+  .tamarinse-stories__arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--t-touch-target);
+    height: var(--t-touch-target);
+    border-radius: 50%;
+    border: 1px solid var(--t-border);
+    background: rgb(253 252 250 / 65%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--t-ink);
+    cursor: pointer;
+    transition:
+      border-color var(--t-dur-fast) var(--t-ease-out),
+      transform var(--t-dur-fast) var(--t-ease-out);
+  }
+
+  .tamarinse-stories__arrow:hover {
+    border-color: var(--t-text-mid);
+  }
+
+  .tamarinse-stories__arrow:active {
+    transform: scale(0.94);
+  }
+
+  @media screen and (min-width: 750px) {
+    .tamarinse-stories__nav {
+      display: flex;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tamarinse-stories__card,
+    .tamarinse-stories__poster-image,
+    .tamarinse-stories__play,
+    .tamarinse-stories__resume,
+    .tamarinse-stories__arrow,
+    .tamarinse-stories__scrub-fill {
+      transition: none;
+    }
+
+    .tamarinse-stories__card:hover {
+      transform: none;
+    }
+
+    .tamarinse-stories__card:hover .tamarinse-stories__poster-image {
+      transform: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Tamarinse Stories",
+  "tag": "section",
+  "class": "tamarinse-stories-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Stories"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "From physicians, scientists, and people like you."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "story",
+      "name": "Story frame",
+      "settings": [
+        {
+          "type": "select",
+          "id": "shape",
+          "label": "Shape",
+          "options": [
+            { "value": "vertical", "label": "Vertical (story)" },
+            { "value": "square", "label": "Square" },
+            { "value": "horizontal", "label": "Horizontal" },
+            { "value": "pill", "label": "Horizontal pill" }
+          ],
+          "default": "vertical"
+        },
+        {
+          "type": "video",
+          "id": "video",
+          "label": "Video",
+          "info": "Plays in a custom glass player when the play button is tapped. Takes priority over a link and bundled video."
+        },
+        {
+          "type": "text",
+          "id": "video_asset",
+          "label": "Bundled video filename",
+          "info": "Theme asset fallback when no Shopify video is set (e.g. tamarinse-video-capsule-v.mp4)."
+        },
+        {
+          "type": "image_picker",
+          "id": "poster",
+          "label": "Image / poster"
+        },
+        {
+          "type": "text",
+          "id": "poster_asset",
+          "label": "Bundled image filename",
+          "info": "Fallback theme asset (e.g. tamarinse-story-member1.webp)."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link (optional)",
+          "info": "Makes the frame a clickable card. Ignored when a video is set."
+        },
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Name / caption"
+        },
+        {
+          "type": "text",
+          "id": "role",
+          "label": "Role / subcaption"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Tamarinse Stories",
+      "category": "Tamarinse",
+      "blocks": [
+        {
+          "type": "story",
+          "settings": { "shape": "vertical", "poster_asset": "tamarinse-story-member1.webp", "name": "Claire", "role": "Member since 2026" }
+        },
+        {
+          "type": "story",
+          "settings": { "shape": "square", "poster_asset": "tamarinse-story-physician.webp", "name": "Dr. Anita Gupta", "role": "Advisory board" }
+        },
+        {
+          "type": "story",
+          "settings": { "shape": "pill", "poster_asset": "tamarinse-story-lab.webp", "name": "Inside the lab", "role": "Behind the scenes" }
+        },
+        {
+          "type": "story",
+          "settings": { "shape": "vertical", "poster_asset": "tamarinse-story-member2.webp", "name": "Marcus", "role": "Member since 2026" }
+        },
+        {
+          "type": "story",
+          "settings": { "shape": "horizontal", "poster_asset": "tamarinse-story-member3.webp", "name": "Elena", "role": "Member since 2026" }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

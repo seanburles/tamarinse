@@ -1,0 +1,279 @@
+/*
+  Tamarinse™ PDP — showcase breathing room
+  ----------------------------------------
+  Opens the product page up under the floating pill header and gives the
+  buy column / gallery the air of a gallery wall, not a packed form.
+  Horizon’s default details column is a 25rem “sidebar” — too narrow for
+  rating + CTAs — so we rebalance the grid toward a real buy column.
+*/
+
+/* Clear the floating header + announcement, then settle into the page */
+.shopify-section:has(> .product-information) {
+  --t-pdp-top-clearance: clamp(5.5rem, 4rem + 4vw, 7.5rem);
+}
+
+.product-information {
+  padding-block-start: max(var(--padding-block-start, 0px), var(--t-pdp-top-clearance)) !important;
+  padding-block-end: max(var(--padding-block-end, 0px), 5rem) !important;
+  /*
+    Horizon only sets --sticky-header-offset on the details column when the
+    header reports sticky-state=active — and never on the media gallery.
+    Our floating pill is always sticky on desktop, so both columns need a
+    reliable top that clears the nav (header-height already includes the
+    pill’s own vertical padding).
+  */
+  --sticky-header-offset: calc(var(--header-height, 72px) + 0.75rem);
+}
+
+/* Beat Horizon’s details-only sticky offset (header-height alone is short) */
+body:has(#header-group #header-component) .product-information,
+body:has(#header-group #header-component[data-sticky-state='active'])
+  .product-information
+  .product-details.sticky-content--desktop {
+  --sticky-header-offset: calc(var(--header-height, 72px) + 0.75rem);
+}
+
+/* Ensure gallery + details sticky tops both honor the offset */
+.product-information .sticky-content,
+.product-information .sticky-content--desktop,
+.product-information .sticky-content--desktop.full-height--desktop > .group-block {
+  top: var(--sticky-header-offset);
+}
+
+@media screen and (min-width: 990px) {
+  .product-information {
+    /* Wider than homepage copy measure — gallery + buy column need room */
+    padding-inline: max(1.5rem, calc((100vw - min(92rem, 100vw - 3rem)) / 2));
+    /* Schema caps gap at 48 — open the showcase aisle further here */
+    --gap: 56px !important;
+  }
+
+  /*
+    Default Horizon layout: media 1fr + details min(50vw, 25rem).
+    That 25rem sidebar is what crushed the rating row and stretched the
+    buy stack vertically. Give details a real column.
+  */
+  .product-information__grid:not(
+      .product-information__grid--half,
+      .product-information--media-none
+    ).product-information--media-left {
+    grid-template-columns: minmax(0, 1.15fr) minmax(28rem, 36rem) !important;
+  }
+
+  .product-information__grid:not(
+      .product-information__grid--half,
+      .product-information--media-none
+    ).product-information--media-right {
+    grid-template-columns: minmax(28rem, 36rem) minmax(0, 1.15fr) !important;
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .product-information__grid:not(
+      .product-information__grid--half,
+      .product-information--media-none
+    ).product-information--media-left {
+    grid-template-columns: minmax(0, 1.2fr) minmax(30rem, 38rem) !important;
+  }
+
+  .product-information__grid:not(
+      .product-information__grid--half,
+      .product-information--media-none
+    ).product-information--media-right {
+    grid-template-columns: minmax(30rem, 38rem) minmax(0, 1.2fr) !important;
+  }
+}
+
+/* Details column: calmer vertical rhythm between title → price → buy → copy */
+.product-details > .group-block {
+  row-gap: clamp(1.25rem, 1rem + 0.6vw, 2rem);
+}
+
+/* Let the header stack (title / rating / price) use the full buy column */
+.product-details .group-block,
+.product-details .tamarinse-reviews-badge {
+  max-width: none;
+}
+
+/* Title reads as a showcase statement, not a dense form label */
+.product-details h1 {
+  font-family: var(--t-font-heading, 'Fraunces', Georgia, serif);
+  font-weight: var(--t-weight-heading, 580);
+  font-size: clamp(1.875rem, 1.4rem + 1.6vw, 2.75rem);
+  line-height: var(--t-leading-heading, 1.15);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  margin: 0;
+}
+
+.product-details .price {
+  font-size: 1.375rem;
+  font-weight: var(--t-weight-semibold, 600);
+  letter-spacing: -0.01em;
+}
+
+/* Supply line / meta under price */
+.product-details .rte p,
+.product-details [class*='text'] p {
+  line-height: var(--t-leading-body, 1.65);
+}
+
+/* Media: softer corners, a little more space around thumbs */
+@media screen and (min-width: 750px) {
+  .product-information media-gallery {
+    --media-radius: 16px;
+  }
+
+  .product-information .product-media-container {
+    border-radius: 16px;
+    overflow: hidden;
+  }
+}
+
+/*
+  Thumbnails: gallery is `aspect_ratio: adapt`, so each thumb inherits its
+  own media ratio and the mobile row ends with uneven bottoms / “weird gaps”.
+  Force a shared crop; object-fit: cover already clips the image inside.
+*/
+.product-information .slideshow-controls__thumbnails {
+  align-items: stretch;
+}
+
+.product-information .slideshow-controls__thumbnail.slideshow-control {
+  --aspect-ratio: 1 !important;
+  aspect-ratio: 1;
+  height: auto;
+  overflow: hidden;
+}
+
+.product-information .slideshow-controls__thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Mobile: inset the gallery so media isn’t edge-flush like the old catalogue */
+@media screen and (max-width: 749px) {
+  .product-information .media-gallery--carousel {
+    padding-inline: var(--t-space-md, 1.5rem);
+  }
+
+  .product-information .slideshow-controls__thumbnails {
+    padding-inline: 0;
+  }
+}
+
+/* Trust rows + description: give them their own beat after the CTAs */
+.product-details .tamarinse-pdp-trust {
+  margin-block-start: 0.5rem;
+  padding-block-start: 1.25rem;
+  border-block-start: 1px solid var(--t-border, rgb(26 22 14 / 10%));
+  gap: 0.875rem;
+}
+
+.product-details .tamarinse-pdp-trust__item {
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+/*
+  Product description RTE — clearer type ladder so the lead line, section
+  labels (“What’s inside:”), and ingredient names scan faster than body copy.
+  Bold in Shopify product HTML is usually <strong>; weight alone was too close
+  to body 400 on Hanken.
+*/
+.product-details .rte {
+  max-width: 38rem;
+  margin-block-start: 0.5rem;
+  color: var(--t-text-mid, rgb(25 23 18 / 70%));
+  font-size: 0.975rem;
+  line-height: var(--t-leading-body, 1.65);
+}
+
+.product-details .rte > :first-child {
+  font-family: var(--t-font-heading, 'Fraunces', Georgia, serif);
+  font-size: clamp(1.25rem, 1.1rem + 0.55vw, 1.5rem);
+  font-weight: var(--t-weight-heading, 580);
+  line-height: var(--t-leading-heading, 1.2);
+  letter-spacing: -0.015em;
+  color: var(--t-ink, #191712);
+  margin: 0 0 1.15em;
+  text-wrap: balance;
+}
+
+.product-details .rte > :first-child :is(strong, b) {
+  font-weight: inherit;
+  color: inherit;
+}
+
+/* Short label paragraphs like “What’s inside:” (p > strong only) */
+.product-details .rte p:not(:first-child):has(> strong:only-child),
+.product-details .rte p:not(:first-child):has(> b:only-child) {
+  margin-block-start: 1.75em;
+  margin-block-end: 0.65em;
+  font-family: var(--t-font-heading, 'Fraunces', Georgia, serif);
+  font-size: 1.125rem;
+  font-weight: var(--t-weight-subheading, 560);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--t-ink, #191712);
+}
+
+.product-details .rte p:not(:first-child):has(> strong:only-child) strong,
+.product-details .rte p:not(:first-child):has(> b:only-child) b {
+  font-weight: inherit;
+  color: inherit;
+}
+
+.product-details .rte :is(h2, h3, h4) {
+  font-family: var(--t-font-heading, 'Fraunces', Georgia, serif);
+  font-weight: var(--t-weight-heading, 580);
+  color: var(--t-ink, #191712);
+  letter-spacing: -0.01em;
+  margin: 1.75em 0 0.65em;
+  line-height: 1.25;
+}
+
+.product-details .rte h2 {
+  font-size: 1.25rem;
+}
+
+.product-details .rte h3,
+.product-details .rte h4 {
+  font-size: 1.125rem;
+}
+
+/* Ingredient lead-ins: full ink + heavier weight so names pop in the line */
+.product-details .rte :is(strong, b) {
+  color: var(--t-ink, #191712);
+  font-weight: 650;
+}
+
+.product-details .rte p {
+  margin: 0;
+}
+
+.product-details .rte p + p {
+  margin-block-start: 1.05em;
+}
+
+/* Ingredient lines (strong then em-dash copy): a touch more air between rows */
+.product-details .rte p:has(> strong:first-child):not(:has(> strong:only-child)) + p:has(> strong:first-child) {
+  margin-block-start: 0.85em;
+}
+
+/* Accordion: separate from the story copy above */
+.product-details accordion-custom,
+.product-details .accordion {
+  margin-block-start: 0.5rem;
+}
+
+@media screen and (max-width: 749px) {
+  .product-information {
+    --t-pdp-top-clearance: 4.5rem;
+  }
+
+  .product-details > .group-block {
+    row-gap: 1.25rem;
+  }
+}

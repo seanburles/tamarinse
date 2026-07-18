@@ -6,16 +6,30 @@
 
 <section class="tamarinse-faq t-on-light" id="TamarinseFaq-{{ section.id }}">
   <div class="tamarinse-faq__inner">
+    {%- comment -%}
+      Two-column spread on desktop: the header column stays pinned while the
+      accordion scrolls, so the section fills its width instead of floating
+      as a narrow strip in empty tint.
+    {%- endcomment -%}
     <header class="tamarinse-faq__header">
-      <p class="t-eyebrow tamarinse-faq__eyebrow">{{ section.settings.eyebrow }}</p>
+      <p class="t-eyebrow t-eyebrow--ruled tamarinse-faq__eyebrow">{{ section.settings.eyebrow }}</p>
       <h2 class="tamarinse-faq__title">{{ section.settings.title }}</h2>
+      {%- if section.settings.support_text != blank -%}
+        <p class="tamarinse-faq__support">
+          {{ section.settings.support_text }}
+          {%- if section.settings.support_link_label != blank %}
+            <a class="tamarinse-faq__support-link" href="{{ section.settings.support_link | default: '/pages/contact' }}">{{ section.settings.support_link_label }}</a>
+          {%- endif -%}
+        </p>
+      {%- endif -%}
     </header>
 
     <div class="tamarinse-faq__list">
       {%- for block in section.blocks -%}
         <details class="tamarinse-faq__item" {{ block.shopify_attributes }}>
           <summary class="tamarinse-faq__question">
-            {{ block.settings.question }}
+            <span class="tamarinse-faq__index" aria-hidden="true">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
+            <span class="tamarinse-faq__question-text">{{ block.settings.question }}</span>
             <span class="tamarinse-faq__marker" aria-hidden="true"></span>
           </summary>
           <div class="tamarinse-faq__answer">{{ block.settings.answer }}</div>
@@ -47,13 +61,15 @@
 {% stylesheet %}
   .tamarinse-faq {
     display: block;
-    background: var(--t-tint);
+    /* Cream, not tint: reviews (before) and closing (after) are both sand
+       panels, so the FAQ separates them instead of merging into one field */
+    background: var(--t-bg);
     color: var(--t-text-hi);
     padding: var(--t-space-section) var(--t-space-md);
   }
 
   .tamarinse-faq__inner {
-    max-width: var(--t-copy-max);
+    max-width: var(--t-content-max);
     margin-inline: auto;
   }
 
@@ -72,26 +88,43 @@
     line-height: var(--t-leading-heading);
     font-weight: var(--t-weight-heading);
     margin: 0;
+    max-width: 12ch;
     text-wrap: balance;
+  }
+
+  .tamarinse-faq__support {
+    font-size: var(--t-type-body);
+    line-height: var(--t-leading-body);
+    color: var(--t-text-mid);
+    max-width: 26rem;
+    margin: var(--t-space-md) 0 0;
+    text-wrap: pretty;
+  }
+
+  .tamarinse-faq__support-link {
+    color: var(--t-accent-deep);
+    font-weight: var(--t-weight-semibold);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
   }
 
   .tamarinse-faq__item {
     border-block-start: 1px solid var(--t-border);
+    interpolate-size: allow-keywords;
   }
 
   .tamarinse-faq__item:last-child {
     border-block-end: 1px solid var(--t-border);
   }
 
+  /* Question row: numbered index in the brand serif, question set as a small
+     serif heading, circled marker on the right */
   .tamarinse-faq__question {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    align-items: baseline;
     gap: var(--t-space-sm);
     min-height: var(--t-touch-target);
     padding: var(--t-space-md) 0;
-    font-size: var(--t-type-body-lg);
-    line-height: var(--t-leading-body);
     cursor: pointer;
     list-style: none;
   }
@@ -100,38 +133,139 @@
     display: none;
   }
 
+  .tamarinse-faq__index {
+    flex: none;
+    width: 2rem;
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-eyebrow);
+    font-weight: var(--t-weight-medium);
+    color: var(--t-text-low);
+    letter-spacing: 0.06em;
+    transition: color var(--t-dur-fast) var(--t-ease-out);
+  }
+
+  .tamarinse-faq__question-text {
+    flex: 1;
+    font-family: var(--t-font-heading);
+    font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+    font-weight: var(--t-weight-subheading);
+    line-height: var(--t-leading-heading);
+    transition: color var(--t-dur-fast) var(--t-ease-out);
+  }
+
+  .tamarinse-faq__question:hover .tamarinse-faq__question-text {
+    color: var(--t-accent-deep);
+  }
+
+  .tamarinse-faq__item[open] .tamarinse-faq__index {
+    color: var(--t-accent);
+  }
+
+  /* Circled plus/minus marker */
   .tamarinse-faq__marker {
     flex: none;
+    align-self: center;
     position: relative;
-    width: 16px;
-    height: 16px;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--t-border);
+    border-radius: 50%;
+    transition:
+      border-color var(--t-dur-fast) var(--t-ease-out),
+      background-color var(--t-dur-fast) var(--t-ease-out);
+  }
+
+  .tamarinse-faq__question:hover .tamarinse-faq__marker {
+    border-color: var(--t-text-mid);
   }
 
   .tamarinse-faq__marker::before,
   .tamarinse-faq__marker::after {
     content: '';
     position: absolute;
-    inset: 50% 0 auto;
+    inset: 50% 8px auto;
     height: 1.5px;
     background: var(--t-text-mid);
-    transition: transform var(--t-dur-fast) var(--t-ease-out);
+    transition:
+      transform var(--t-dur-fast) var(--t-ease-out),
+      background-color var(--t-dur-fast) var(--t-ease-out);
   }
 
   .tamarinse-faq__marker::after {
     transform: rotate(90deg);
   }
 
+  .tamarinse-faq__item[open] .tamarinse-faq__marker {
+    background: var(--t-ink);
+    border-color: var(--t-ink);
+  }
+
+  .tamarinse-faq__item[open] .tamarinse-faq__marker::before,
+  .tamarinse-faq__item[open] .tamarinse-faq__marker::after {
+    background: var(--t-bg);
+  }
+
   .tamarinse-faq__item[open] .tamarinse-faq__marker::after {
     transform: rotate(0deg);
   }
 
+  /* Animated expand/collapse (native details content) */
+  .tamarinse-faq__item::details-content {
+    block-size: 0;
+    overflow: clip;
+    opacity: 0;
+    transition:
+      block-size var(--t-dur-med) var(--t-ease-out),
+      opacity var(--t-dur-med) var(--t-ease-out),
+      content-visibility var(--t-dur-med) allow-discrete;
+  }
+
+  .tamarinse-faq__item[open]::details-content {
+    block-size: auto;
+    opacity: 1;
+
+    @starting-style {
+      block-size: 0;
+      opacity: 0;
+    }
+  }
+
+  /* Answer aligns under the question text, past the index column */
   .tamarinse-faq__answer {
-    padding-block-end: var(--t-space-md);
+    padding: 0 0 var(--t-space-md) calc(2rem + var(--t-space-sm));
     font-size: var(--t-type-body);
     line-height: var(--t-leading-body);
     color: var(--t-text-mid);
-    max-width: 60ch;
+    max-width: 56ch;
     text-wrap: pretty;
+  }
+
+  /* Two-column spread: pinned header beside the accordion, so the section
+     holds its width instead of floating as a narrow centered strip */
+  @media screen and (min-width: 990px) {
+    .tamarinse-faq__inner {
+      display: grid;
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: var(--t-space-xl);
+      align-items: start;
+    }
+
+    .tamarinse-faq__header {
+      position: sticky;
+      top: calc(var(--header-height, 64px) + var(--t-space-lg));
+      margin-block-end: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tamarinse-faq__index,
+    .tamarinse-faq__question-text,
+    .tamarinse-faq__marker,
+    .tamarinse-faq__marker::before,
+    .tamarinse-faq__marker::after,
+    .tamarinse-faq__item::details-content {
+      transition: none;
+    }
   }
 {% endstylesheet %}
 
@@ -155,6 +289,24 @@
       "id": "title",
       "label": "Title",
       "default": "Questions, answered."
+    },
+    {
+      "type": "text",
+      "id": "support_text",
+      "label": "Support line",
+      "default": "Can't find what you're looking for?",
+      "info": "Shown under the title. Leave blank to hide."
+    },
+    {
+      "type": "text",
+      "id": "support_link_label",
+      "label": "Support link label",
+      "default": "Get in touch"
+    },
+    {
+      "type": "url",
+      "id": "support_link",
+      "label": "Support link"
     },
     {
       "type": "paragraph",

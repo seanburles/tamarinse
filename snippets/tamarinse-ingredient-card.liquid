@@ -22,13 +22,17 @@
   assign photo_asset = ''
   if image == blank
     if name contains 'Tamarind'
-      assign photo_asset = 'tamarinse-ingredient-tamarind.jpg'
+      assign photo_asset = 'tamarinse-ingredient-tamarind.webp'
     elsif name contains 'Okra'
-      assign photo_asset = 'tamarinse-ingredient-okra.jpg'
+      assign photo_asset = 'tamarinse-ingredient-okra.webp'
     elsif name contains 'Fenugreek'
-      assign photo_asset = 'tamarinse-ingredient-fenugreek.jpg'
+      assign photo_asset = 'tamarinse-ingredient-fenugreek.webp'
+    elsif name contains 'Charcoal'
+      assign photo_asset = 'tamarinse-ingredient-charcoal.webp'
+    elsif name contains 'Chlorella'
+      assign photo_asset = 'tamarinse-ingredient-chlorella.webp'
     elsif name contains 'Milk Thistle'
-      assign photo_asset = 'tamarinse-ingredient-milk-thistle.jpg'
+      assign photo_asset = 'tamarinse-ingredient-milk-thistle.webp'
     endif
   endif
 -%}

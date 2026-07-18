@@ -24,67 +24,191 @@
         "q1": {
           "type": "question",
           "settings": {
-            "question": "What do you drink from most days?",
+            "question": "What do you drink most days?",
             "hint": "Select all that apply",
-            "option1_label": "Bottled water", "option1_icon": "bottle", "option1_weight": 3,
-            "option2_label": "Coffee with a plastic lid", "option2_icon": "cup", "option2_weight": 2,
-            "option3_label": "Shaker or plastic bottles", "option3_icon": "shaker", "option3_weight": 2,
-            "option4_label": "Tea from tea bags", "option4_icon": "teabag", "option4_weight": 1,
-            "option5_label": "Mostly glass or steel", "option5_icon": "jar", "option5_weight": 0
+            "option1_label": "Bottled water",
+            "option1_icon": "bottle",
+            "option1_weight": 3,
+            "option2_label": "Coffee with a plastic lid",
+            "option2_icon": "cup",
+            "option2_weight": 2,
+            "option3_label": "Tea from tea bags",
+            "option3_icon": "teabag",
+            "option3_weight": 1,
+            "option4_label": "Mostly glass or steel",
+            "option4_icon": "jar",
+            "option4_weight": 0
           }
         },
         "q2": {
           "type": "question",
           "settings": {
-            "question": "How do you store and reheat food?",
+            "question": "Do you carry a bottle with you?",
             "hint": "Select all that apply",
-            "option1_label": "Plastic containers", "option1_icon": "container", "option1_weight": 2,
-            "option2_label": "Microwave in plastic packaging", "option2_icon": "microwave", "option2_weight": 3,
-            "option3_label": "Plastic bags or cling wrap", "option3_icon": "bag", "option3_weight": 1,
-            "option4_label": "Mostly glass containers", "option4_icon": "jar", "option4_weight": 0
+            "option1_label": "Plastic water bottle daily",
+            "option1_icon": "bottle",
+            "option1_weight": 2,
+            "option2_label": "Protein shaker bottle",
+            "option2_icon": "shaker",
+            "option2_weight": 2,
+            "option3_label": "Steel or glass bottle",
+            "option3_icon": "jar",
+            "option3_weight": 0
           }
         },
         "q3": {
           "type": "question",
           "settings": {
-            "question": "What's in your kitchen rotation?",
+            "question": "How do you store leftovers?",
             "hint": "Select all that apply",
-            "option1_label": "Non-stick cookware", "option1_icon": "pan", "option1_weight": 2,
-            "option2_label": "Plastic cutting boards", "option2_icon": "board", "option2_weight": 2,
-            "option3_label": "Neither of these", "option3_icon": "none", "option3_weight": 0
+            "option1_label": "Plastic containers",
+            "option1_icon": "container",
+            "option1_weight": 2,
+            "option2_label": "Plastic bags or cling wrap",
+            "option2_icon": "bag",
+            "option2_weight": 1,
+            "option3_label": "Mostly glass containers",
+            "option3_icon": "jar",
+            "option3_weight": 0
           }
         },
         "q4": {
           "type": "question",
           "settings": {
-            "question": "How do you usually eat?",
+            "question": "How do you reheat food?",
             "hint": "Select all that apply",
-            "option1_label": "Takeout or delivery often", "option1_icon": "takeout", "option1_weight": 2,
-            "option2_label": "Processed or packaged foods", "option2_icon": "package", "option2_weight": 2,
-            "option3_label": "Seafood twice a week or more", "option3_icon": "fish", "option3_weight": 1
+            "option1_label": "Microwave in plastic containers",
+            "option1_icon": "microwave",
+            "option1_weight": 3,
+            "option2_label": "Microwave in original packaging",
+            "option2_icon": "package",
+            "option2_weight": 3,
+            "option3_label": "Transferred to glass or ceramic first",
+            "option3_icon": "jar",
+            "option3_weight": 0
           }
         },
         "q5": {
           "type": "question",
           "settings": {
+            "question": "What's in your kitchen rotation?",
+            "hint": "Select all that apply",
+            "option1_label": "Non-stick cookware",
+            "option1_icon": "pan",
+            "option1_weight": 2,
+            "option2_label": "Plastic cutting boards",
+            "option2_icon": "board",
+            "option2_weight": 2,
+            "option3_label": "Neither of these",
+            "option3_icon": "none",
+            "option3_weight": 0
+          }
+        },
+        "q6": {
+          "type": "question",
+          "settings": {
+            "question": "When cooking doesn't happen…",
+            "hint": "Select all that apply",
+            "option1_label": "Takeout or delivery often",
+            "option1_icon": "takeout",
+            "option1_weight": 2,
+            "option2_label": "Frozen or ready meals",
+            "option2_icon": "package",
+            "option2_weight": 2,
+            "option3_label": "Rarely — mostly home cooking",
+            "option3_icon": "none",
+            "option3_weight": 0
+          }
+        },
+        "q7": {
+          "type": "question",
+          "settings": {
+            "question": "What's on your plate most weeks?",
+            "hint": "Select all that apply",
+            "option1_label": "Seafood twice a week or more",
+            "option1_icon": "fish",
+            "option1_weight": 1,
+            "option2_label": "Processed or packaged snacks",
+            "option2_icon": "package",
+            "option2_weight": 2,
+            "option3_label": "Neither of these",
+            "option3_icon": "none",
+            "option3_weight": 0
+          }
+        },
+        "q8": {
+          "type": "question",
+          "settings": {
+            "question": "What do you wear to move?",
+            "hint": "Select all that apply",
+            "option1_label": "Synthetic athletic clothing weekly",
+            "option1_icon": "shirt",
+            "option1_weight": 1,
+            "option2_label": "Mostly natural fibers",
+            "option2_icon": "none",
+            "option2_weight": 0
+          }
+        },
+        "q9": {
+          "type": "question",
+          "settings": {
             "question": "And day to day?",
             "hint": "Select all that apply",
-            "option1_label": "Synthetic workout clothing", "option1_icon": "shirt", "option1_weight": 1,
-            "option2_label": "Paper receipts at work", "option2_icon": "receipt", "option2_weight": 1,
-            "option3_label": "Neither of these", "option3_icon": "none", "option3_weight": 0
+            "option1_label": "Paper receipts most days",
+            "option1_icon": "receipt",
+            "option1_weight": 1,
+            "option2_label": "None of these",
+            "option2_icon": "none",
+            "option2_weight": 0
           }
         }
       },
-      "block_order": ["q1", "q2", "q3", "q4", "q5"]
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5",
+        "q6",
+        "q7",
+        "q8",
+        "q9"
+      ]
     },
     "problem": {
       "type": "tamarinse-problem",
       "blocks": {
-        "stat1": { "type": "statistic", "settings": { "statistic": "You could be ingesting up to a credit card's worth of plastic every week.", "source": "WWF × University of Newcastle analysis, 2019 — verify before launch", "asset_fallback": "tamarinse-photo-containers.jpg" } },
-        "stat2": { "type": "statistic", "settings": { "statistic": "Microplastics were detected in the blood of nearly 8 in 10 people tested.", "source": "Environment International, 2022 — verify before launch", "asset_fallback": "tamarinse-photo-tap-water.jpg" } },
-        "stat3": { "type": "statistic", "settings": { "statistic": "A single liter of bottled water can contain around 240,000 plastic particles.", "source": "Proceedings of the National Academy of Sciences, 2024 — verify before launch", "asset_fallback": "tamarinse-photo-bottled-water.jpg" } }
+        "stat1": {
+          "type": "statistic",
+          "settings": {
+            "statistic": "You could be ingesting up to a credit card's worth of plastic every week.",
+            "source": "Senathirajah et al., Journal of Hazardous Materials, 2021",
+            "asset_fallback": "tamarinse-photo-containers.webp"
+          }
+        },
+        "stat2": {
+          "type": "statistic",
+          "settings": {
+            "statistic": "Microplastics were detected in the blood of nearly 8 in 10 people tested.",
+            "source": "Leslie et al., Environment International, 2022",
+            "asset_fallback": "tamarinse-photo-tap-water.webp",
+            "focal_x": 72
+          }
+        },
+        "stat3": {
+          "type": "statistic",
+          "settings": {
+            "statistic": "A single liter of bottled water can contain around 240,000 plastic particles.",
+            "source": "Qian et al., Proceedings of the National Academy of Sciences, 2024",
+            "asset_fallback": "tamarinse-photo-bottled-water.webp"
+          }
+        }
       },
-      "block_order": ["stat1", "stat2", "stat3"]
+      "block_order": [
+        "stat1",
+        "stat2",
+        "stat3"
+      ]
     },
     "meet": {
       "type": "tamarinse-meet"
@@ -92,48 +216,237 @@
     "capsule": {
       "type": "tamarinse-capsule",
       "blocks": {
-        "i1": { "type": "ingredient", "settings": { "name": "Tamarind Seed Extract", "description": "A natural polysaccharide extracted from tamarind seeds." } },
-        "i2": { "type": "ingredient", "settings": { "name": "Okra Polysaccharides", "description": "A soluble plant polysaccharide naturally found in okra." } },
-        "i3": { "type": "ingredient", "settings": { "name": "Fenugreek Extract", "description": "A source of soluble galactomannan polysaccharides." } },
-        "i4": { "type": "ingredient", "settings": { "name": "Activated Coconut Charcoal", "description": "An ultra-porous activated carbon derived from coconut shells." } },
-        "i5": { "type": "ingredient", "settings": { "name": "Organic Chlorella", "description": "A nutrient-rich freshwater green algae." } },
-        "i6": { "type": "ingredient", "settings": { "name": "Milk Thistle Extract", "description": "A standardized extract containing silymarin." } }
+        "i1": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Tamarind Seed Extract",
+            "description": "A natural polysaccharide extracted from tamarind seeds."
+          }
+        },
+        "i2": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Okra Polysaccharides",
+            "description": "A soluble plant polysaccharide naturally found in okra."
+          }
+        },
+        "i3": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Fenugreek Extract",
+            "description": "A source of soluble galactomannan polysaccharides."
+          }
+        },
+        "i4": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Activated Coconut Charcoal",
+            "description": "An ultra-porous activated carbon derived from coconut shells."
+          }
+        },
+        "i5": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Organic Chlorella",
+            "description": "A nutrient-rich freshwater green algae."
+          }
+        },
+        "i6": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Milk Thistle Extract",
+            "description": "A standardized extract containing silymarin."
+          }
+        }
       },
-      "block_order": ["i1", "i2", "i3", "i4", "i5", "i6"]
+      "block_order": [
+        "i1",
+        "i2",
+        "i3",
+        "i4",
+        "i5",
+        "i6"
+      ]
     },
     "how_it_works": {
       "type": "tamarinse-how-it-works",
       "blocks": {
-        "s1": { "type": "step", "settings": { "title": "Exposure", "icon": "exposure", "text": "Every day, you're exposed to microplastics and other unwanted compounds through food, water, beverages, packaging, and the environment." } },
-        "s2": { "type": "step", "settings": { "title": "Activates", "icon": "activates", "text": "The delayed-release capsule is designed to bypass stomach acid before releasing the Tamarinse™ blend where it's intended to work." } },
-        "s3": { "type": "step", "settings": { "title": "Binds", "icon": "binds", "text": "The proprietary blend forms a natural fiber matrix that helps bind targeted compounds within the digestive tract." } },
-        "s4": { "type": "step", "settings": { "title": "Supports", "icon": "supports", "text": "Clinically studied plant-based ingredients work together to support healthy digestive function and the body's natural elimination processes." } },
-        "s5": { "type": "step", "settings": { "title": "Naturally Eliminates", "icon": "eliminates", "text": "Bound compounds are carried through the digestive system and eliminated naturally rather than remaining available for absorption.", "footnote_marker": true } }
+        "s1": {
+          "type": "step",
+          "settings": {
+            "title": "Exposure",
+            "icon": "exposure",
+            "image_asset": "tamarinse-hiw-exposure.webp",
+            "text": "Every day, you're exposed to microplastics and other unwanted compounds through food, water, beverages, packaging, and the environment."
+          }
+        },
+        "s2": {
+          "type": "step",
+          "settings": {
+            "title": "Activates",
+            "icon": "activates",
+            "image_asset": "tamarinse-hiw-activates.webp",
+            "text": "The delayed-release capsule is designed to bypass stomach acid before releasing the Tamarinse™ blend where it's intended to work."
+          }
+        },
+        "s3": {
+          "type": "step",
+          "settings": {
+            "title": "Binds",
+            "icon": "binds",
+            "image_asset": "tamarinse-hiw-binds.webp",
+            "text": "The proprietary blend forms a natural fiber matrix that helps bind targeted compounds within the digestive tract."
+          }
+        },
+        "s4": {
+          "type": "step",
+          "settings": {
+            "title": "Supports",
+            "icon": "supports",
+            "image_asset": "tamarinse-hiw-supports.webp",
+            "text": "Clinically studied plant-based ingredients work together to support healthy digestive function and the body's natural elimination processes."
+          }
+        },
+        "s5": {
+          "type": "step",
+          "settings": {
+            "title": "Naturally Eliminates",
+            "icon": "eliminates",
+            "image_asset": "tamarinse-hiw-eliminates.webp",
+            "text": "Bound compounds are carried through the digestive system and eliminated naturally rather than remaining available for absorption.",
+            "footnote_marker": true
+          }
+        }
       },
-      "block_order": ["s1", "s2", "s3", "s4", "s5"]
+      "block_order": [
+        "s1",
+        "s2",
+        "s3",
+        "s4",
+        "s5"
+      ]
     },
     "science": {
       "type": "tamarinse-ingredient-science",
       "blocks": {
-        "sci1": { "type": "ingredient", "settings": { "name": "Tamarind Seed Extract", "what_it_is": "A natural polysaccharide extracted from tamarind seeds.", "why_we_chose_it": "Forms part of the proprietary Tamarinse™ fiber matrix.", "research_orgs": "American Chemical Society (ACS)\nACS Omega\nTarleton State University\nThe University of Texas at Dallas\nNational Science Foundation (NSF)\nU.S. Department of Energy (DOE)\nWelch Foundation" } },
-        "sci2": { "type": "ingredient", "settings": { "name": "Okra Polysaccharides", "what_it_is": "A soluble plant polysaccharide naturally found in okra.", "why_we_chose_it": "Supports formation of a viscous fiber matrix.", "research_orgs": "American Chemical Society (ACS)\nACS Omega\nTarleton State University\nThe University of Texas at Dallas\nNational Science Foundation (NSF)\nU.S. Department of Energy (DOE)\nWelch Foundation" } },
-        "sci3": { "type": "ingredient", "settings": { "name": "Fenugreek Extract", "what_it_is": "A source of soluble galactomannan polysaccharides.", "why_we_chose_it": "Strengthens the overall fiber matrix.", "research_orgs": "American Chemical Society (ACS)\nACS Omega\nTarleton State University\nThe University of Texas at Dallas\nNational Science Foundation (NSF)\nU.S. Department of Energy (DOE)\nWelch Foundation\nNational Institutes of Health (NIH) Natural Products Research Program" } },
-        "sci4": { "type": "ingredient", "settings": { "name": "Activated Coconut Charcoal", "what_it_is": "An ultra-porous activated carbon derived from coconut shells.", "why_we_chose_it": "Provides additional adsorption capacity within the digestive tract.", "research_orgs": "American Academy of Clinical Toxicology (AACT)\nEuropean Association of Poisons Centres and Clinical Toxicologists (EAPCCT)\nNational Library of Medicine (PubMed)\nStatPearls Publishing\nUniversity of Tennessee Health Science Center" } },
-        "sci5": { "type": "ingredient", "settings": { "name": "Organic Chlorella", "what_it_is": "A nutrient-rich freshwater green algae.", "why_we_chose_it": "Supports antioxidant defenses and normal detoxification pathways.", "research_orgs": "National Institutes of Health (NIH)\nOffice of Dietary Supplements (ODS)\nNational Center for Complementary and Integrative Health (NCCIH)\nNational Library of Medicine (PubMed)\nChemosphere\nNutrition Journal\nClinical Nutrition" } },
-        "sci6": { "type": "ingredient", "settings": { "name": "Milk Thistle Extract", "what_it_is": "A standardized extract containing silymarin.", "why_we_chose_it": "Supports healthy liver function and antioxidant activity.", "research_orgs": "National Institutes of Health (NIH)\nOffice of Dietary Supplements (ODS)\nNational Center for Complementary and Integrative Health (NCCIH)\nNational Cancer Institute (NCI)\nNational Library of Medicine (PubMed)\nPhytotherapy Research\nWorld Journal of Gastroenterology\nJournal of Hepatology" } }
+        "sci1": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Tamarind Seed Extract",
+            "what_it_is": "A natural polysaccharide extracted from tamarind seeds.",
+            "why_we_chose_it": "Forms part of the proprietary Tamarinse™ fiber matrix.",
+            "research_orgs": "American Chemical Society (ACS)\nACS Omega\nTarleton State University\nThe University of Texas at Dallas\nNational Science Foundation (NSF)\nU.S. Department of Energy (DOE)\nWelch Foundation"
+          }
+        },
+        "sci2": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Okra Polysaccharides",
+            "what_it_is": "A soluble plant polysaccharide naturally found in okra.",
+            "why_we_chose_it": "Supports formation of a viscous fiber matrix.",
+            "research_orgs": "American Chemical Society (ACS)\nACS Omega\nTarleton State University\nThe University of Texas at Dallas\nNational Science Foundation (NSF)\nU.S. Department of Energy (DOE)\nWelch Foundation"
+          }
+        },
+        "sci3": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Fenugreek Extract",
+            "what_it_is": "A source of soluble galactomannan polysaccharides.",
+            "why_we_chose_it": "Strengthens the overall fiber matrix.",
+            "research_orgs": "American Chemical Society (ACS)\nACS Omega\nTarleton State University\nThe University of Texas at Dallas\nNational Science Foundation (NSF)\nU.S. Department of Energy (DOE)\nWelch Foundation\nNational Institutes of Health (NIH) Natural Products Research Program"
+          }
+        },
+        "sci4": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Activated Coconut Charcoal",
+            "what_it_is": "An ultra-porous activated carbon derived from coconut shells.",
+            "why_we_chose_it": "Provides additional adsorption capacity within the digestive tract.",
+            "research_orgs": "American Academy of Clinical Toxicology (AACT)\nEuropean Association of Poisons Centres and Clinical Toxicologists (EAPCCT)\nNational Library of Medicine (PubMed)\nStatPearls Publishing\nUniversity of Tennessee Health Science Center"
+          }
+        },
+        "sci5": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Organic Chlorella",
+            "what_it_is": "A nutrient-rich freshwater green algae.",
+            "why_we_chose_it": "Supports antioxidant defenses and normal detoxification pathways.",
+            "research_orgs": "National Institutes of Health (NIH)\nOffice of Dietary Supplements (ODS)\nNational Center for Complementary and Integrative Health (NCCIH)\nNational Library of Medicine (PubMed)\nChemosphere\nNutrition Journal\nClinical Nutrition"
+          }
+        },
+        "sci6": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Milk Thistle Extract",
+            "what_it_is": "A standardized extract containing silymarin.",
+            "why_we_chose_it": "Supports healthy liver function and antioxidant activity.",
+            "research_orgs": "National Institutes of Health (NIH)\nOffice of Dietary Supplements (ODS)\nNational Center for Complementary and Integrative Health (NCCIH)\nNational Cancer Institute (NCI)\nNational Library of Medicine (PubMed)\nPhytotherapy Research\nWorld Journal of Gastroenterology\nJournal of Hepatology"
+          }
+        }
       },
-      "block_order": ["sci1", "sci2", "sci3", "sci4", "sci5", "sci6"]
+      "block_order": [
+        "sci1",
+        "sci2",
+        "sci3",
+        "sci4",
+        "sci5",
+        "sci6"
+      ]
     },
     "quality": {
       "type": "tamarinse-quality-standards",
       "blocks": {
-        "std1": { "type": "standard", "settings": { "label": "USDA Organic", "icon": "leaf" } },
-        "std2": { "type": "standard", "settings": { "label": "Physician Formulated", "icon": "stethoscope" } },
-        "std3": { "type": "standard", "settings": { "label": "Clinically Studied Ingredients", "icon": "flask" } },
-        "std4": { "type": "standard", "settings": { "label": "Manufactured in the USA", "icon": "flag" } },
-        "std5": { "type": "standard", "settings": { "label": "Third-Party Tested (when available)", "icon": "shield" } }
+        "std1": {
+          "type": "standard",
+          "settings": {
+            "label": "USDA Organic",
+            "icon": "leaf"
+          }
+        },
+        "std2": {
+          "type": "standard",
+          "settings": {
+            "label": "Physician Formulated",
+            "icon": "asclepius"
+          }
+        },
+        "std3": {
+          "type": "standard",
+          "settings": {
+            "label": "Clinically Studied Ingredients",
+            "icon": "flask"
+          }
+        },
+        "std4": {
+          "type": "standard",
+          "settings": {
+            "label": "Manufactured in the USA",
+            "icon": "flag"
+          }
+        },
+        "std5": {
+          "type": "standard",
+          "settings": {
+            "label": "Third-Party Tested (when available)",
+            "icon": "shield"
+          }
+        },
+        "std6": {
+          "type": "standard",
+          "settings": {
+            "label": "2026 Earth Prize Winner",
+            "icon": "medal"
+          }
+        }
       },
-      "block_order": ["std1", "std2", "std3", "std4", "std5"]
+      "block_order": [
+        "std1",
+        "std2",
+        "std3",
+        "std4",
+        "std5",
+        "std6"
+      ]
     },
     "advisory": {
       "type": "tamarinse-advisory",
@@ -141,29 +454,323 @@
         "title": "Recommended by experts."
       },
       "blocks": {
-        "m1": { "type": "member", "settings": { "name": "Dr. Hubbard", "credentials": "Florida, USA", "portrait_asset": "tamarinse-advisor-hubbard.png" } },
-        "m2": { "type": "member", "settings": { "name": "Dr. Anita Gupta", "credentials": "California, USA", "portrait_asset": "tamarinse-advisor-gupta.png" } },
-        "m3": { "type": "member", "settings": { "name": "Dr. Jones", "credentials": "Maryland, USA", "portrait_asset": "tamarinse-advisor-jones.png" } }
+        "m1": {
+          "type": "member",
+          "settings": {
+            "name": "Dr. Hubbard",
+            "credentials": "Florida, USA",
+            "portrait_asset": "tamarinse-advisor-hubbard.webp"
+          }
+        },
+        "m2": {
+          "type": "member",
+          "settings": {
+            "name": "Dr. Anita Gupta",
+            "credentials": "California, USA",
+            "portrait_asset": "tamarinse-advisor-gupta.webp"
+          }
+        },
+        "m3": {
+          "type": "member",
+          "settings": {
+            "name": "Dr. Jones",
+            "credentials": "Maryland, USA",
+            "portrait_asset": "tamarinse-advisor-jones.webp"
+          }
+        }
       },
-      "block_order": ["m1", "m2", "m3"]
+      "block_order": [
+        "m1",
+        "m2",
+        "m3"
+      ]
     },
     "why": {
       "type": "tamarinse-why",
       "blocks": {
-        "p1": { "type": "pillar", "settings": { "title": "Daily Defense", "text": "Designed for everyday environmental exposure." } },
-        "p2": { "type": "pillar", "settings": { "title": "Clean Ingredients", "text": "Plant-based, physician formulated, and clinically studied." } },
-        "p3": { "type": "pillar", "settings": { "title": "Smarter Delivery", "text": "Delayed-release technology helps deliver ingredients where they're intended to work." } }
+        "p1": {
+          "type": "pillar",
+          "settings": {
+            "title": "Daily Defense",
+            "text": "Designed for everyday environmental exposure."
+          }
+        },
+        "p2": {
+          "type": "pillar",
+          "settings": {
+            "title": "Clean Ingredients",
+            "text": "Plant-based, physician formulated, and clinically studied."
+          }
+        },
+        "p3": {
+          "type": "pillar",
+          "settings": {
+            "title": "Smarter Delivery",
+            "text": "Delayed-release technology helps deliver ingredients where they're intended to work."
+          }
+        }
       },
-      "block_order": ["p1", "p2", "p3"]
+      "block_order": [
+        "p1",
+        "p2",
+        "p3"
+      ]
     },
     "everyday": {
       "type": "tamarinse-everyday-exposure",
       "blocks": {
-        "photo1": { "type": "photo", "settings": { "caption": "Parents making lunch", "asset_fallback": "tamarinse-photo-lunch.jpg" } },
-        "photo2": { "type": "photo", "settings": { "caption": "Coffee shops", "asset_fallback": "tamarinse-photo-coffee.jpg" } },
-        "photo3": { "type": "photo", "settings": { "caption": "Takeout meals", "asset_fallback": "tamarinse-photo-takeout.jpg" } }
+        "photo1": {
+          "type": "photo",
+          "settings": {
+            "caption": "At home",
+            "headline": "Plastic wrap. Cutting boards. Storage containers.",
+            "detail": "Everyday food prep sheds microscopic plastic particles straight into the meals you make for your family.",
+            "asset_fallback": "tamarinse-photo-lunch.webp"
+          }
+        },
+        "photo2": {
+          "type": "photo",
+          "settings": {
+            "caption": "Your morning coffee",
+            "headline": "A hot drink through a plastic-lined lid.",
+            "detail": "Most single-use cups and lids are lined with polyethylene — and heat helps particles migrate into your drink.",
+            "asset_fallback": "tamarinse-photo-coffee.webp"
+          }
+        },
+        "photo3": {
+          "type": "photo",
+          "settings": {
+            "caption": "Dinner on the go",
+            "headline": "Hot food, plastic containers.",
+            "detail": "Takeout packaging in direct contact with hot food is one of the most common exposure routes of all.",
+            "asset_fallback": "tamarinse-photo-takeout.webp"
+          }
+        }
       },
-      "block_order": ["photo1", "photo2", "photo3"]
+      "block_order": [
+        "photo1",
+        "photo2",
+        "photo3"
+      ]
+    },
+    "gallery": {
+      "type": "tamarinse-gallery",
+      "settings": {
+        "eyebrow": "In daily life",
+        "title": "Made for the everyday ritual."
+      },
+      "blocks": {
+        "g1": {
+          "type": "media",
+          "settings": {
+            "image_asset": "tamarinse-gallery-sink.webp",
+            "shape": "square",
+            "caption": "Part of the morning routine"
+          }
+        },
+        "g2": {
+          "type": "media",
+          "settings": {
+            "image_asset": "tamarinse-gallery-capsules-hand.webp",
+            "shape": "vertical",
+            "caption": "Two capsules, once a day"
+          }
+        },
+        "g3": {
+          "type": "media",
+          "settings": {
+            "image_asset": "tamarinse-gallery-kitchen.webp",
+            "shape": "pill",
+            "caption": "At home on the counter"
+          }
+        },
+        "g4": {
+          "type": "media",
+          "settings": {
+            "image_asset": "tamarinse-gallery-gymbag.webp",
+            "shape": "vertical",
+            "caption": "Travels wherever you do"
+          }
+        },
+        "g5": {
+          "type": "media",
+          "settings": {
+            "image_asset": "tamarinse-gallery-morning.webp",
+            "shape": "horizontal",
+            "caption": "Designed for daily life"
+          }
+        },
+        "g6": {
+          "type": "media",
+          "settings": {
+            "video_asset": "tamarinse-video-lifestyle-kitchen-h.mp4",
+            "video_poster_asset": "tamarinse-video-lifestyle-kitchen-h-poster.webp",
+            "shape": "horizontal",
+            "caption": "The bottle, at home"
+          }
+        },
+        "g7": {
+          "type": "media",
+          "settings": {
+            "video_asset": "tamarinse-video-capsule-h.mp4",
+            "shape": "pill"
+          }
+        }
+      },
+      "block_order": [
+        "g1",
+        "g2",
+        "g3",
+        "g4",
+        "g5",
+        "g6",
+        "g7"
+      ]
+    },
+    "stories": {
+      "type": "tamarinse-stories",
+      "settings": {
+        "eyebrow": "Stories",
+        "title": "From physicians, scientists, and people like you."
+      },
+      "blocks": {
+        "st1": {
+          "type": "story",
+          "settings": {
+            "shape": "vertical",
+            "poster_asset": "tamarinse-story-member1.webp",
+            "name": "Claire",
+            "role": "Member since 2026"
+          }
+        },
+        "st2": {
+          "type": "story",
+          "settings": {
+            "shape": "square",
+            "poster_asset": "tamarinse-story-physician.webp",
+            "name": "Dr. Anita Gupta",
+            "role": "Advisory board",
+            "link": "/#advisory"
+          }
+        },
+        "st3": {
+          "type": "story",
+          "settings": {
+            "shape": "pill",
+            "poster_asset": "tamarinse-story-lab.webp",
+            "name": "Okra, fenugreek & tamarind polymers remove up to 90% of microplastics from water",
+            "role": "ACS Omega · Tarleton State University, 2025",
+            "link": "https://pubs.acs.org/doi/10.1021/acsomega.4c07476"
+          }
+        },
+        "st4": {
+          "type": "story",
+          "settings": {
+            "shape": "vertical",
+            "poster_asset": "tamarinse-story-member2.webp",
+            "name": "Marcus",
+            "role": "Member since 2026"
+          }
+        },
+        "st5": {
+          "type": "story",
+          "settings": {
+            "shape": "horizontal",
+            "poster_asset": "tamarinse-story-member3.webp",
+            "name": "Elena",
+            "role": "Member since 2026"
+          }
+        },
+        "st6": {
+          "type": "story",
+          "settings": {
+            "shape": "vertical",
+            "video_asset": "tamarinse-video-capsule-v.mp4",
+            "poster_asset": "tamarinse-video-capsule-v-poster.webp"
+          }
+        },
+        "st7": {
+          "type": "story",
+          "settings": {
+            "shape": "pill",
+            "video_asset": "tamarinse-video-lifestyle-h.mp4",
+            "poster_asset": "tamarinse-video-lifestyle-h-poster.webp"
+          }
+        },
+        "st8": {
+          "type": "story",
+          "settings": {
+            "shape": "pill",
+            "video_asset": "tamarinse-video-capsule-h.mp4",
+            "poster_asset": "tamarinse-video-capsule-h-poster.webp"
+          }
+        },
+        "r1": {
+          "type": "story",
+          "settings": {
+            "shape": "square",
+            "poster_asset": "tamarinse-photo-bottled-water.webp",
+            "name": "240,000 plastic particles in a liter of bottled water",
+            "role": "PNAS · Columbia University, 2024",
+            "link": "https://www.pnas.org/doi/10.1073/pnas.2300582121"
+          }
+        },
+        "r2": {
+          "type": "story",
+          "settings": {
+            "shape": "horizontal",
+            "poster_asset": "tamarinse-photo-tap-water.webp",
+            "name": "Plastic particles discovered in human blood",
+            "role": "Environment International, 2022",
+            "link": "https://www.sciencedirect.com/science/article/pii/S0160412022001258"
+          }
+        },
+        "r3": {
+          "type": "story",
+          "settings": {
+            "shape": "square",
+            "poster_asset": "tamarinse-photo-takeout.webp",
+            "name": "Microplastics found in human artery plaque",
+            "role": "New England Journal of Medicine, 2024",
+            "link": "https://www.nejm.org/doi/full/10.1056/NEJMoa2309822"
+          }
+        },
+        "r4": {
+          "type": "story",
+          "settings": {
+            "shape": "horizontal",
+            "poster_asset": "tamarinse-photo-lunch.webp",
+            "name": "Ingested fiber increased microplastic excretion in animal studies",
+            "role": "Scientific Reports (Nature), 2025",
+            "link": "https://www.nature.com/articles/s41598-025-96393-w"
+          }
+        },
+        "r5": {
+          "type": "story",
+          "settings": {
+            "shape": "square",
+            "poster_asset": "tamarinse-photo-coffee.webp",
+            "name": "How activated charcoal binds compounds in the digestive tract",
+            "role": "StatPearls · National Library of Medicine",
+            "link": "https://www.ncbi.nlm.nih.gov/books/NBK482294/"
+          }
+        }
+      },
+      "block_order": [
+        "st1",
+        "st2",
+        "r1",
+        "st3",
+        "st4",
+        "r2",
+        "r4",
+        "st5",
+        "r3",
+        "r5",
+        "st6",
+        "st7",
+        "st8"
+      ]
     },
     "reviews": {
       "type": "tamarinse-reviews",
@@ -173,26 +780,124 @@
         "badge_source": "customer reviews"
       },
       "blocks": {
-        "r1": { "type": "review", "settings": { "quote": "Glass bottle, clean ingredients, transparent label. This is what a modern supplement should look like. Three months in and reordering was easy.", "name": "J.", "role": "Verified buyer", "rating": 5 } },
-        "r2": { "type": "review", "settings": { "quote": "I kept hearing about tamarind for microplastics but couldn't find a product built around it. Tamarinse just made sense. Clean formula I can actually understand.", "name": "S.", "role": "Verified buyer", "rating": 5 } },
-        "r3": { "type": "review", "settings": { "quote": "The first supplement that feels thoughtful and intentional. Built around tamarind with a clear reason for existing — not just another generic capsule.", "name": "L.", "role": "Verified buyer", "rating": 5 } },
-        "r4": { "type": "review", "settings": { "quote": "Two capsules with breakfast and I'm done. No chalky taste, easy to swallow, and the bottle looks good enough to keep on the counter.", "name": "Maya T.", "role": "Verified buyer", "rating": 5 } },
-        "r5": { "type": "review", "settings": { "quote": "I looked up every cited research organization before ordering — everything checked out. Rare to find this level of transparency in a supplement brand.", "name": "Dan R.", "role": "Verified buyer", "rating": 4 } },
-        "r6": { "type": "review", "settings": { "quote": "Bought it for my husband, now we both take it. Once I read about everyday plastic exposure from takeout and coffee lids, it became part of our routine.", "name": "Claire B.", "role": "Verified buyer", "rating": 5 } }
+        "r1": {
+          "type": "review",
+          "settings": {
+            "quote": "Glass bottle, clean ingredients, transparent label. This is what a modern supplement should look like. Three months in and reordering was easy.",
+            "name": "J.",
+            "role": "Verified buyer",
+            "rating": 5
+          }
+        },
+        "r2": {
+          "type": "review",
+          "settings": {
+            "quote": "I kept hearing about tamarind for microplastics but couldn't find a product built around it. Tamarinse just made sense. Clean formula I can actually understand.",
+            "name": "S.",
+            "role": "Verified buyer",
+            "rating": 5
+          }
+        },
+        "r3": {
+          "type": "review",
+          "settings": {
+            "quote": "The first supplement that feels thoughtful and intentional. Built around tamarind with a clear reason for existing — not just another generic capsule.",
+            "name": "L.",
+            "role": "Verified buyer",
+            "rating": 5
+          }
+        },
+        "r4": {
+          "type": "review",
+          "settings": {
+            "quote": "Two capsules with breakfast and I'm done. No chalky taste, easy to swallow, and the bottle looks good enough to keep on the counter.",
+            "name": "Maya T.",
+            "role": "Verified buyer",
+            "rating": 5
+          }
+        },
+        "r5": {
+          "type": "review",
+          "settings": {
+            "quote": "I looked up every cited research organization before ordering — everything checked out. Rare to find this level of transparency in a supplement brand.",
+            "name": "Dan R.",
+            "role": "Verified buyer",
+            "rating": 4
+          }
+        },
+        "r6": {
+          "type": "review",
+          "settings": {
+            "quote": "Bought it for my husband, now we both take it. Once I read about everyday plastic exposure from takeout and coffee lids, it became part of our routine.",
+            "name": "Claire B.",
+            "role": "Verified buyer",
+            "rating": 5
+          }
+        }
       },
-      "block_order": ["r1", "r2", "r3", "r4", "r5", "r6"]
+      "block_order": [
+        "r1",
+        "r2",
+        "r3",
+        "r4",
+        "r5",
+        "r6"
+      ]
     },
     "faq": {
       "type": "tamarinse-faq",
       "blocks": {
-        "f1": { "type": "faq", "settings": { "question": "What is Tamarinse?", "answer": "<p>Tamarinse is the first premium supplement built around tamarind seed extract for daily environmental defense. Our formula combines five plant-based ingredients designed to support your body's natural detoxification pathways and digestive elimination. 60 capsules per bottle. 30-day supply.</p>" } },
-        "f2": { "type": "faq", "settings": { "question": "How do I take it?", "answer": "<p>Take 2 capsules daily with water, preferably with a meal. Consistency is key — Tamarinse is designed for daily long-term use, not a one-time cleanse.</p>" } },
-        "f3": { "type": "faq", "settings": { "question": "Is Tamarinse safe to take every day?", "answer": "<p>Yes. Every ingredient is USDA Organic, third-party tested, and manufactured in a cGMP certified, FDA registered facility in the USA. The activated charcoal is micro-dosed at 100mg specifically for safe daily use.</p>" } },
-        "f4": { "type": "faq", "settings": { "question": "Why tamarind?", "answer": "<p>Tamarind seed extract contains natural polysaccharides that are currently being studied by researchers worldwide for their ability to bind to microplastic particles in digestive environments. It is the most promising plant-based compound in the category — and the reason we built the entire brand around it.</p>" } },
-        "f5": { "type": "faq", "settings": { "question": "Why is the bottle made of glass?", "answer": "<p>We believe putting a microplastic defense supplement in a plastic bottle defeats the purpose. Our glass bottle is better for the product, better for the planet, and aligned with everything Tamarinse stands for.</p>" } },
-        "f6": { "type": "faq", "settings": { "question": "How long does shipping take?", "answer": "<p>Orders ship within 1-2 business days and typically arrive within 5-7 business days depending on your location.</p>" } }
+        "f1": {
+          "type": "faq",
+          "settings": {
+            "question": "What is Tamarinse?",
+            "answer": "<p>Tamarinse is the first premium supplement built around tamarind seed extract for daily environmental defense. Our formula combines five plant-based ingredients designed to support your body's natural detoxification pathways and digestive elimination. 60 capsules per bottle. 30-day supply.</p>"
+          }
+        },
+        "f2": {
+          "type": "faq",
+          "settings": {
+            "question": "How do I take it?",
+            "answer": "<p>Take 2 capsules daily with water, preferably with a meal. Consistency is key — Tamarinse is designed for daily long-term use, not a one-time cleanse.</p>"
+          }
+        },
+        "f3": {
+          "type": "faq",
+          "settings": {
+            "question": "Is Tamarinse safe to take every day?",
+            "answer": "<p>Yes. Every ingredient is USDA Organic, third-party tested, and manufactured in a cGMP certified, FDA registered facility in the USA. The activated charcoal is micro-dosed at 100mg specifically for safe daily use.</p>"
+          }
+        },
+        "f4": {
+          "type": "faq",
+          "settings": {
+            "question": "Why tamarind?",
+            "answer": "<p>Tamarind seed extract contains natural polysaccharides that are currently being studied by researchers worldwide for their ability to bind to microplastic particles in digestive environments. It is the most promising plant-based compound in the category — and the reason we built the entire brand around it.</p>"
+          }
+        },
+        "f5": {
+          "type": "faq",
+          "settings": {
+            "question": "Why is the bottle made of glass?",
+            "answer": "<p>We believe putting a microplastic defense supplement in a plastic bottle defeats the purpose. Our glass bottle is better for the product, better for the planet, and aligned with everything Tamarinse stands for.</p>"
+          }
+        },
+        "f6": {
+          "type": "faq",
+          "settings": {
+            "question": "How long does shipping take?",
+            "answer": "<p>Orders ship within 1-2 business days and typically arrive within 5-7 business days depending on your location.</p>"
+          }
+        }
       },
-      "block_order": ["f1", "f2", "f3", "f4", "f5", "f6"]
+      "block_order": [
+        "f1",
+        "f2",
+        "f3",
+        "f4",
+        "f5",
+        "f6"
+      ]
     },
     "closing": {
       "type": "tamarinse-closing"
@@ -216,7 +921,9 @@
     "advisory",
     "why",
     "everyday",
+    "gallery",
     "reviews",
+    "stories",
     "faq",
     "closing",
     "buybar"

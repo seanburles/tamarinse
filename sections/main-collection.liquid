@@ -90,6 +90,16 @@
   </results-list>
 </collection-component>
 
+{% stylesheet %}
+  /* Soft corners once mobile cards are inset (full_width_on_mobile off). */
+  @media screen and (max-width: 749px) {
+    .main-collection-grid:not(.collection-wrapper--full-width-on-mobile) .card-gallery {
+      border-radius: var(--t-radius-sm, 8px);
+      overflow: hidden;
+    }
+  }
+{% endstylesheet %}
+
 {% schema %}
 {
   "name": "t:names.collection_container",
