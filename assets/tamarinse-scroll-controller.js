@@ -17,7 +17,7 @@ let rafId = null;
 
 /** Horizon scrolls .page-wrapper (not the window) on desktop ≥990px.
  *  We listen on both so animations work at every breakpoint. */
-function getScrollTarget() {
+export function getScrollTarget() {
   return document.querySelector('.page-wrapper') || window;
 }
 

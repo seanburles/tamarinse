@@ -1,0 +1,18 @@
+{% doc %}
+  Resolves the primary Shop CTA URL to the Tamarinse product page.
+  Outputs a bare URL string — capture or place directly in href.
+
+  Usage:
+    href="{% render 'tamarinse-shop-url' %}"
+{% enddoc %}
+{%- liquid
+  assign shop_product = all_products['tamarinse™-environmental-defense-formula']
+  if shop_product == blank
+    assign shop_product = collections.all.products.first
+  endif
+  if shop_product != blank
+    echo shop_product.url
+  else
+    echo routes.all_products_collection_url
+  endif
+-%}

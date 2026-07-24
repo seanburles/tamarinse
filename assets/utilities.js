@@ -780,7 +780,12 @@ export function setHeaderMenuStyle() {
     window.requestAnimationFrame(() => {
       const overflowList = headerComponent?.querySelector('overflow-list');
       const hasReachedMinimum = overflowList && overflowList.hasAttribute('minimum-reached');
-      headerComponent.dataset.menuStyle = isTouchDevice() || hasReachedMinimum ? 'drawer' : 'menu';
+      // Tamarinse floating pill (≥990px) is desktop chrome — keep inline nav
+      // there even on touch laptops/iPads. Drawer-only below that breakpoint
+      // (or when overflow-list reports minimum-reached).
+      const wide = window.matchMedia('(min-width: 990px)').matches;
+      const useDrawer = hasReachedMinimum || (!wide && isTouchDevice());
+      headerComponent.dataset.menuStyle = useDrawer ? 'drawer' : 'menu';
     });
   }
 }

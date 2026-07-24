@@ -1,0 +1,205 @@
+{% comment %}
+  Exposure Result — receives a tier handed over from the Exposure Assessment
+  (client 2026-07-21: deliver the quiz result on the product page).
+
+  Renders nothing unless the visitor arrives with ?exposure=<1-4>, so a
+  direct visit to the product page is untouched. Tier copy lives here rather
+  than travelling in the URL — only the index crosses the page boundary.
+{% endcomment %}
+
+{%- liquid
+  assign tier_labels = section.settings.tier_labels | split: ','
+  assign tier_texts = section.settings.tier_low | append: '|||'
+  assign tier_texts = tier_texts | append: section.settings.tier_moderate | append: '|||'
+  assign tier_texts = tier_texts | append: section.settings.tier_high | append: '|||'
+  assign tier_texts = tier_texts | append: section.settings.tier_very_high
+  assign texts = tier_texts | split: '|||'
+-%}
+
+<tamarinse-exposure-result class="tamarinse-exposure-result" id="TamarinseExposureResult-{{ section.id }}">
+  {%- for label in tier_labels -%}
+    {%- assign i = forloop.index -%}
+    <div class="tamarinse-exposure-result__panel" data-tier="{{ i }}" hidden>
+      <div class="tamarinse-exposure-result__inner">
+        <p class="t-eyebrow t-eyebrow--ruled tamarinse-exposure-result__eyebrow">
+          {{- section.settings.eyebrow -}}
+        </p>
+        <p class="tamarinse-exposure-result__line">
+          {{ section.settings.result_prefix }}
+          <strong>{{ label | strip }}</strong>
+        </p>
+        {%- assign body = texts[forloop.index0] -%}
+        {%- if body != blank -%}
+          <p class="tamarinse-exposure-result__text">{{ body | strip }}</p>
+        {%- endif -%}
+        {%- if section.settings.retake_label != blank and section.settings.retake_link != blank -%}
+          <a class="tamarinse-exposure-result__retake" href="{{ section.settings.retake_link }}">
+            {{- section.settings.retake_label -}}
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endfor -%}
+</tamarinse-exposure-result>
+
+<script src="{{ 'tamarinse-exposure-result.js' | asset_url }}" type="module"></script>
+
+{% stylesheet %}
+  /* Collapsed until the custom element reveals a panel — no layout shift and
+     no empty band for visitors who never took the quiz. */
+  .tamarinse-exposure-result {
+    display: block;
+  }
+
+  .tamarinse-exposure-result:not([data-active]) {
+    display: none;
+  }
+
+  .tamarinse-exposure-result__panel {
+    background: var(--t-tint);
+    border-block-end: 1px solid var(--t-border);
+    padding: var(--t-space-lg) var(--t-space-md);
+    animation: tamarinse-exposure-result-in 620ms var(--t-ease-out) both;
+  }
+
+  .tamarinse-exposure-result__inner {
+    max-width: var(--t-content-max);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--t-space-2xs);
+  }
+
+  .tamarinse-exposure-result__eyebrow {
+    color: var(--t-text-low);
+    margin: 0 0 var(--t-space-2xs);
+  }
+
+  .tamarinse-exposure-result__line {
+    font-family: var(--t-font-heading);
+    font-size: var(--t-type-h3);
+    line-height: var(--t-leading-heading);
+    font-weight: var(--t-weight-subheading);
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .tamarinse-exposure-result__line strong {
+    color: var(--t-accent);
+    font-weight: var(--t-weight-subheading);
+  }
+
+  .tamarinse-exposure-result__text {
+    font-size: var(--t-type-body);
+    line-height: var(--t-leading-body);
+    color: var(--t-text-mid);
+    max-width: var(--t-copy-max);
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  .tamarinse-exposure-result__retake {
+    font-size: var(--t-type-small);
+    color: var(--t-text-mid);
+    margin-block-start: var(--t-space-2xs);
+    min-height: var(--t-touch-target);
+    display: inline-flex;
+    align-items: center;
+  }
+
+  @keyframes tamarinse-exposure-result-in {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tamarinse-exposure-result__panel {
+      animation: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Exposure Result",
+  "tag": "section",
+  "class": "tamarinse-exposure-result-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Shows the Exposure Assessment result when a visitor arrives from the quiz. Hidden otherwise. Set the quiz's \"Where the result appears\" to \"On the product page\" to use this."
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Your exposure assessment"
+    },
+    {
+      "type": "text",
+      "id": "result_prefix",
+      "label": "Result line (tier is appended)",
+      "default": "Your estimated exposure is"
+    },
+    {
+      "type": "text",
+      "id": "tier_labels",
+      "label": "Tier labels (comma separated, in order)",
+      "default": "Low, Moderate, High, Very High",
+      "info": "Must stay in the same order as the quiz's tiers."
+    },
+    {
+      "type": "textarea",
+      "id": "tier_low",
+      "label": "Supporting text — tier 1",
+      "default": "Even careful routines can't avoid the microplastics already in food, water, and air. Tamarinse™ was designed as simple daily support for exactly that baseline."
+    },
+    {
+      "type": "textarea",
+      "id": "tier_moderate",
+      "label": "Supporting text — tier 2",
+      "default": "Several of your everyday habits are recognized microplastic sources, and that kind of exposure adds up quietly. This cumulative pattern is what Tamarinse™ was designed for."
+    },
+    {
+      "type": "textarea",
+      "id": "tier_high",
+      "label": "Supporting text — tier 3",
+      "default": "Your routine includes many of the most common everyday exposure sources — the exact pattern Tamarinse™ was formulated around."
+    },
+    {
+      "type": "textarea",
+      "id": "tier_very_high",
+      "label": "Supporting text — tier 4",
+      "default": "Your answers cover most of the major everyday exposure sources. Routines like this are exactly what daily binding support was made for."
+    },
+    {
+      "type": "text",
+      "id": "retake_label",
+      "label": "Retake link label",
+      "default": "Retake the assessment"
+    },
+    {
+      "type": "url",
+      "id": "retake_link",
+      "label": "Retake link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Exposure Result",
+      "category": "Tamarinse"
+    }
+  ]
+}
+{% endschema %}

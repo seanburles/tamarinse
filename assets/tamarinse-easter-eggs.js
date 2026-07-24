@@ -5,27 +5,38 @@
  * pokes at the site the way curious people do.
  *
  * Eggs:
- * 1. The city pill — five quick taps/clicks on the hero bottle, or typing
- *    "pills" anywhere outside a form field, dims the page and reveals a
+ * 1. The city pill — three quick taps/clicks on the hero bottle, a click on
+ *    any ™ mark in a headline, typing "pills" outside a form field, or
+ *    scrolling to the very bottom of the page and back to the very top, dims
+ *    the page and reveals a
  *    capsule with a night-time city skyline living in its top half
  *    (original art in the spirit of the client's Brave New World poster
  *    reference — not a copy of it), over a shower of tan capsules, with the
- *    caption "O brave new world, that has such capsules in't." (The Tempest —
- *    the line Huxley's title quotes; public domain.)
+ *    caption "O brave new world, that has such capsules in it." (a riff on
+ *    The Tempest — the line Huxley's title quotes; public domain.)
  *    Swap-ready: replace CITY_PILL_SVG with an <img> tag pointing at a
  *    generated asset and everything else carries over.
  * 2. Console greeting for the people who open devtools.
  *
  * Constraints: no dependencies, decoration only, auto-cleanup, throttled to
- * once per 20s, dismiss via click/Escape/timeout, and prefers-reduced-motion
- * gets the still reveal without the rain.
+ * once per 30 minutes via cookie, dismiss via click/Escape/timeout, and
+ * prefers-reduced-motion gets the still reveal without the rain.
  */
 
-const THROTTLE_MS = 20_000;
+const EGG_COOKIE = 'tamarinse_egg';
+const EGG_COOKIE_MAX_AGE_S = 30 * 60; /* 30 minutes */
 const TAP_WINDOW_MS = 2_500;
-const TAPS_NEEDED = 5;
+/* Three, not five — five was effectively undiscoverable */
+const TAPS_NEEDED = 3;
 const KEYWORD = 'pills';
-const CAPTION = "O brave new world, that has such capsules in't.";
+/* The ™ marks are the signposted route in: they carry a pointer cursor and
+   tint on hover (tamarinse-tokens.css), so a curious visitor finds them
+   without the joke being announced. */
+const TM_SELECTOR = '.tamarinse-hero__tm, .tamarinse-closing__tm';
+/* Riff on Miranda's line in The Tempest ("...such people in't!") — the line
+   Huxley's Brave New World takes its title from. Modernised "in't" → "in it"
+   because the archaic contraction reads as a typo to most visitors. */
+const CAPTION = 'O brave new world, that has such capsules in it.';
 
 /* Original flat-illustration capsule: arched window with a skyline in the
    top half, seam band, tan gelatin base. Brand palette throughout. */
@@ -69,10 +80,18 @@ const CITY_PILL_SVG = `
   <path d="M62 232v92a46 46 0 0 0 10 28" fill="none" stroke="#cfc09b" stroke-width="5" stroke-linecap="round" opacity="0.7"/>
 </svg>`;
 
-let lastReveal = 0;
 let styleInjected = false;
 
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function eggCookieActive() {
+  return document.cookie.split(';').some((part) => part.trim().startsWith(`${EGG_COOKIE}=`));
+}
+
+function setEggCookie() {
+  const secure = location.protocol === 'https:' ? '; Secure' : '';
+  document.cookie = `${EGG_COOKIE}=1; Max-Age=${EGG_COOKIE_MAX_AGE_S}; Path=/; SameSite=Lax${secure}`;
+}
 
 function injectStyles() {
   if (styleInjected) return;
@@ -234,16 +253,15 @@ function showCityPill() {
 }
 
 function reveal() {
-  const now = Date.now();
-  if (now - lastReveal < THROTTLE_MS) return;
-  lastReveal = now;
+  if (eggCookieActive()) return;
+  setEggCookie();
 
   injectStyles();
   if (!reducedMotion()) rainCapsules();
   showCityPill();
 }
 
-/* ── Trigger 1: five quick taps on the hero bottle ── */
+/* ── Trigger 1: a few quick taps on the hero bottle ── */
 let taps = [];
 document.addEventListener(
   'pointerdown',
@@ -260,7 +278,12 @@ document.addEventListener(
   { passive: true }
 );
 
-/* ── Trigger 2: typing "pills" outside form fields ── */
+/* ── Trigger 2: click a ™ mark — the discoverable one ── */
+document.addEventListener('click', (event) => {
+  if (event.target.closest(TM_SELECTOR)) reveal();
+});
+
+/* ── Trigger 3: typing "pills" outside form fields ── */
 let typed = '';
 document.addEventListener('keydown', (event) => {
   if (event.metaKey || event.ctrlKey || event.altKey) return;
@@ -276,11 +299,52 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
+/* ── Trigger 4: scroll to the very bottom, then back to the very top ──
+   Horizon scrolls .page-wrapper on desktop and the window elsewhere, so read
+   whichever is the live scroll container. "Armed" latches at the bottom and
+   fires on the return to the top; reveal()'s 30-minute cookie stops repeats. */
+const EDGE_SLOP = 4; /* px tolerance for "all the way" (sub-pixel zoom, elastic) */
+let armedFromBottom = false;
+
+function scrollMetrics() {
+  const wrapper = document.querySelector('.page-wrapper');
+  if (wrapper) {
+    const ov = getComputedStyle(wrapper).overflowY;
+    if (ov === 'auto' || ov === 'scroll') {
+      return {
+        top: wrapper.scrollTop,
+        max: wrapper.scrollHeight - wrapper.clientHeight,
+      };
+    }
+  }
+  const doc = document.scrollingElement || document.documentElement;
+  return {
+    top: window.scrollY || doc.scrollTop,
+    max: doc.scrollHeight - window.innerHeight,
+  };
+}
+
+function onEdgeScroll() {
+  const { top, max } = scrollMetrics();
+  /* Ignore pages too short to have a real top-and-bottom journey */
+  if (max < window.innerHeight) return;
+
+  if (top >= max - EDGE_SLOP) {
+    armedFromBottom = true;
+  } else if (armedFromBottom && top <= EDGE_SLOP) {
+    armedFromBottom = false;
+    reveal();
+  }
+}
+
+/* capture:true catches the .page-wrapper's scroll (scroll doesn't bubble) */
+window.addEventListener('scroll', onEdgeScroll, { passive: true, capture: true });
+
 /* ── Console greeting ── */
 try {
   // eslint-disable-next-line no-console
   console.log(
-    '%cTamarinse™%c O brave new world, that has such capsules in’t. — try tapping the bottle five times.',
+    '%cTamarinse™%c O brave new world, that has such capsules in it. — try clicking a ™.',
     'font-weight:700;color:#0d7a3f;font-size:14px;',
     'color:#9a8a68;font-style:italic;'
   );

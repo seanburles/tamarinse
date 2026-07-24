@@ -146,7 +146,21 @@ class TamarinseExposureQuiz extends HTMLElement {
       0
     );
 
-    const match = scoreExposure(total, max, this.#tiers());
+    const tiers = this.#tiers();
+    const match = scoreExposure(total, max, tiers);
+
+    /* "On the product page" mode: hand the result off and navigate, instead
+       of revealing it here. The tier travels as a 1-based INDEX so renaming
+       a tier in the theme editor can't desync the two sections. */
+    const target = this.getAttribute('data-result-url');
+    if (this.getAttribute('data-result-mode') === 'product' && target) {
+      const index = tiers.indexOf(match) + 1;
+      const url = new URL(target, window.location.origin);
+      if (index > 0) url.searchParams.set('exposure', String(index));
+      window.location.assign(url.toString());
+      return;
+    }
+
     const tierLabel = this.querySelector('[data-quiz-tier]');
     if (tierLabel) tierLabel.textContent = match?.tier || '';
 

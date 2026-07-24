@@ -10,7 +10,7 @@
 <section
   class="tamarinse-hero"
   id="TamarinseHero-{{ section.id }}"
-  style="--t-bottle-period: {{ section.settings.rotation_seconds }}s; --hero-scroll-length: {{ section.settings.scroll_length | default: 160 }}vh;"
+  style="--t-bottle-period: {{ section.settings.rotation_seconds }}s; --hero-scroll-length: {{ section.settings.scroll_length | default: 90 }}vh;"
 >
   <div class="tamarinse-hero__sticky">
     <div class="tamarinse-hero__inner">
@@ -52,14 +52,27 @@
           </span>
         </p>
       {%- endif -%}
+      {%- comment -%}
+        Lead statement (client 2026-07-21). Sits directly above the headline
+        so the two read as one lockup under the bottle. Deliberately a <p>,
+        not a heading: "Daily Defense Against Microplastics™" stays the H1 —
+        it's the phrase the page needs to rank for, and demoting it to make
+        room for a tagline would cost that.
+      {%- endcomment -%}
+      {%- if section.settings.lead_line != blank -%}
+        <p class="tamarinse-hero__lead">{{ section.settings.lead_line | replace: '™', '<sup class="tamarinse-hero__tm">™</sup>' }}</p>
+      {%- endif -%}
       <h1 class="tamarinse-hero__headline">{{ section.settings.headline | replace: '™', '<sup class="tamarinse-hero__tm">™</sup>' }}</h1>
       <p class="tamarinse-hero__subheadline">{{ section.settings.subheadline }}</p>
       <div class="tamarinse-hero__actions">
         {%- if section.settings.primary_cta_label != blank -%}
+          {%- capture tamarinse_shop_url -%}{% render 'tamarinse-shop-url' %}{%- endcapture -%}
           <a
             class="t-btn t-btn--pill"
-            href="{{ section.settings.primary_cta_link | default: routes.all_products_collection_url }}"
+            href="{{ section.settings.primary_cta_link | default: tamarinse_shop_url }}"
           >
+            {%- comment -%} Open-cap art; fades in over the seated cap on hover {%- endcomment -%}
+            <span class="t-btn__cap" aria-hidden="true"></span>
             {{- section.settings.primary_cta_label -}}
           </a>
         {%- endif -%}
@@ -174,8 +187,10 @@
     overflow: hidden;
     display: flex;
     align-items: center;
-    /* Top pad clears the overlaying header while pinned */
-    padding: calc(var(--header-height, 64px) + var(--t-space-2xs)) var(--t-space-md) var(--t-space-lg);
+    /* Top pad clears the overlaying header while pinned; bottom pad clears
+       the floating buy bar and the iOS home indicator. */
+    padding: calc(var(--header-height, 64px) + var(--t-space-2xs)) var(--t-space-md)
+      calc(var(--t-space-md) + env(safe-area-inset-bottom, 0px));
   }
 
   /* Reduced motion (set by the sequence element): no pin, no dead scroll —
@@ -193,21 +208,30 @@
 
   .tamarinse-hero__inner {
     width: 100%;
+    height: 100%;
     max-width: var(--t-content-max);
     margin-inline: auto;
     display: flex;
     flex-direction: column-reverse;
     align-items: center;
-    gap: var(--t-space-lg);
+    justify-content: center;
+    /* min-height:0 lets the bottle shrink instead of overflowing the pinned
+       stage — without it the column stays at its natural height and the
+       centered overflow gets clipped at BOTH ends (bottle cap off the top,
+       secondary CTA off the bottom) on short screens. */
+    min-height: 0;
+    gap: clamp(var(--t-space-sm), 3svh, var(--t-space-lg));
   }
 
   .tamarinse-hero__content {
+    /* Copy keeps its natural height; the bottle absorbs the slack */
+    flex: 0 0 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
     max-width: var(--t-copy-max);
-    gap: var(--t-space-sm);
+    gap: clamp(var(--t-space-2xs), 1.2svh, var(--t-space-sm));
     animation: tamarinse-hero-rise 900ms var(--t-ease-out) both;
   }
 
@@ -260,6 +284,20 @@
     transform: scaleX(-1);
   }
 
+  /* Lead statement: same serif as the headline so they read as one lockup,
+     but lighter and smaller so the H1 keeps the visual hierarchy. */
+  .tamarinse-hero__lead {
+    font-family: var(--t-font-heading);
+    font-size: clamp(1.125rem, 0.85rem + 1.1vw, 1.5rem);
+    line-height: 1.3;
+    font-weight: var(--t-weight-body);
+    font-style: italic;
+    color: var(--t-text-mid);
+    margin: 0;
+    max-width: 26ch;
+    text-wrap: balance;
+  }
+
   .tamarinse-hero__headline {
     font-family: var(--t-font-heading);
     font-size: var(--t-type-display);
@@ -293,14 +331,104 @@
     flex-wrap: wrap;
     justify-content: center;
     gap: var(--t-space-xs);
-    margin-block-start: var(--t-space-sm);
+    margin-block-start: clamp(var(--t-space-2xs), 1.5svh, var(--t-space-sm));
   }
 
   .tamarinse-hero__badges {
     display: flex;
     align-items: center;
     gap: var(--t-space-sm);
-    margin-block-start: var(--t-space-md);
+    margin-block-start: clamp(var(--t-space-xs), 2svh, var(--t-space-md));
+  }
+
+  /*
+    Stacked (mobile) layout: the bottle is the flexible member of the column,
+    so it already takes every pixel the copy leaves — raising its height cap
+    does nothing once the column is full. The only way to grow it is to hand
+    it space back, so the copy runs tighter here than the shared tokens:
+    a smaller display size, a compact award lockup, and slimmer gaps. That
+    buys the bottle roughly 70–90px of height on a typical phone.
+  */
+  @media screen and (max-width: 749px) {
+    .tamarinse-hero__headline {
+      font-size: clamp(2rem, 0.4rem + 6.6vw, 2.875rem);
+    }
+
+    .tamarinse-hero__subheadline {
+      font-size: 0.8125rem;
+      line-height: 1.5;
+    }
+
+    /* Trimmed like the rest of the stacked copy — the pinned viewport is a
+       fixed budget and every rem here comes off the bottle. The measure cap
+       is lifted too so the line fits on ONE row on a typical phone; at 26ch
+       it wrapped to two and cost the bottle another ~20px. */
+    .tamarinse-hero__lead {
+      font-size: 0.9375rem;
+      max-width: 100%;
+    }
+
+    .tamarinse-hero__award {
+      gap: 0.15rem;
+      margin-block-end: 0;
+    }
+
+    .tamarinse-hero__award-lead {
+      font-size: 0.625rem;
+      letter-spacing: 0.18em;
+    }
+
+    .tamarinse-hero__award-main {
+      font-size: 0.8125rem;
+    }
+
+    .tamarinse-hero__laurel {
+      height: 1.45em;
+    }
+
+    .tamarinse-hero__actions {
+      margin-block-start: var(--t-space-2xs);
+    }
+
+    /* Tighter than the shared clamp — every rem here goes to the bottle */
+    .tamarinse-hero__inner {
+      gap: clamp(0.5rem, 2svh, 1.25rem);
+    }
+
+    .tamarinse-hero__content {
+      gap: clamp(0.25rem, 0.9svh, 0.625rem);
+    }
+
+    .tamarinse-hero__sticky {
+      padding-inline: var(--t-space-sm);
+      padding-block-start: calc(var(--header-height, 64px) + 2px);
+    }
+  }
+
+  /* Short phones: reclaim height so the bottle keeps real presence and the
+     CTAs stay clear of the fold. Badges shrink first, then step aside —
+     they repeat immediately below in the Quality Standards row. */
+  @media screen and (max-width: 989px) and (max-height: 760px) {
+    .tamarinse-hero__badge {
+      width: 36px;
+      height: 36px;
+    }
+
+    .tamarinse-hero__badge-cell + .tamarinse-hero__badge-cell {
+      padding-inline-start: var(--t-space-xs);
+    }
+  }
+
+  @media screen and (max-width: 989px) and (max-height: 670px) {
+    .tamarinse-hero__badges {
+      display: none;
+    }
+
+    /* Trim the display type too, so the freed height goes to the bottle
+       rather than to three tall headline lines */
+    .tamarinse-hero__headline {
+      font-size: clamp(1.875rem, 1rem + 5vw, 2.625rem);
+    }
   }
 
   .tamarinse-hero__badge-cell {
@@ -325,8 +453,14 @@
     position: relative;
     display: block;
     /* Height-driven box matching the turntable frames' aspect (597:1152)
-       so the bottle fills the canvas edge to edge */
-    height: min(52svh, 480px);
+       so the bottle fills the canvas edge to edge. It's the flexible member
+       of the pinned column: it takes the space the copy leaves and shrinks
+       on short screens rather than being clipped by the stage. The canvas
+       paints contain-fit, so a shorter box just renders a smaller bottle. */
+    flex: 1 1 auto;
+    min-height: 0;
+    height: min(68svh, 640px);
+    max-height: 100%;
     aspect-ratio: 597 / 1152;
     animation: tamarinse-hero-fade 1100ms var(--t-ease-out) 150ms both;
   }
@@ -444,7 +578,7 @@
 
     .tamarinse-hero__scene {
       flex: 0 0 auto;
-      height: min(64svh, 680px);
+      height: min(74svh, 800px);
     }
   }
 {% endstylesheet %}
@@ -461,6 +595,13 @@
     {
       "type": "header",
       "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "lead_line",
+      "label": "Statement above headline",
+      "default": "Your body wasn't designed for plastic.",
+      "info": "Sits directly under the bottle, above the headline. Leave blank to hide."
     },
     {
       "type": "text",
@@ -553,12 +694,12 @@
       "type": "range",
       "id": "scroll_length",
       "label": "Pinned rotation scroll distance",
-      "min": 100,
-      "max": 300,
+      "min": 40,
+      "max": 240,
       "step": 10,
       "unit": "vh",
-      "default": 160,
-      "info": "How far the visitor scrolls while the hero stays pinned for one full bottle turn. Longer = slower rotation."
+      "default": 90,
+      "info": "How far the visitor scrolls while the hero stays pinned for one full bottle turn. Lower = rotation kicks in sooner and finishes faster; higher = slower, longer hold."
     }
   ],
   "presets": [

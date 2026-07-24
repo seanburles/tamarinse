@@ -2,11 +2,29 @@
   Tamarinse™ header — Seed-inspired floating glass pill
   -----------------------------------------------------
   Transforms Horizon's stock header into a floating frosted capsule:
-  logo left, letterspaced links center (with pill hover), Shop CTA +
+  logo left, letterspaced links immediately after the logo, Shop CTA +
   utilities right. Mobile drawer stays editorial cream with large
   Fraunces links. Pure CSS over existing markup (+ Shop CTA from
   header-actions.liquid).
 */
+
+/* Keep nav links tight to the logo when menu_position is left */
+@media screen and (min-width: 990px) {
+  #header-component .header__column--left {
+    gap: 0.15rem;
+  }
+
+  #header-component .header__column--left .header-menu,
+  #header-component .header__column--left header-menu {
+    margin-inline-start: 0;
+    width: max-content;
+    flex: 0 0 auto;
+  }
+
+  #header-component .header__column--left .menu-list {
+    --menu-horizontal-gap: 0.15rem;
+  }
+}
 
 /* ---- Floating pill shell (desktop) ----
    Lift the top row off the page edge and give it a capsule silhouette
@@ -69,9 +87,11 @@
   #header-component .header__row--top .header__columns {
     position: relative;
     z-index: 1;
-    padding-block: 0.45rem;
-    padding-inline: 1.5rem 1.15rem;
-    min-height: 56px;
+    padding-block: 0.4rem;
+    /* Less inset than Horizon defaults — pill radius still clears the ends */
+    padding-inline: 0.85rem 0.75rem;
+    min-height: 52px;
+    column-gap: 0.75rem;
   }
 
   /* Sticky: a touch denser over busy content */
@@ -97,14 +117,40 @@
   }
 }
 
+/*
+  Search duplication fix
+  ----------------------
+  Horizon renders two search controls (drawer_search + search) and toggles
+  them via scoped snippet CSS + [data-menu-style]. That attribute selector
+  often fails once styles are scoped, so both icons show — especially on
+  touch desktops stuck in drawer mode. Enforce a single control here.
+*/
+#header-component[data-menu-style='drawer'] .search-action--hidden-on-drawer,
+#header-component[data-menu-style='menu'] .search-action--hidden-on-menu {
+  display: none !important;
+}
+
+@media screen and (max-width: 749px) {
+  #header-component .search-action--hidden-on-drawer {
+    display: none !important;
+  }
+}
+
+/* Wide pill: never show the mobile/drawer search bookend */
+@media screen and (min-width: 990px) {
+  #header-component .search-action--hidden-on-menu {
+    display: none !important;
+  }
+}
+
 /* ---- Desktop menu: letterspaced + pill hover (Seed "Shop" chip) ---- */
 #header-component .menu-list__link {
   color: var(--t-ink, #191712);
   opacity: 1;
   transition: background-color 240ms cubic-bezier(0.22, 1, 0.36, 1);
   border-radius: 999px;
-  padding-inline: 0.95rem;
-  padding-block: 0.45rem;
+  padding-inline: 0.7rem;
+  padding-block: 0.4rem;
 }
 
 #header-component .menu-list__link-title {

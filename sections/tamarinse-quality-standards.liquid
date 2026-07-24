@@ -62,15 +62,22 @@
     max-width: var(--t-content-max);
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--t-space-lg) var(--t-space-md);
+    gap: var(--t-space-xl) var(--t-space-sm);
+    /* Cells intentionally stretch so the hairline dividers stay equal
+       height; the item's own justify-content top-aligns the seals. */
   }
 
+  /* Top-aligned so every seal sits on one line no matter how many lines its
+     label runs to — the ragged bottoms read as intentional, ragged tops
+     would just look broken. */
   .tamarinse-quality__item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--t-space-sm);
+    justify-content: flex-start;
+    gap: var(--t-space-xs);
     text-align: center;
+    min-width: 0;
   }
 
   /* Engraved certification-badge chrome (client ref. badge sheet,
@@ -116,13 +123,24 @@
     height: 34px;
   }
 
+  /*
+    The old 12ch cap was narrower than the longest single words once
+    letter-spacing was counted ("MANUFACTURED", "INGREDIENTS"), so they
+    overflowed their centred box and visibly leaned right — and short labels
+    were forced into four ragged lines. Sizing to the column instead lets
+    each label break where it reads best.
+  */
   .tamarinse-quality__label {
     font-size: var(--t-type-eyebrow);
-    letter-spacing: 0.08em;
+    letter-spacing: 0.07em;
+    /* Trailing letter-space would push centred lines a hair right */
+    margin-inline-end: -0.07em;
     text-transform: uppercase;
     font-weight: var(--t-weight-semibold);
     color: var(--t-text-mid);
-    max-width: 12ch;
+    line-height: 1.5;
+    max-width: 100%;
+    text-wrap: balance;
   }
 
   @media screen and (min-width: 750px) {
@@ -131,8 +149,12 @@
       column-gap: 0;
     }
 
+    /* Gutters keep the labels off the hairline dividers. Deliberately a
+       fixed value, not a vw clamp: the row is capped at --t-content-max, so
+       viewport-scaled padding would keep eating the (fixed) column width on
+       wide screens and re-crush the longest words. */
     .tamarinse-quality__item {
-      padding-inline: var(--t-space-sm);
+      padding-inline: var(--t-space-md);
     }
 
     /* Hairline dividers between certifications, as on the brand poster */

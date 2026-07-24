@@ -9,7 +9,7 @@
 <div
   class="section-background{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
 ></div>
-<div class="section{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}">
+<div class="section tamarinse-blog-post{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}">
   <div
     class="
       spacing-style
@@ -23,6 +23,24 @@
       {% render 'spacing-style', settings: section.settings %}
     "
   >
+    <nav class="tamarinse-breadcrumbs" aria-label="{{ 'blogs.breadcrumbs.label' | t }}">
+      <ol class="tamarinse-breadcrumbs__list">
+        <li class="tamarinse-breadcrumbs__item">
+          <a class="tamarinse-breadcrumbs__link" href="{{ routes.root_url }}">
+            {{- 'blogs.breadcrumbs.home' | t -}}
+          </a>
+        </li>
+        <li class="tamarinse-breadcrumbs__item">
+          <a class="tamarinse-breadcrumbs__link" href="{{ blog.url }}">
+            {{- blog.title | escape -}}
+          </a>
+        </li>
+        <li class="tamarinse-breadcrumbs__item" aria-current="page">
+          <span class="tamarinse-breadcrumbs__current">{{ article.title | escape }}</span>
+        </li>
+      </ol>
+    </nav>
+
     {% content_for 'blocks' %}
 
     {% if blog.comments_enabled? %}
@@ -61,9 +79,78 @@
 </script>
 
 {% stylesheet %}
+  .tamarinse-blog-post {
+    /* Match homepage shells (.tamarinse-hero__inner, FAQ, Meet). */
+    --page-content-width: var(--t-content-max, 68rem);
+    --page-width: calc(var(--page-content-width) + (var(--page-margin) * 2));
+    --page-margin: var(--t-space-md, 1.5rem);
+  }
+
+  .tamarinse-breadcrumbs {
+    width: 100%;
+    margin-block-end: 0.25rem;
+  }
+
+  .tamarinse-breadcrumbs__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--t-font-body, 'Hanken Grotesk', system-ui, sans-serif);
+    font-size: var(--t-type-small, 0.875rem);
+    letter-spacing: 0.04em;
+    color: var(--t-text-mid, rgb(25 23 18 / 70%));
+  }
+
+  .tamarinse-breadcrumbs__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+  }
+
+  .tamarinse-breadcrumbs__item:not(:last-child)::after {
+    content: '/';
+    opacity: 0.45;
+    pointer-events: none;
+  }
+
+  .tamarinse-breadcrumbs__link {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+
+  .tamarinse-breadcrumbs__link:hover,
+  .tamarinse-breadcrumbs__link:focus-visible {
+    color: var(--t-ink, #191712);
+  }
+
+  .tamarinse-breadcrumbs__link:focus-visible {
+    outline: 2px solid var(--t-accent, #0d7a3f);
+    outline-offset: 3px;
+  }
+
+  .tamarinse-breadcrumbs__current {
+    color: var(--t-ink, #191712);
+    max-width: 28ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  @media screen and (min-width: 750px) {
+    .tamarinse-breadcrumbs__current {
+      max-width: 48ch;
+    }
+  }
+
   .blog-post-comments-container {
     width: 100%;
-    max-width: var(--normal-content-width);
+    max-width: var(--t-copy-max, var(--normal-content-width));
     margin: 0 auto;
   }
 

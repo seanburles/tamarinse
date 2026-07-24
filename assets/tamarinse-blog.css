@@ -1,0 +1,192 @@
+/*
+  Tamarinse™ Articles index — editorial listing
+  ---------------------------------------------
+  Softens Horizon’s equal card grid into a featured + supporting layout with
+  homepage-matched measure, generous rhythm, and brand type.
+*/
+
+.blog-posts {
+  --page-content-width: var(--t-content-max, 68rem);
+  --page-width: calc(var(--page-content-width) + (var(--page-margin) * 2));
+  --page-margin: var(--t-space-md, 1.5rem);
+  --columns-gap: clamp(1.25rem, 1rem + 1.2vw, 2rem);
+  --rows-gap: clamp(2rem, 1.5rem + 2vw, 3.25rem);
+  padding-block: clamp(4.5rem, 3.5rem + 3vw, 7rem) clamp(4rem, 3rem + 3vw, 6.5rem) !important;
+}
+
+/* Page title — Fraunces display, room to breathe */
+.blog-posts > .text-block,
+.blog-posts > .group-block {
+  margin-block-end: clamp(1.5rem, 1rem + 2vw, 2.75rem);
+}
+
+.blog-posts > .text-block :is(h1, h2, .h1, .h2),
+.blog-posts > .text-block > * {
+  font-family: var(--t-font-heading, 'Fraunces', Georgia, serif) !important;
+  font-weight: var(--t-weight-heading, 580) !important;
+  font-size: clamp(2.25rem, 1.6rem + 2.2vw, 3.5rem) !important;
+  line-height: var(--t-leading-heading, 1.15) !important;
+  letter-spacing: -0.02em !important;
+  color: var(--t-ink, #191712);
+  max-width: 14ch;
+  text-wrap: balance;
+}
+
+.blog-posts-container {
+  gap: var(--rows-gap) var(--columns-gap) !important;
+}
+
+/* Separate the featured lead from the even supporting grid */
+.blog-posts .blog-post-item--horizontal {
+  margin-block-end: clamp(0.75rem, 0.25rem + 1.5vw, 1.75rem);
+  padding-block-end: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+  border-block-end: 1px solid var(--t-border, rgb(26 22 14 / 10%));
+}
+
+/* Drop the default bordered “card” chrome */
+.blog-posts .blog-post-item {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+.blog-posts .blog-post-card {
+  height: 100%;
+  gap: 0;
+}
+
+.blog-posts .blog-post-card__image-container {
+  overflow: hidden;
+  border-radius: var(--t-radius-sm, 6px);
+  background: var(--t-sand, #f0ebe1);
+}
+
+.blog-posts .blog-post-card__image-container a {
+  display: block;
+  overflow: hidden;
+}
+
+.blog-posts .blog-post-card__image {
+  transition: transform 640ms cubic-bezier(0.22, 1, 0.36, 1);
+  border-radius: inherit !important;
+}
+
+@media (hover: hover) {
+  .blog-posts .blog-post-item:hover .blog-post-card__image {
+    transform: scale(1.03);
+  }
+}
+
+.blog-posts .blog-post-card__content {
+  padding-block-start: 1.15rem;
+  gap: 0.35rem;
+}
+
+.blog-posts .blog-post-card__content a.blog-post-card__title-link {
+  padding-block-start: 0.15rem;
+}
+
+.blog-posts .blog-post-card__title-link :is(h2, h3, h4, .h2, .h3, .h4, p) {
+  font-family: var(--t-font-heading, 'Fraunces', Georgia, serif) !important;
+  font-weight: var(--t-weight-heading, 580) !important;
+  font-size: clamp(1.25rem, 1.05rem + 0.7vw, 1.625rem) !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.015em !important;
+  color: var(--t-ink, #191712);
+  text-wrap: pretty;
+  margin: 0;
+}
+
+.blog-posts .blog-post-card__title-link:hover :is(h2, h3, h4, .h2, .h3, .h4, p) {
+  color: var(--t-accent-deep, #095a2e);
+}
+
+.blog-posts .blog-post-details {
+  font-family: var(--t-font-body, 'Hanken Grotesk', system-ui, sans-serif);
+  font-size: 0.8125rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--t-text-mid, rgb(25 23 18 / 70%));
+  margin-block: 0.15rem 0.35rem;
+}
+
+.blog-posts .blog-post-card__content-text {
+  font-family: var(--t-font-body, 'Hanken Grotesk', system-ui, sans-serif);
+  font-size: 0.975rem;
+  line-height: var(--t-leading-body, 1.65);
+  color: var(--t-text-mid, rgb(25 23 18 / 70%));
+  max-width: 36rem;
+}
+
+.blog-posts .blog-post-card__content-text a {
+  display: inline-block;
+  margin-block-start: 0.65rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+  color: var(--t-ink, #191712);
+}
+
+.blog-posts .blog-post-card__content-text a:hover {
+  color: var(--t-accent, #0d7a3f);
+}
+
+/* Featured (horizontal) lead story */
+@media screen and (min-width: 750px) {
+  .blog-posts .blog-post-item--horizontal .blog-post-card {
+    align-items: stretch;
+    gap: clamp(1.5rem, 1rem + 2vw, 2.75rem);
+  }
+
+  .blog-posts .blog-post-item--horizontal .blog-post-card__image-container {
+    flex: 1 1 58%;
+    min-width: 0;
+  }
+
+  .blog-posts .blog-post-item--horizontal .blog-post-card__content {
+    flex: 1 1 38%;
+    justify-content: center;
+    padding-block: 0.5rem;
+    padding-inline-end: 0.5rem;
+  }
+
+  .blog-posts .blog-post-item--horizontal .blog-post-card__image {
+    height: min(28rem, 52vw) !important;
+    min-height: 22rem;
+  }
+
+  .blog-posts .blog-post-item--horizontal .blog-post-card__title-link :is(h2, h3, h4, .h2, .h3, .h4, p) {
+    font-size: clamp(1.75rem, 1.3rem + 1.4vw, 2.5rem) !important;
+    max-width: 16ch;
+  }
+
+  .blog-posts .blog-post-item--horizontal .blog-post-card__content-text {
+    font-size: 1.05rem;
+  }
+}
+
+/* Supporting cards: uniform image height so the 2-up grid stays even */
+.blog-posts .blog-post-item:not(.blog-post-item--horizontal) .blog-post-card__image {
+  height: clamp(15rem, 13rem + 6vw, 18.5rem) !important;
+}
+
+.blog-posts .blog-post-item:not(.blog-post-item--horizontal) .blog-post-card {
+  height: 100%;
+}
+
+.blog-posts .blog-post-item:not(.blog-post-item--horizontal) .blog-post-card__title-link :is(h2, h3, h4, .h2, .h3, .h4, p) {
+  font-size: clamp(1.2rem, 1.05rem + 0.55vw, 1.45rem) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blog-posts .blog-post-card__image {
+    transition: none;
+  }
+
+  .blog-posts .blog-post-item:hover .blog-post-card__image {
+    transform: none;
+  }
+}

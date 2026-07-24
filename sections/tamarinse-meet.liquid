@@ -37,7 +37,8 @@
       <h2 class="tamarinse-meet__title">{{ section.settings.title }}</h2>
       <p class="tamarinse-meet__text">{{ section.settings.text }}</p>
       {%- if section.settings.cta_label != blank -%}
-        <a class="t-btn t-btn--ghost" href="{{ section.settings.cta_link | default: routes.all_products_collection_url }}">
+        {%- capture tamarinse_shop_url -%}{% render 'tamarinse-shop-url' %}{%- endcapture -%}
+        <a class="t-btn t-btn--ghost" href="{{ section.settings.cta_link | default: tamarinse_shop_url }}">
           {{- section.settings.cta_label -}}
         </a>
       {%- endif -%}

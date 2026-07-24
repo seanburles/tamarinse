@@ -1,8 +1,22 @@
 {% comment %}
-  Inline icon set for quiz answer cards — Lucide Icons (ISC license,
-  lucide.dev). Stroke-based, 24×24 viewBox, consistent 2px weight for
-  crisp readability at the 26px chip size. Icon keys are unchanged from
-  the original set so existing section settings keep working.
+  Inline icon set for quiz answer cards.
+
+  Client note (2026-07-21): the icons must READ AS THE ACTUAL ITEM — the
+  generic library set had a lab flask standing in for a plastic water bottle,
+  a drinking glass for a protein shaker, an archive box for a glass jar, and
+  the identical 3D box for both "container" and "packaged food". Those are
+  now purpose-drawn: silhouettes a shopper recognises at a glance rather than
+  the nearest available generic glyph. Icons that were already literal
+  (microwave, fish, shirt, receipt, droplet) are unchanged.
+
+  24×24 viewBox, 1.7px stroke — a hair lighter than the old 2px because the
+  drawn shapes carry more internal detail at the 26px chip size.
+
+  Duotone: each icon carries a .qi-fill path UNDER its outline holding the
+  vessel's contents (water, coffee, food, laundry). Styled in the quiz
+  section stylesheet, it inherits currentColor so it reads correctly both on
+  the tinted chip and on the solid-accent selected state. A filled mass
+  resolves much faster than a pure outline at 26px.
 
   Usage: {% render 'tamarinse-quiz-icon', icon: 'bottle' %}
 {% endcomment %}
@@ -14,7 +28,7 @@
   height="26"
   fill="none"
   stroke="currentColor"
-  stroke-width="2"
+  stroke-width="1.7"
   stroke-linecap="round"
   stroke-linejoin="round"
   aria-hidden="true"
@@ -22,68 +36,190 @@
 >
   {%- case icon -%}
     {%- when 'bottle' -%}
-      {%- comment -%} Water bottle (lucide:flask-conical) {%- endcomment -%}
-      <path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"/>
-      <path d="M8.5 2h7"/><path d="M7 16h10"/>
+      {%- comment -%} Plastic water bottle: cap, neck, ribbed body {%- endcomment -%}
+      <path class="qi-fill" d="M8.1 12.6h7.8V19a2.9 2.9 0 0 1-2.9 2.9h-1.8A2.9 2.9 0 0 1 8.1 19Z"/>
+      <rect x="9.5" y="1.8" width="5" height="2.6" rx="0.6"/>
+      <path d="M10.2 4.4v1.5c0 .6-.25 1.1-.7 1.5A5.3 5.3 0 0 0 7.8 11.3V19a3 3 0 0 0 3 3h2.4a3 3 0 0 0 3-3v-7.7a5.3 5.3 0 0 0-1.7-3.9c-.45-.4-.7-.9-.7-1.5V4.4"/>
+      <path d="M7.9 12.6h8.2"/>
+      <path d="M7.9 15.1h8.2"/>
     {%- when 'cup' -%}
-      {%- comment -%} Coffee cup (lucide:coffee) {%- endcomment -%}
-      <path d="M10 2v2"/><path d="M14 2v2"/>
-      <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a2 2 0 1 1 0 4h-1"/>
+      {%- comment -%} To-go coffee cup with a plastic lid {%- endcomment -%}
+      <path class="qi-fill" d="M6.35 7.8h11.3l-.5 5.6H6.85Z"/>
+      <path d="M5.6 5.4h12.8a.7.7 0 0 1 .7.8l-.3 1.6H5.2l-.3-1.6a.7.7 0 0 1 .7-.8Z"/>
+      <path d="M6.2 7.8 7.5 20a2 2 0 0 0 2 1.8h5a2 2 0 0 0 2-1.8l1.3-12.2"/>
+      <path d="M6.9 13.4h10.2"/>
+      <path d="M10.5 3.2c0-.8 1-.8 1.5-1.4"/>
     {%- when 'shaker' -%}
-      {%- comment -%} Sports bottle (lucide:glass-water) {%- endcomment -%}
-      <path d="M15.2 22H8.8a2 2 0 0 1-2-1.79L5 3h14l-1.81 17.21A2 2 0 0 1 15.2 22Z"/>
-      <path d="M6 12h12"/>
+      {%- comment -%} Protein shaker: flip-cap lid, measure marks {%- endcomment -%}
+      <path class="qi-fill" d="M7.9 11.2h8.2v8a2.8 2.8 0 0 1-2.8 2.8h-2.6a2.8 2.8 0 0 1-2.8-2.8Z"/>
+      <path d="M8.3 2.2h7.4a.8.8 0 0 1 .8.9l-.2 1.7H7.7l-.2-1.7a.8.8 0 0 1 .8-.9Z"/>
+      <path d="M14.5 2.2V1.4"/>
+      <path d="M7.9 4.8h8.2v14.4a2.8 2.8 0 0 1-2.8 2.8h-2.6a2.8 2.8 0 0 1-2.8-2.8Z"/>
+      <path d="M13.2 9.4h2.9"/>
+      <path d="M13.2 12.6h2.9"/>
+      <path d="M13.2 15.8h2.9"/>
     {%- when 'teabag' -%}
-      {%- comment -%} Tea / leaf drink (lucide:leaf) {%- endcomment -%}
-      <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
-      <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+      {%- comment -%} Tea bag: pouch on a string with its paper tag {%- endcomment -%}
+      <path class="qi-fill" d="M7.8 11.4h8.4v9.4a1 1 0 0 1-1 1H8.8a1 1 0 0 1-1-1Z"/>
+      <rect x="7.8" y="11.4" width="8.4" height="9.4" rx="1.2"/>
+      <path d="M9.9 15.8h4.2"/>
+      <path d="M12 11.4V8.8c0-.8.6-1.3 1.4-1.5l1.2-.3"/>
+      <rect x="15" y="4.2" width="4.8" height="3.4" rx="0.7"/>
     {%- when 'jar' -%}
-      {%- comment -%} Glass jar (lucide:archive) {%- endcomment -%}
-      <rect width="20" height="5" x="2" y="3" rx="1"/>
-      <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/>
+      {%- comment -%} Glass jar with a screw-band lid {%- endcomment -%}
+      <path class="qi-fill" d="M6.6 12.4h10.8V19a2.8 2.8 0 0 1-2.8 2.8H9.4A2.8 2.8 0 0 1 6.6 19Z"/>
+      <rect x="7.2" y="2.2" width="9.6" height="3" rx="0.8"/>
+      <path d="M8.2 5.2v1.5c0 .6-.2 1-.6 1.5A4.4 4.4 0 0 0 6.6 11v8a2.8 2.8 0 0 0 2.8 2.8h5.2A2.8 2.8 0 0 0 17.4 19v-8a4.4 4.4 0 0 0-1-2.8c-.4-.5-.6-.9-.6-1.5V5.2"/>
+      <path d="M6.6 12.4h10.8"/>
     {%- when 'container' -%}
-      {%- comment -%} Plastic container (lucide:box) {%- endcomment -%}
-      <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
-      <path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>
+      {%- comment -%} Food storage tub with a snap-on lid {%- endcomment -%}
+      <path class="qi-fill" d="M4.9 9.2h14.2l-1.15 9.2H6.05Z"/>
+      <rect x="2.6" y="5.8" width="18.8" height="3.2" rx="1"/>
+      <path d="M4.6 9 5.9 19.4a2.4 2.4 0 0 0 2.4 2.1h7.4a2.4 2.4 0 0 0 2.4-2.1L19.4 9"/>
+      <path d="M9.4 5.8V4.2"/>
+      <path d="M14.6 5.8V4.2"/>
     {%- when 'microwave' -%}
       {%- comment -%} Microwave (lucide:microwave) {%- endcomment -%}
+      <path class="qi-fill" d="M6 8h8a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/>
       <rect width="20" height="15" x="2" y="4" rx="2"/>
       <rect width="8" height="7" x="6" y="8" rx="1"/>
       <path d="M18 8v7"/><path d="M6 19v2"/><path d="M18 19v2"/>
     {%- when 'bag' -%}
-      {%- comment -%} Plastic bag (lucide:shopping-bag) {%- endcomment -%}
-      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
-      <path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
+      {%- comment -%} Zip-top food bag: zip line + slider {%- endcomment -%}
+      <path class="qi-fill" d="M5.4 9.2h13.2v9.6a2.8 2.8 0 0 1-2.8 2.8H8.2a2.8 2.8 0 0 1-2.8-2.8Z"/>
+      <path d="M5.4 4.6h13.2v14.2a2.8 2.8 0 0 1-2.8 2.8H8.2a2.8 2.8 0 0 1-2.8-2.8Z"/>
+      <path d="M5.4 8h13.2"/>
+      <circle cx="15.8" cy="6.3" r="0.9"/>
     {%- when 'pan' -%}
-      {%- comment -%} Non-stick pan (lucide:cooking-pot) {%- endcomment -%}
-      <path d="M2 12h20"/><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8"/>
-      <path d="m4 8 16-4"/><path d="m8.86 6.78-.45-1.81a2 2 0 0 1 1.45-2.43l1.94-.48a2 2 0 0 1 2.43 1.46l.45 1.8"/>
+      {%- comment -%} Non-stick frying pan seen from above, with handle {%- endcomment -%}
+      <path class="qi-fill" d="M9.4 8.4a3.6 3.6 0 1 1 0 7.2 3.6 3.6 0 0 1 0-7.2Z"/>
+      <circle cx="9.4" cy="12" r="7"/>
+      <circle cx="9.4" cy="12" r="3.6"/>
+      <path d="M16.4 12h5.2"/>
     {%- when 'board' -%}
-      {%- comment -%} Cutting board (lucide:rectangle-horizontal) {%- endcomment -%}
-      <rect width="20" height="12" x="2" y="6" rx="2"/>
+      {%- comment -%} Cutting board with a hanging hole and knife score {%- endcomment -%}
+      <path class="qi-fill" d="M6.4 2.6h11a2 2 0 0 1 2 2v12.8a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2V4.6a2 2 0 0 1 2-2Z"/>
+      <path d="M6.4 2.6h11a2 2 0 0 1 2 2v12.8a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2V4.6a2 2 0 0 1 2-2Z"/>
+      <path d="M9.6 19.4v1.2a1 1 0 0 0 1 1h2.8a1 1 0 0 0 1-1v-1.2"/>
+      <circle cx="12" cy="6.2" r="1.1"/>
+      <path d="M8.2 11h7.6"/>
+      <path d="M8.2 14.4h7.6"/>
     {%- when 'takeout' -%}
-      {%- comment -%} Takeout food (lucide:utensils) {%- endcomment -%}
-      <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
-      <path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
+      {%- comment -%}
+        Takeout carton. The taper and the angled fold flaps are what stop it
+        reading as a bin — an even-sided body with a wide lid band did.
+      {%- endcomment -%}
+      <path class="qi-fill" d="M5.4 7.2h13.2l-1.5 12.2a2.3 2.3 0 0 1-2.3 2.1H9.2a2.3 2.3 0 0 1-2.3-2.1Z"/>
+      <path d="M5.4 7.2h13.2l-1.6 12.2a2.3 2.3 0 0 1-2.3 2.1H9.3a2.3 2.3 0 0 1-2.3-2.1Z"/>
+      <path d="M5.4 7.2 8.1 5.2h7.8l2.7 2"/>
+      <path d="M9.1 5.2c1.3-2.4 4.5-2.4 5.8 0"/>
+      <path d="M12 7.2v14.3"/>
     {%- when 'package' -%}
-      {%- comment -%} Packaged food (lucide:package) {%- endcomment -%}
-      <path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
-      <path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>
+      {%- comment -%} Snack packet with crimped seals {%- endcomment -%}
+      <path class="qi-fill" d="M6.6 5.6h10.8v12.8H6.6Z"/>
+      <path d="M6.6 5.6h10.8v12.8H6.6Z"/>
+      <path d="M5.2 2.8h13.6l-1.4 2.8H6.6Z"/>
+      <path d="M5.2 21.2h13.6l-1.4-2.8H6.6Z"/>
+      <path d="M9.8 9.2h4.4"/>
+      <path d="M9.8 12.6h4.4"/>
+    {%- when 'soda' -%}
+      {%- comment -%} Soft-drink bottle — waved fill line separates it from water {%- endcomment -%}
+      <path class="qi-fill" d="M8.35 13.4c1.25.9 2.5-.9 3.75 0s2.5-.9 3.75 0V19a2.9 2.9 0 0 1-2.9 2.9h-1.8A2.9 2.9 0 0 1 8.35 19Z"/>
+      <rect x="9.8" y="1.8" width="4.4" height="2.4" rx="0.6"/>
+      <path d="M10.4 4.2v1.5c0 .6-.3 1.1-.75 1.55A5 5 0 0 0 8.2 10.8V19a2.9 2.9 0 0 0 2.9 2.9h1.8A2.9 2.9 0 0 0 15.8 19v-8.2a5 5 0 0 0-1.45-3.55c-.45-.45-.75-.95-.75-1.55V4.2"/>
+      <path d="M8.3 13.4c1.25.9 2.5-.9 3.75 0s2.5-.9 3.75 0"/>
+    {%- when 'utensils' -%}
+      {%- comment -%} Disposable cutlery: fork + spoon {%- endcomment -%}
+      <path class="qi-fill" d="M4.6 7.4h5.2c0 1.6-1.05 2.7-2.6 2.7S4.6 9 4.6 7.4Z"/>
+      <path class="qi-fill" d="M16.8 2.2c1.66 0 3 1.79 3 4s-1.34 4-3 4-3-1.79-3-4 1.34-4 3-4Z"/>
+      <path d="M4.6 2.2v5.2"/><path d="M7.2 2.2v5.2"/><path d="M9.8 2.2v5.2"/>
+      <path d="M4.6 7.4h5.2c0 1.6-1.05 2.7-2.6 2.7S4.6 9 4.6 7.4Z"/>
+      <path d="M7.2 10.1v11.7"/>
+      <ellipse cx="16.8" cy="6.2" rx="3" ry="4"/>
+      <path d="M16.8 10.2v11.6"/>
+    {%- when 'wrap' -%}
+      {%- comment -%}
+        Cling-film carton with its serrated cutting edge — a bare roll read as
+        an abstract spiral at chip size; the toothed box is unmistakable.
+      {%- endcomment -%}
+      <path class="qi-fill" d="M3.4 9h17.2v6.4H3.4Z"/>
+      <path d="M3.4 9h17.2v7.6a1.4 1.4 0 0 1-1.4 1.4H4.8a1.4 1.4 0 0 1-1.4-1.4Z"/>
+      <path d="M3.4 9 5.4 5.6h13.2l2 3.4"/>
+      <path d="M5 19.2l1.6 1.4 1.6-1.4 1.6 1.4 1.6-1.4 1.6 1.4 1.6-1.4 1.6 1.4 1.6-1.4"/>
+    {%- when 'can' -%}
+      {%- comment -%} Canned food: rimmed lid, label band {%- endcomment -%}
+      <path class="qi-fill" d="M6.2 9.4h11.6v5.6H6.2Z"/>
+      <ellipse cx="12" cy="5.2" rx="5.8" ry="2.4"/>
+      <path d="M6.2 5.2v13.4c0 1.3 2.6 2.4 5.8 2.4s5.8-1.1 5.8-2.4V5.2"/>
+      <path d="M6.4 9.4h11.2"/><path d="M6.4 15h11.2"/>
+    {%- when 'rug' -%}
+      {%- comment -%} Synthetic rug with fringed ends {%- endcomment -%}
+      <path class="qi-fill" d="M8.4 10.6h7.2v3H8.4Z"/>
+      <path d="M5 7.8h14v8.4H5Z"/>
+      <path d="M5 7.8V6.2M8.5 7.8V6.2M12 7.8V6.2M15.5 7.8V6.2M19 7.8V6.2"/>
+      <path d="M5 16.2v1.6M8.5 16.2v1.6M12 16.2v1.6M15.5 16.2v1.6M19 16.2v1.6"/>
+      <path d="M8.4 10.6h7.2v3H8.4Z"/>
+    {%- when 'toy' -%}
+      {%- comment -%} Kids' stacking-ring toy {%- endcomment -%}
+      <path class="qi-fill" d="M12 16.8c3.76 0 6.8.98 6.8 2.2S15.76 21.2 12 21.2 5.2 20.22 5.2 19s3.04-2.2 6.8-2.2Z"/>
+      <ellipse cx="12" cy="19" rx="6.8" ry="2.2"/>
+      <ellipse cx="12" cy="14.6" rx="5" ry="1.8"/>
+      <ellipse cx="12" cy="10.6" rx="3.4" ry="1.5"/>
+      <path d="M12 3.8v5.3"/>
+      <circle cx="12" cy="2.6" r="1.2"/>
+    {%- when 'gum' -%}
+      {%- comment -%} Chewing-gum blister pack {%- endcomment -%}
+      <path class="qi-fill" d="M9.7 6a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8Zm4.6 0a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8ZM9.7 10.6a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8Zm4.6 0a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8ZM9.7 15.2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8Zm4.6 0a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8Z"/>
+      <rect x="6.2" y="2.6" width="11.6" height="18.8" rx="2"/>
+      <circle cx="9.7" cy="7.4" r="1.4"/><circle cx="14.3" cy="7.4" r="1.4"/>
+      <circle cx="9.7" cy="12" r="1.4"/><circle cx="14.3" cy="12" r="1.4"/>
+      <circle cx="9.7" cy="16.6" r="1.4"/><circle cx="14.3" cy="16.6" r="1.4"/>
+    {%- when 'tap' -%}
+      {%- comment -%} Kitchen tap with a falling drop {%- endcomment -%}
+      <path class="qi-fill" d="M16.4 19.4a1.5 1.5 0 0 1-3 0c0-1 1.5-2.6 1.5-2.6s1.5 1.6 1.5 2.6Z"/>
+      <path d="M3.2 10.4h4.8v3.6H3.2Z"/>
+      <path d="M8 12.2h5.8a2.6 2.6 0 0 1 2.6 2.6v1.2"/>
+      <path d="M5.6 10.4V8.2a2.4 2.4 0 0 1 2.4-2.4h2.6"/>
+      <path d="M16.4 19.4a1.5 1.5 0 0 1-3 0c0-1 1.5-2.6 1.5-2.6s1.5 1.6 1.5 2.6Z"/>
+    {%- when 'washer' -%}
+      {%- comment -%} Washing machine — laundering synthetics {%- endcomment -%}
+      <path class="qi-fill" d="M12 11a4.2 4.2 0 1 1 0 8.4 4.2 4.2 0 0 1 0-8.4Z"/>
+      <rect x="4" y="2.6" width="16" height="18.8" rx="2"/>
+      <path d="M4 9h16"/>
+      <circle cx="12" cy="15.2" r="4.2"/>
+      <circle cx="7.4" cy="5.8" r="0.9"/><circle cx="10.2" cy="5.8" r="0.9"/>
+    {%- when 'cart' -%}
+      {%- comment -%} Grocery cart {%- endcomment -%}
+      <path class="qi-fill" d="M6.4 7.2h13.9l-1.9 8.4H7.85Z"/>
+      <circle cx="9.2" cy="20.4" r="1.4"/><circle cx="17.4" cy="20.4" r="1.4"/>
+      <path d="M2.4 3h2.8l2.4 12.6h11.2l1.9-8.4H6.4"/>
+    {%- when 'crate' -%}
+      {%- comment -%} Case of bottled drinks {%- endcomment -%}
+      <path class="qi-fill" d="M3.4 13.2h17.2v5a1.6 1.6 0 0 1-1.6 1.6H5a1.6 1.6 0 0 1-1.6-1.6Z"/>
+      <rect x="3.4" y="8.6" width="17.2" height="11.2" rx="1.6"/>
+      <path d="M3.4 13.2h17.2"/>
+      <path d="M9.2 8.6v11.2M14.8 8.6v11.2"/>
+      <path d="M6.4 8.6V5.8h2.6v2.8"/>
+      <path d="M15 8.6V5.8h2.6v2.8"/>
     {%- when 'fish' -%}
       {%- comment -%} Seafood (lucide:fish) {%- endcomment -%}
+      <path class="qi-fill" d="M6.5 12c.94-3.46 4.94-6 8.5-6 3.56 0 6.06 2.54 7 6-.94 3.47-3.44 6-7 6-3.56 0-7.56-2.53-8.5-6Z"/>
       <path d="M6.5 12c.94-3.46 4.94-6 8.5-6 3.56 0 6.06 2.54 7 6-.94 3.47-3.44 6-7 6-3.56 0-7.56-2.53-8.5-6Z"/>
       <path d="M18 12v.5"/><path d="M16 17.93a9.77 9.77 0 0 1 0-11.86"/>
       <path d="M7 10.67C7 8 5.58 5.97 2.73 5.5c-1 1.5-1 5 .23 6.5-1.24 1.5-1.24 5 .23 6.5C5.58 18.03 7 16 7 13.33"/>
     {%- when 'shirt' -%}
       {%- comment -%} Clothing (lucide:shirt) {%- endcomment -%}
+      <path class="qi-fill" d="M8 2a4 4 0 0 0 8 0l4.38 1.46a2 2 0 0 1 1.34 2.23l-.58 3.47a1 1 0 0 1-1 .84H18v10H6V10H3.86a1 1 0 0 1-1-.84l-.58-3.47a2 2 0 0 1 1.34-2.23Z"/>
       <path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 1 .84H6v10h12V10h2.14a1 1 0 0 0 1-.84l.58-3.47a2 2 0 0 0-1.34-2.23Z"/>
     {%- when 'receipt' -%}
       {%- comment -%} Paper receipt (lucide:receipt) {%- endcomment -%}
+      <path class="qi-fill" d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/>
       <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/>
       <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/>
       <path d="M12 17.5v-11"/>
     {%- when 'droplet' -%}
       {%- comment -%} Water / glass (lucide:droplet) {%- endcomment -%}
+      <path class="qi-fill" d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>
       <path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>
     {%- when 'none' -%}
       {%- comment -%} None / circle-off (lucide:circle-slash) {%- endcomment -%}

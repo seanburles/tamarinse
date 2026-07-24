@@ -28,8 +28,8 @@
             "background": false,
             "background_color": "#00000026",
             "corner_radius": 0,
-            "padding-block-start": 48,
-            "padding-block-end": 48,
+            "padding-block-start": 0,
+            "padding-block-end": 8,
             "padding-inline-start": 0,
             "padding-inline-end": 0
           },
@@ -47,7 +47,7 @@
               "name": "t:names.title",
               "static": true,
               "settings": {
-                "type_preset": "h4",
+                "type_preset": "h3",
                 "font": "var(--font-primary--family)",
                 "line_height": "normal",
                 "letter_spacing": "normal",
@@ -57,7 +57,7 @@
                 "alignment": "left",
                 "show_alignment": false,
                 "padding-block-start": 0,
-                "padding-block-end": 10,
+                "padding-block-end": 4,
                 "padding-inline-start": 0,
                 "padding-inline-end": 0
               },
@@ -85,7 +85,7 @@
                 "border": "none",
                 "border_width": 1,
                 "border_opacity": 100,
-                "border_radius": 4
+                "border_radius": 6
               },
               "blocks": {}
             }
@@ -99,7 +99,7 @@
       "settings": {
         "background_color": "{{ settings.color_palette.background }}",
         "padding-block-start": 0,
-        "padding-block-end": 48
+        "padding-block-end": 0
       }
     }
   },

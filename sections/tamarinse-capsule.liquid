@@ -14,6 +14,31 @@
   if section.settings.ingredients != blank and section.settings.ingredients.count > 0
     assign use_metaobjects = true
   endif
+
+  # ---- Timeline geometry (single source of truth) ----
+  # These fractions of the pinned range must match the ingredient window in
+  # tamarinse-capsule-timeline.js; they are handed to the JS via data
+  # attributes below so the scroll-snap steps and the reveal logic can never
+  # drift apart.
+  assign ingredient_count = section.blocks.size
+  if use_metaobjects
+    assign ingredient_count = section.settings.ingredients.count
+  endif
+  if ingredient_count < 1
+    assign ingredient_count = 1
+  endif
+
+  assign ing_start = 0.16
+  assign ing_end = 0.9
+
+  # Phones scroll the same timeline over a longer track (see the section
+  # setting). The ingredient window itself is identical at every breakpoint,
+  # so the snap steps below stay valid either way.
+  assign scroll_boost = section.settings.mobile_scroll_boost | default: 160
+  assign mobile_scroll = section.settings.scroll_length | times: scroll_boost | divided_by: 100
+  assign ing_span = ing_end | minus: ing_start | divided_by: ingredient_count
+  # Lead-in puts the first snap point at the CENTRE of ingredient one
+  assign ing_lead = ing_span | times: 0.5 | plus: ing_start
 -%}
 
 {%- comment -%} Ingredient icons — one per default block order {%- endcomment -%}
@@ -27,10 +52,20 @@
 <tamarinse-capsule-sequence
   class="tamarinse-capsule"
   id="TamarinseCapsule-{{ section.id }}"
-  style="--capsule-scroll-length: {{ section.settings.scroll_length }}vh;"
+  {%- comment -%}
+    Two lengths, one per breakpoint. Phones get a longer track for the same
+    six ingredients, so each reveal owns more absolute scroll — the stylesheet
+    picks which one feeds --capsule-scroll-length. Inline styles beat
+    stylesheet rules, so the breakpoint choice can't live on that property
+    directly; it selects between these two instead.
+  {%- endcomment -%}
+  style="--capsule-scroll-desktop: {{ section.settings.scroll_length }}vh; --capsule-scroll-mobile: {{ mobile_scroll }}vh;"
   data-frame-count="61"
   data-frames-desktop="{{ 'tamarinse-capsule-frame-d-000.webp' | asset_url }}"
   data-frames-mobile="{{ 'tamarinse-capsule-frame-m-000.webp' | asset_url }}"
+  data-snap="{% if section.settings.snap_to_ingredient %}true{% else %}false{% endif %}"
+  data-ingredients-start="{{ ing_start }}"
+  data-ingredients-end="{{ ing_end }}"
 >
   <div class="tamarinse-capsule__sticky">
     {%- comment -%}
@@ -98,16 +133,36 @@
         <strong>{{ section.settings.layer_one_title }}</strong>
         {{ section.settings.layer_one_text }}
       </p>
-      <div class="tamarinse-capsule__dots" aria-hidden="true">
-        {%- liquid
-          assign dot_count = section.blocks.size
-          if use_metaobjects
-            assign dot_count = section.settings.ingredients.count
-          endif
-        -%}
-        {%- for i in (1..dot_count) -%}
-          <span class="tamarinse-capsule__dot" data-capsule-dot></span>
-        {%- endfor -%}
+      {%- comment -%}
+        Real buttons, not decoration: tapping one jumps to that ingredient.
+        This is the non-gesture route through the content (WCAG 2.2 — people
+        shouldn't need a specific scroll gesture to reach anything) and gives
+        anyone who wants deterministic control a way to step through.
+      {%- endcomment -%}
+      <div class="tamarinse-capsule__dots" role="group" aria-label="{{ 'Choose an ingredient' }}">
+        {%- if use_metaobjects -%}
+          {%- for ingredient in section.settings.ingredients -%}
+            <button
+              type="button"
+              class="tamarinse-capsule__dot"
+              data-capsule-dot
+              data-index="{{ forloop.index0 }}"
+            >
+              <span class="visually-hidden">{{ ingredient.name }}</span>
+            </button>
+          {%- endfor -%}
+        {%- else -%}
+          {%- for block in section.blocks -%}
+            <button
+              type="button"
+              class="tamarinse-capsule__dot"
+              data-capsule-dot
+              data-index="{{ forloop.index0 }}"
+            >
+              <span class="visually-hidden">{{ block.settings.name }}</span>
+            </button>
+          {%- endfor -%}
+        {%- endif -%}
       </div>
     </div>
 
@@ -124,6 +179,26 @@
       {%- endif -%}
     </ul>
   </div>
+
+  {%- comment -%}
+    Scroll-snap steps (client 2026-07-18). These invisible blocks carry the
+    section's scroll length AND act as native snap targets: one per
+    ingredient, positioned so its top edge lands on that ingredient's centre
+    of the timeline. `scroll-snap-stop: always` is the important bit — it
+    stops a momentum fling at EACH ingredient instead of letting one swipe
+    sail past several, which is what made the reveals unreadable on iOS.
+    Native snap decides the landing point during the fling (in the
+    compositor), so it never feels like the page fighting the user.
+  {%- endcomment -%}
+  <div class="tamarinse-capsule__steps" aria-hidden="true">
+    <span class="tamarinse-capsule__lead" style="height: calc({{ ing_lead }} * var(--capsule-scroll-length, 600vh));"></span>
+    {%- for i in (1..ingredient_count) -%}
+      <span
+        class="tamarinse-capsule__step"
+        style="height: calc({{ ing_span }} * var(--capsule-scroll-length, 600vh));"
+      ></span>
+    {%- endfor -%}
+  </div>
 </tamarinse-capsule-sequence>
 
 <script src="{{ 'tamarinse-capsule-timeline.js' | asset_url }}" type="module"></script>
@@ -131,9 +206,72 @@
 {% stylesheet %}
   .tamarinse-capsule {
     display: block;
+    position: relative;
     background: var(--t-bg);
     color: var(--t-text-hi);
-    height: calc(100svh + var(--capsule-scroll-length, 400vh));
+    /* Height now comes from the snap steps below, not a fixed calc, so the
+       steps can sit in normal flow and act as real snap targets. */
+    --capsule-scroll-length: var(--capsule-scroll-desktop, 600vh);
+  }
+
+  /* Phones: longer track, so every ingredient gets more scroll to itself */
+  @media screen and (max-width: 749px) {
+    .tamarinse-capsule {
+      --capsule-scroll-length: var(--capsule-scroll-mobile, 900vh);
+    }
+  }
+
+  /* ── Snap steps: invisible, carry the scroll length + snap points ── */
+  .tamarinse-capsule__steps {
+    position: relative;
+    z-index: 0;
+    /* Same total geometry as before: one viewport of pin + the scrub range */
+    height: calc(100svh + var(--capsule-scroll-length, 600vh));
+    pointer-events: none;
+    /*
+      Overlaps the sticky stage so the steps start at the section's top and
+      their offsets map directly onto timeline progress.
+
+      This negative margin MUST live here, not as margin-bottom on the sticky
+      element: a sticky box's constraint rectangle is its containing block
+      shrunk by its own margins, so a negative margin there EXPANDS the
+      sticky range and the stage keeps sticking a full viewport past the end
+      of the section — covering the top of the next one. Moving the offset to
+      this (non-positioned) sibling produces identical geometry with none of
+      that side effect.
+    */
+    margin-block-start: -100svh;
+  }
+
+  .tamarinse-capsule__lead,
+  .tamarinse-capsule__step {
+    display: block;
+  }
+
+  .tamarinse-capsule__step {
+    scroll-snap-align: start;
+    /* The fix for "one flick skips five ingredients" */
+    scroll-snap-stop: always;
+  }
+
+  /*
+    Snap is enabled on TOUCH ONLY, and only while this section is on screen
+    (the custom element toggles .t-capsule-snap on the scroll container).
+    Desktop pointers are precise and already comfortable, and mandatory snap
+    under a mouse wheel reads as the page grabbing you.
+  */
+  @media (pointer: coarse) {
+    :root.t-capsule-snap,
+    .page-wrapper.t-capsule-snap {
+      scroll-snap-type: y mandatory;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root.t-capsule-snap,
+    .page-wrapper.t-capsule-snap {
+      scroll-snap-type: none;
+    }
   }
 
   /* ── Sticky container ── */
@@ -141,6 +279,7 @@
     position: sticky;
     top: 0;
     height: 100svh;
+    z-index: 1;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -355,9 +494,16 @@
   .tamarinse-capsule__dots {
     display: flex;
     justify-content: center;
-    gap: var(--t-space-xs);
+    /* The 44px buttons carry their own spacing now */
+    gap: 0;
     opacity: 0;
     transition: opacity 640ms var(--t-ease-in-out);
+  }
+
+  /* Hidden dots must not be reachable by keyboard or touch */
+  .tamarinse-capsule:not([data-phase='ingredient']):not([data-phase='after']):not([data-static])
+    .tamarinse-capsule__dots {
+    visibility: hidden;
   }
 
   .tamarinse-capsule[data-phase='ingredient'] .tamarinse-capsule__dots,
@@ -366,18 +512,48 @@
     transition: opacity 700ms var(--t-ease-out);
   }
 
+  /* Tappable: a 7px dot inside a full-size touch target */
   .tamarinse-capsule__dot {
+    display: grid;
+    place-items: center;
+    width: var(--t-touch-target);
+    height: var(--t-touch-target);
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .tamarinse-capsule__dot::before {
+    content: '';
     width: 7px;
     height: 7px;
     border-radius: 50%;
     background: var(--t-text-low);
     opacity: 0.35;
-    transition: opacity var(--t-dur-fast) var(--t-ease-out), background var(--t-dur-fast) var(--t-ease-out);
+    transition:
+      opacity var(--t-dur-fast) var(--t-ease-out),
+      background var(--t-dur-fast) var(--t-ease-out),
+      transform var(--t-dur-fast) var(--t-ease-out);
   }
 
-  .tamarinse-capsule__dot[data-active] {
+  .tamarinse-capsule__dot[data-active]::before {
     opacity: 1;
     background: var(--t-accent);
+    transform: scale(1.3);
+  }
+
+  @media (hover: hover) {
+    .tamarinse-capsule__dot:hover::before {
+      opacity: 0.7;
+    }
+  }
+
+  .tamarinse-capsule__dot:focus-visible {
+    outline: 2px solid var(--t-accent);
+    outline-offset: -6px;
+    border-radius: 50%;
   }
 
   /* ── Reduced motion: static list, no sequence ── */
@@ -389,6 +565,11 @@
     position: static;
     height: auto;
     min-height: 100svh;
+  }
+
+  /* Static fallback: no pin, so the scroll track and its snap points go */
+  .tamarinse-capsule[data-static] .tamarinse-capsule__steps {
+    display: none;
   }
 
   .tamarinse-capsule[data-static] .tamarinse-capsule__canvas {
@@ -455,10 +636,29 @@
       "id": "scroll_length",
       "label": "Sequence scroll distance",
       "min": 200,
-      "max": 700,
+      "max": 900,
       "step": 50,
       "unit": "vh",
-      "default": 400
+      "default": 600,
+      "info": "Total scroll the section holds for. Higher = each ingredient gets more scroll distance, so the reveals read slower and calmer."
+    },
+    {
+      "type": "range",
+      "id": "mobile_scroll_boost",
+      "label": "Mobile scroll multiplier",
+      "min": 100,
+      "max": 250,
+      "step": 10,
+      "unit": "%",
+      "default": 160,
+      "info": "Phones stretch the sequence by this much. 160% means each ingredient gets over half again as much scroll as on desktop."
+    },
+    {
+      "type": "checkbox",
+      "id": "snap_to_ingredient",
+      "label": "Snap to each ingredient (touch)",
+      "default": true,
+      "info": "On phones and tablets, scrolling stops on every ingredient so a swipe can't skip past several. Turn off for uninterrupted free scrolling."
     }
   ],
   "blocks": [

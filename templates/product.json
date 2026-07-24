@@ -316,29 +316,11 @@
               },
               "blocks": {}
             },
-            "text_aEtTtq": {
-              "type": "text",
+            "custom_liquid_description": {
+              "type": "custom-liquid",
               "name": "Product description",
               "settings": {
-                "text": "{{ closest.product.description }}",
-                "width": "100%",
-                "max_width": "normal",
-                "alignment": "left",
-                "type_preset": "rte",
-                "font": "var(--font-primary--family)",
-                "font_size": "1rem",
-                "line_height": "normal",
-                "letter_spacing": "normal",
-                "case": "none",
-                "wrap": "pretty",
-                "text_color": "",
-                "background": false,
-                "background_color": "#00000026",
-                "corner_radius": 0,
-                "padding-block-start": 16,
-                "padding-block-end": 8,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
+                "custom_liquid": "{% render 'tamarinse-pdp-description', product: closest.product %}"
               },
               "blocks": {}
             },
@@ -434,7 +416,7 @@
             "variant_picker_R3rGDr",
             "buy_buttons_eYQEYi",
             "custom_liquid_trust",
-            "text_aEtTtq",
+            "custom_liquid_description",
             "accordion_pdp"
           ]
         }
@@ -613,12 +595,18 @@
             "option2_label": "Coffee with a plastic lid",
             "option2_icon": "cup",
             "option2_weight": 2,
-            "option3_label": "Tea from tea bags",
-            "option3_icon": "teabag",
-            "option3_weight": 1,
-            "option4_label": "Mostly glass or steel",
-            "option4_icon": "jar",
-            "option4_weight": 0
+            "option3_label": "Soft drinks from plastic bottles",
+            "option3_icon": "soda",
+            "option3_weight": 2,
+            "option4_label": "Tea from tea bags",
+            "option4_icon": "teabag",
+            "option4_weight": 1,
+            "option5_label": "Tap water, unfiltered",
+            "option5_icon": "tap",
+            "option5_weight": 1,
+            "option6_label": "Mostly glass or steel",
+            "option6_icon": "jar",
+            "option6_weight": 0
           }
         },
         "q2": {
@@ -632,9 +620,12 @@
             "option2_label": "Protein shaker bottle",
             "option2_icon": "shaker",
             "option2_weight": 2,
-            "option3_label": "Steel or glass bottle",
-            "option3_icon": "jar",
-            "option3_weight": 0
+            "option3_label": "Bottled drinks by the case at home",
+            "option3_icon": "crate",
+            "option3_weight": 2,
+            "option4_label": "Steel or glass bottle",
+            "option4_icon": "jar",
+            "option4_weight": 0
           }
         },
         "q3": {
@@ -645,12 +636,15 @@
             "option1_label": "Plastic containers",
             "option1_icon": "container",
             "option1_weight": 2,
-            "option2_label": "Plastic bags or cling wrap",
-            "option2_icon": "bag",
-            "option2_weight": 1,
-            "option3_label": "Mostly glass containers",
-            "option3_icon": "jar",
-            "option3_weight": 0
+            "option2_label": "Cling film or plastic wrap",
+            "option2_icon": "wrap",
+            "option2_weight": 2,
+            "option3_label": "Zip-top freezer bags",
+            "option3_icon": "bag",
+            "option3_weight": 1,
+            "option4_label": "Mostly glass containers",
+            "option4_icon": "jar",
+            "option4_weight": 0
           }
         },
         "q4": {
@@ -664,9 +658,12 @@
             "option2_label": "Microwave in original packaging",
             "option2_icon": "package",
             "option2_weight": 3,
-            "option3_label": "Transferred to glass or ceramic first",
-            "option3_icon": "jar",
-            "option3_weight": 0
+            "option3_label": "Boil-in-bag or steam pouches",
+            "option3_icon": "bag",
+            "option3_weight": 2,
+            "option4_label": "Transferred to glass or ceramic first",
+            "option4_icon": "jar",
+            "option4_weight": 0
           }
         },
         "q5": {
@@ -680,9 +677,15 @@
             "option2_label": "Plastic cutting boards",
             "option2_icon": "board",
             "option2_weight": 2,
-            "option3_label": "Neither of these",
-            "option3_icon": "none",
-            "option3_weight": 0
+            "option3_label": "Plastic utensils or spatulas",
+            "option3_icon": "utensils",
+            "option3_weight": 1,
+            "option4_label": "Canned food regularly",
+            "option4_icon": "can",
+            "option4_weight": 1,
+            "option5_label": "None of these",
+            "option5_icon": "none",
+            "option5_weight": 0
           }
         },
         "q6": {
@@ -696,9 +699,12 @@
             "option2_label": "Frozen or ready meals",
             "option2_icon": "package",
             "option2_weight": 2,
-            "option3_label": "Rarely — mostly home cooking",
-            "option3_icon": "none",
-            "option3_weight": 0
+            "option3_label": "Coffee-shop drinks most days",
+            "option3_icon": "cup",
+            "option3_weight": 1,
+            "option4_label": "Rarely — mostly home cooking",
+            "option4_icon": "none",
+            "option4_weight": 0
           }
         },
         "q7": {
@@ -712,25 +718,98 @@
             "option2_label": "Processed or packaged snacks",
             "option2_icon": "package",
             "option2_weight": 2,
-            "option3_label": "Neither of these",
-            "option3_icon": "none",
-            "option3_weight": 0
+            "option3_label": "Chewing gum regularly",
+            "option3_icon": "gum",
+            "option3_weight": 1,
+            "option4_label": "Neither of these",
+            "option4_icon": "none",
+            "option4_weight": 0
           }
         },
         "q8": {
           "type": "question",
           "settings": {
-            "question": "What do you wear to move?",
+            "question": "How do you shop?",
+            "hint": "Select all that apply",
+            "option1_label": "Groceries in plastic packaging",
+            "option1_icon": "cart",
+            "option1_weight": 2,
+            "option2_label": "Plastic produce or grocery bags",
+            "option2_icon": "bag",
+            "option2_weight": 1,
+            "option3_label": "Bulk or loose where possible",
+            "option3_icon": "none",
+            "option3_weight": 0
+          }
+        },
+        "q9": {
+          "type": "question",
+          "settings": {
+            "question": "What do you wear?",
             "hint": "Select all that apply",
             "option1_label": "Synthetic athletic clothing weekly",
             "option1_icon": "shirt",
             "option1_weight": 1,
-            "option2_label": "Mostly natural fibers",
-            "option2_icon": "none",
-            "option2_weight": 0
+            "option2_label": "Synthetic fabrics most days",
+            "option2_icon": "shirt",
+            "option2_weight": 1,
+            "option3_label": "Mostly natural fibers",
+            "option3_icon": "none",
+            "option3_weight": 0
           }
         },
-        "q9": {
+        "q10": {
+          "type": "question",
+          "settings": {
+            "question": "How's your laundry?",
+            "hint": "Select all that apply",
+            "option1_label": "Machine-wash synthetics often",
+            "option1_icon": "washer",
+            "option1_weight": 2,
+            "option2_label": "Tumble-dry synthetics",
+            "option2_icon": "washer",
+            "option2_weight": 1,
+            "option3_label": "Mostly natural fibers, line dried",
+            "option3_icon": "none",
+            "option3_weight": 0
+          }
+        },
+        "q11": {
+          "type": "question",
+          "settings": {
+            "question": "What's underfoot and around the house?",
+            "hint": "Select all that apply",
+            "option1_label": "Synthetic carpets or rugs",
+            "option1_icon": "rug",
+            "option1_weight": 1,
+            "option2_label": "Dust builds up quickly",
+            "option2_icon": "droplet",
+            "option2_weight": 1,
+            "option3_label": "Plastic toys or kids' tableware",
+            "option3_icon": "toy",
+            "option3_weight": 2,
+            "option4_label": "None of these",
+            "option4_icon": "none",
+            "option4_weight": 0
+          }
+        },
+        "q12": {
+          "type": "question",
+          "settings": {
+            "question": "How's your drinking water at home?",
+            "hint": "Select all that apply",
+            "option1_label": "Straight from the tap",
+            "option1_icon": "tap",
+            "option1_weight": 2,
+            "option2_label": "Bottled water delivered",
+            "option2_icon": "crate",
+            "option2_weight": 2,
+            "option3_label": "Filtered",
+            "option3_icon": "droplet",
+            "option3_weight": 0
+          }
+        },
+        "q13": {
           "type": "question",
           "settings": {
             "question": "And day to day?",
@@ -738,9 +817,12 @@
             "option1_label": "Paper receipts most days",
             "option1_icon": "receipt",
             "option1_weight": 1,
-            "option2_label": "None of these",
-            "option2_icon": "none",
-            "option2_weight": 0
+            "option2_label": "Food on the go in packaging",
+            "option2_icon": "package",
+            "option2_weight": 1,
+            "option3_label": "None of these",
+            "option3_icon": "none",
+            "option3_weight": 0
           }
         }
       },
@@ -753,7 +835,11 @@
         "q6",
         "q7",
         "q8",
-        "q9"
+        "q9",
+        "q10",
+        "q11",
+        "q12",
+        "q13"
       ]
     },
     "problem": {
@@ -1152,7 +1238,7 @@
           "settings": {
             "image_asset": "tamarinse-gallery-sink.webp",
             "shape": "square",
-            "caption": "Part of the morning routine"
+            "caption": "Where the ritual begins"
           }
         },
         "g2": {
@@ -1160,7 +1246,7 @@
           "settings": {
             "image_asset": "tamarinse-gallery-capsules-hand.webp",
             "shape": "vertical",
-            "caption": "Two capsules, once a day"
+            "caption": "Two capsules, ten seconds"
           }
         },
         "g3": {
@@ -1168,7 +1254,7 @@
           "settings": {
             "image_asset": "tamarinse-gallery-kitchen.webp",
             "shape": "pill",
-            "caption": "At home on the counter"
+            "caption": "Plants you'd recognize"
           }
         },
         "g4": {
@@ -1176,7 +1262,7 @@
           "settings": {
             "image_asset": "tamarinse-gallery-gymbag.webp",
             "shape": "vertical",
-            "caption": "Travels wherever you do"
+            "caption": "Goes where the day goes"
           }
         },
         "g5": {
@@ -1184,7 +1270,7 @@
           "settings": {
             "image_asset": "tamarinse-gallery-morning.webp",
             "shape": "horizontal",
-            "caption": "Designed for daily life"
+            "caption": "Right after the coffee"
           }
         },
         "g6": {
@@ -1193,7 +1279,7 @@
             "video_asset": "tamarinse-video-lifestyle-kitchen-h.mp4",
             "video_poster_asset": "tamarinse-video-lifestyle-kitchen-h-poster.webp",
             "shape": "horizontal",
-            "caption": "The bottle, at home"
+            "caption": "Out where you'll remember it"
           }
         },
         "g7": {
@@ -1494,9 +1580,16 @@
       "settings": {
         "product": "tamarinse™-environmental-defense-formula"
       }
+    },
+    "exposure_result": {
+      "type": "tamarinse-exposure-result",
+      "settings": {
+        "retake_link": "/#TamarinseQuiz"
+      }
     }
   },
   "order": [
+    "exposure_result",
     "main",
     "quiz",
     "problem",

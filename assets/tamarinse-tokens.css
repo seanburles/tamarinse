@@ -200,6 +200,25 @@
   color: var(--t-white);
 }
 
+/* The headline ™ marks are the easter egg's signposted way in
+   (tamarinse-easter-eggs.js). Just enough affordance that a curious visitor
+   tries one — a pointer cursor and a whisper of accent on hover — without
+   ever announcing itself as a control. Deliberately not a <button>: it stays
+   out of the tab order so keyboard and screen-reader users aren't sent to a
+   decorative superscript. They have the typed keyword instead. */
+.tamarinse-hero__tm,
+.tamarinse-closing__tm {
+  cursor: pointer;
+  transition: color var(--t-dur-fast) var(--t-ease-out);
+}
+
+@media (hover: hover) {
+  .tamarinse-hero__tm:hover,
+  .tamarinse-closing__tm:hover {
+    color: var(--t-accent);
+  }
+}
+
 /* Shared ™ mark — smaller than surrounding type (footer, text blocks, etc.)
    Wrapped at render time in snippets/text.liquid (richtext forbids <sup>). */
 .tamarinse-tm {
@@ -240,85 +259,126 @@
 }
 
 /* ---- Tan capsule button — "the pill that splits open" ----
-   Two gelatin halves (::before = body, ::after = cap) sit over a speckled
-   contents fill (the button's own background — negative-z pseudos paint
-   above it but below the label, so no extra markup is needed). On hover
-   the halves slide apart at the seam and the granules show through. */
+   Two photoreal gelatin halves (client-supplied renders, split down the
+   middle) sit as ::before / ::after. Their ALPHA defines the whole shape —
+   no border-radius, no fill, no box-shadow on the pseudos. Anything painted
+   under or around them shows as a hard-edged rim where the photo's
+   silhouette curves inward, which is exactly what made this read wrong
+   before, so those layers are gone. drop-shadow() follows the alpha, so the
+   shadow is capsule-shaped for free. */
+/* Interior: gelatin lining + a few ingredient granules, glimpsed through the
+   seam once the capsule opens.
+
+   It is HIDDEN at rest (zero-height background) and grows in on hover/focus.
+   The halves are translucent glass, so anything painted behind them bleeds
+   through the capsule itself — a permanently-painted band read as a dark
+   core and distorted the pill's shape. Keeping it collapsed until the
+   capsule opens keeps the silhouette clean. background-size animates, which
+   is what makes the reveal tweenable without a third pseudo-element. */
 .t-btn--pill {
   position: relative;
   isolation: isolate; /* contains the negative-z halves */
   border: none;
+  box-shadow: none;
   color: var(--t-ink);
-  /* Interior: deep tan gelatin lining scattered with ingredient granules
-     (dark seed + green herb specks), visible only when the capsule opens */
-  background:
-    radial-gradient(circle at 22% 32%, rgb(25 23 18 / 45%) 0 1px, transparent 1.7px),
-    radial-gradient(circle at 47% 72%, rgb(9 90 46 / 55%) 0 1.2px, transparent 1.9px),
-    radial-gradient(circle at 68% 38%, rgb(25 23 18 / 40%) 0 1px, transparent 1.6px),
-    radial-gradient(circle at 85% 64%, rgb(9 90 46 / 50%) 0 1.2px, transparent 1.9px),
-    radial-gradient(circle at 33% 58%, rgb(9 90 46 / 45%) 0 1px, transparent 1.6px),
-    linear-gradient(to bottom, #7e6e4b, #6b5c3e);
-  background-size:
-    37px 100%,
-    43px 100%,
-    31px 100%,
-    47px 100%,
-    41px 100%,
-    100% 100%;
-  background-repeat: repeat-x;
-  box-shadow: inset 0 1px 4px rgb(25 23 18 / 35%);
+  background-image:
+    radial-gradient(circle at 25% 35%, rgb(25 23 18 / 26%) 0 1.2px, transparent 2px),
+    radial-gradient(circle at 62% 66%, rgb(9 90 46 / 30%) 0 1.2px, transparent 2px),
+    radial-gradient(circle at 80% 42%, rgb(25 23 18 / 20%) 0 1.2px, transparent 2px),
+    linear-gradient(to bottom, rgb(154 138 104 / 46%), rgb(122 105 72 / 56%));
+  background-position: center;
+  background-repeat: no-repeat;
+  /* Full height so it fills the seam edge to edge (the capsule's straight
+     mid-section is full height, so nothing spills past the silhouette).
+     Width collapses to 0 at rest and widens as the halves part, which
+     matches the direction the gap actually opens. */
+  background-size: 0 100%;
+  transition:
+    background-size 340ms var(--t-ease-out),
+    transform var(--t-dur-fast) var(--t-ease-out);
 }
 
-/* The halves are photoreal capsule renders (client-supplied, split in two):
-   tamarinse-pill-half-left/right.webp — alpha webp with the straight body
-   section pre-stretched so the domes keep their true shape at button
-   proportions. Relative url() resolves to the same CDN assets directory as
-   this stylesheet. The tan gradient underlay backfills the pseudo's
-   radius-clipped corners where the photo's silhouette runs slightly inside
-   the box, so the speckled interior never peeks through at rest. */
+@media (hover: hover) {
+  .t-btn--pill:hover {
+    background-size: 26% 100%;
+  }
+}
+
+.t-btn--pill:focus-visible {
+  background-size: 26% 100%;
+}
+
+/*
+  Three stacked layers, all sharing one silhouette and one motion:
+
+    ::before      (-3)  body half — dome left, cut edge at the seam
+    ::after       (-2)  SEATED cap — clean outer edge, no inner rim
+    .t-btn__cap   (-1)  OPEN cap — same art plus the cap's inner rim
+
+  The open-cap render shows the cap's open end, which physically can't be
+  visible while the cap is seated over the body — it read as a stray line
+  down the middle of a closed capsule. So the seated cap is what shows at
+  rest, and the open one fades in on top only once the halves part. Both are
+  the same silhouette, and the seated layer underneath stays fully opaque, so
+  the crossfade never goes see-through: the rim simply appears.
+*/
 .t-btn--pill::before,
-.t-btn--pill::after {
+.t-btn--pill::after,
+.t-btn--pill .t-btn__cap {
   content: '';
   position: absolute;
   top: 0;
   bottom: 0;
   width: 53%; /* halves overlap 6% at the seam when closed */
-  z-index: -1;
-  filter: drop-shadow(0 6px 12px rgb(25 23 18 / 22%));
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  pointer-events: none;
+  filter: drop-shadow(0 5px 11px rgb(25 23 18 / 24%));
   transition:
     transform 340ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 340ms var(--t-ease-out),
     filter 340ms var(--t-ease-out);
 }
 
-/* Body half: dome left, cut edge at the seam */
+/* Body half */
 .t-btn--pill::before {
   left: 0;
-  border-radius: var(--t-radius-pill) 3px 3px var(--t-radius-pill);
-  background:
-    url('tamarinse-pill-half-left.webp') center / 100% 100% no-repeat,
-    linear-gradient(to bottom, #d6c69f, #a59570 55%, #8a7a55);
+  z-index: -3;
+  background-image: url('tamarinse-pill-half-left-v2.webp');
 }
 
-/* Cap half: cut edge at the seam, dome right — paints over the body's cut
-   edge (later pseudo wins in the negative-z stack), selling the overlap */
+/* Seated cap — always painted, so the capsule is never translucent */
 .t-btn--pill::after {
   right: 0;
-  border-radius: 3px var(--t-radius-pill) var(--t-radius-pill) 3px;
-  background:
-    url('tamarinse-pill-half-right.webp') center / 100% 100% no-repeat,
-    linear-gradient(to bottom, #ddcfab, #ab9b76 55%, #93835d);
+  z-index: -2;
+  background-image: url('tamarinse-pill-cap-closed-v1.webp');
+}
+
+/* Open cap — the rim reveal, hidden until the capsule opens */
+.t-btn--pill .t-btn__cap {
+  right: 0;
+  z-index: -1;
+  opacity: 0;
+  background-image: url('tamarinse-pill-cap-open-v1.webp');
 }
 
 @media (hover: hover) {
   /* Splitting open catches the light: the halves lift and brighten */
   .t-btn--pill:hover::before {
-    transform: translateX(-0.5em) rotate(-1.5deg);
+    transform: translateX(-0.5em) rotate(-0.7deg);
     filter: drop-shadow(0 8px 16px rgb(25 23 18 / 26%)) brightness(1.05);
   }
 
-  .t-btn--pill:hover::after {
-    transform: translateX(0.5em) rotate(1.5deg);
+  /* Both cap layers move as one so the rim reveal stays registered */
+  .t-btn--pill:hover::after,
+  .t-btn--pill:hover .t-btn__cap {
+    transform: translateX(0.5em) rotate(0.7deg);
     filter: drop-shadow(0 8px 16px rgb(25 23 18 / 26%)) brightness(1.05);
+  }
+
+  .t-btn--pill:hover .t-btn__cap {
+    opacity: 1;
   }
 }
 
@@ -329,21 +389,38 @@
 }
 
 .t-btn--pill:focus-visible::before {
-  transform: translateX(-0.5em) rotate(-1.5deg);
+  transform: translateX(-0.5em) rotate(-0.7deg);
 }
 
-.t-btn--pill:focus-visible::after {
-  transform: translateX(0.5em) rotate(1.5deg);
+.t-btn--pill:focus-visible::after,
+.t-btn--pill:focus-visible .t-btn__cap {
+  transform: translateX(0.5em) rotate(0.7deg);
 }
 
+.t-btn--pill:focus-visible .t-btn__cap {
+  opacity: 1;
+}
+
+/* Pressed: the capsule snaps shut again */
 .t-btn--pill:active::before,
-.t-btn--pill:active::after {
+.t-btn--pill:active::after,
+.t-btn--pill:active .t-btn__cap {
   transform: none;
 }
 
+.t-btn--pill:active .t-btn__cap {
+  opacity: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  /* No split, so the cap never opens — keep the rim art hidden */
+  .t-btn--pill .t-btn__cap {
+    opacity: 0 !important;
+  }
+
   .t-btn--pill::before,
-  .t-btn--pill::after {
+  .t-btn--pill::after,
+  .t-btn--pill .t-btn__cap {
     transition: none;
     transform: none !important;
   }

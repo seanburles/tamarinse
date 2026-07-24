@@ -10,7 +10,10 @@
       <p class="tamarinse-closing__accent">{{ section.settings.accent_line }}</p>
     {%- endif -%}
     {%- if section.settings.cta_label != blank -%}
-      <a class="t-btn t-btn--pill" href="{{ section.settings.cta_link | default: routes.all_products_collection_url }}">
+      {%- capture tamarinse_shop_url -%}{% render 'tamarinse-shop-url' %}{%- endcapture -%}
+      <a class="t-btn t-btn--pill" href="{{ section.settings.cta_link | default: tamarinse_shop_url }}">
+        {%- comment -%} Open-cap art; fades in over the seated cap on hover {%- endcomment -%}
+        <span class="t-btn__cap" aria-hidden="true"></span>
         {{- section.settings.cta_label -}}
       </a>
     {%- endif -%}

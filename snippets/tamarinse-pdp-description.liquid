@@ -1,0 +1,163 @@
+{% doc %}
+  PDP product description — keeps the opening title, lead (bold) paragraph,
+  and first body paragraph visible; remaining HTML expands in place behind
+  a Read more / Read less toggle. RTE markup/styles are left untouched.
+{% enddoc %}
+
+{%- liquid
+  assign description_product = product
+  assign description = description_product.description | strip
+  assign parts = description | split: '</p>'
+  assign has_toggle = false
+  assign teaser = description
+  assign rest = ''
+  comment
+    Visible window: title + bold lead + first normal body = 3 </p> segments
+    for the current product description shape. Headings that sit before the
+    first </p> ride along in parts.first automatically.
+  endcomment
+  assign teaser_paragraphs = 3
+
+  if description != blank and parts.size > teaser_paragraphs
+    assign teaser = ''
+    for part in parts limit: teaser_paragraphs
+      assign segment = part | strip
+      if segment != blank
+        assign closed = segment | append: '</p>'
+        assign teaser = teaser | append: closed
+      endif
+    endfor
+    assign teaser = teaser | strip
+
+    for part in parts offset: teaser_paragraphs
+      assign segment = part | strip
+      if segment != blank
+        assign closed = segment | append: '</p>'
+        assign rest = rest | append: closed
+      endif
+    endfor
+    assign rest = rest | strip
+    if rest != blank
+      assign has_toggle = true
+    endif
+  endif
+-%}
+
+{%- if description != blank -%}
+  <tamarinse-pdp-description class="tamarinse-pdp-desc">
+    {%- comment -%}
+      Single .rte so `.product-details .rte > :first-child` only styles the
+      real title — not the first paragraph of a separate “rest” container.
+    {%- endcomment -%}
+    <div class="tamarinse-pdp-desc__body rte">
+      {{ teaser }}
+      {%- if has_toggle -%}
+        <div
+          class="tamarinse-pdp-desc__rest"
+          id="TamarinsePdpDesc-{{ description_product.id }}"
+          hidden
+        >
+          {{ rest }}
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- if has_toggle -%}
+      <button
+        type="button"
+        class="tamarinse-pdp-desc__toggle"
+        aria-expanded="false"
+        aria-controls="TamarinsePdpDesc-{{ description_product.id }}"
+        data-label-more="{{ 'content.read_more' | t | escape }}"
+        data-label-less="{{ 'content.read_less' | t | escape }}"
+      >
+        {{ 'content.read_more' | t }}
+      </button>
+    {%- endif -%}
+  </tamarinse-pdp-description>
+
+  <script type="module">
+    if (!customElements.get('tamarinse-pdp-description')) {
+      customElements.define(
+        'tamarinse-pdp-description',
+        class extends HTMLElement {
+          #onToggle = () => {
+            const expanded = this.button.getAttribute('aria-expanded') === 'true';
+            const next = !expanded;
+            this.button.setAttribute('aria-expanded', String(next));
+            this.rest.hidden = !next;
+            this.button.textContent = next ? this.labelLess : this.labelMore;
+          };
+
+          connectedCallback() {
+            this.button = this.querySelector('.tamarinse-pdp-desc__toggle');
+            this.rest = this.querySelector('.tamarinse-pdp-desc__rest');
+            if (!this.button || !this.rest) return;
+
+            this.labelMore = this.button.dataset.labelMore || 'Read more...';
+            this.labelLess = this.button.dataset.labelLess || 'Read less';
+            this.button.addEventListener('click', this.#onToggle);
+          }
+
+          disconnectedCallback() {
+            this.button?.removeEventListener('click', this.#onToggle);
+          }
+        }
+      );
+    }
+  </script>
+{%- endif -%}
+
+{% stylesheet %}
+  .tamarinse-pdp-desc {
+    display: block;
+    padding-block: 1rem 0.5rem;
+  }
+
+  .tamarinse-pdp-desc__body > *:first-child {
+    margin-block-start: 0;
+  }
+
+  .tamarinse-pdp-desc__body > *:last-child {
+    margin-block-end: 0;
+  }
+
+  .tamarinse-pdp-desc__rest {
+    margin-block-start: 1em;
+  }
+
+  .tamarinse-pdp-desc__rest > *:first-child {
+    margin-block-start: 0;
+  }
+
+  .tamarinse-pdp-desc__rest > *:last-child {
+    margin-block-end: 0;
+  }
+
+  .tamarinse-pdp-desc__toggle {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin: 0;
+    padding: 0.25rem 0;
+    border: 0;
+    background: none;
+    color: var(--t-text-mid, rgb(25 23 18 / 70%));
+    font: inherit;
+    font-size: var(--t-type-small, 0.875rem);
+    letter-spacing: 0.02em;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    cursor: pointer;
+  }
+
+  .tamarinse-pdp-desc__toggle:hover,
+  .tamarinse-pdp-desc__toggle:focus-visible {
+    color: var(--t-text, #191712);
+  }
+
+  .tamarinse-pdp-desc__toggle:focus-visible {
+    outline: 2px solid var(--t-accent, #0d7a3f);
+    outline-offset: 3px;
+  }
+{% endstylesheet %}

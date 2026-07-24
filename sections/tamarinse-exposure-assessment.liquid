@@ -8,6 +8,28 @@
   Client-stated goal: a typical respondent lands on "High".
 {% endcomment %}
 
+{%- comment -%}
+  Client 2026-07-21: the result CTA must land on the PRODUCT page, not the
+  collection listing before it — one less click and one less decision at the
+  highest-intent moment in the funnel. Resolution order: explicit link →
+  picked product → the shop's first product → the collection as a last resort.
+{%- endcomment -%}
+{%- liquid
+  assign result_link = section.settings.result_cta_link
+  if result_link == blank and section.settings.result_product != blank
+    assign result_link = section.settings.result_product.url
+  endif
+  if result_link == blank
+    assign first_product = collections.all.products.first
+    if first_product != blank
+      assign result_link = first_product.url
+    endif
+  endif
+  if result_link == blank
+    assign result_link = routes.all_products_collection_url
+  endif
+-%}
+
 {%- capture tiers_json -%}
   [
     {"tier": {{ section.settings.tier_low | json }}, "threshold": 0, "text": {{ section.settings.result_text_low | json }}},
@@ -23,6 +45,13 @@
   data-tiers="{{ tiers_json | strip | escape }}"
   data-continue-label="{{ section.settings.continue_label | escape }}"
   data-submit-label="{{ section.settings.submit_label | escape }}"
+  {%- comment -%}
+    Client 2026-07-21: optionally deliver the result ON the product page
+    instead of in place. The tier travels as an INDEX (?exposure=3), not a
+    label, so renaming a tier in the editor can't break the hand-off.
+  {%- endcomment -%}
+  data-result-mode="{{ section.settings.result_mode }}"
+  data-result-url="{{ result_link }}"
 >
   <div class="tamarinse-quiz__inner">
     <header class="tamarinse-quiz__header">
@@ -103,18 +132,20 @@
       </p>
       {%- comment -%} Always rendered: the JS swaps in the matched tier's copy {%- endcomment -%}
       <p class="tamarinse-quiz__result-text" data-quiz-result-text>{{ section.settings.result_text }}</p>
-      <div class="tamarinse-quiz__result-actions">
-        {%- if section.settings.result_cta_label != blank -%}
-          <a class="t-btn t-btn--accent" href="{{ section.settings.result_cta_link | default: routes.all_products_collection_url }}">
-            {{- section.settings.result_cta_label -}}
-          </a>
-        {%- endif -%}
-        <button type="button" class="tamarinse-quiz__reset" data-quiz-reset>
-          {{- section.settings.retake_label -}}
-        </button>
-      </div>
-    </div>
-  </div>
+
+
+<div class="tamarinse-quiz__result-actions">
+  {%- if section.settings.result_cta_label != blank -%}
+    <a class="t-btn t-btn--accent" href="{{ result_link }}">
+      {{- section.settings.result_cta_label -}}
+    </a>
+  {%- endif -%}
+  <button type="button" class="tamarinse-quiz__reset" data-quiz-reset>
+    {{- section.settings.retake_label -}}
+  </button>
+</div>
+</div>
+</div>
 </tamarinse-exposure-quiz>
 
 <script src="{{ 'tamarinse-exposure-quiz.js' | asset_url }}" type="module"></script>
@@ -286,9 +317,7 @@
     cursor: pointer;
     overflow: hidden;
     -webkit-tap-highlight-color: transparent;
-    transition:
-      border-color var(--t-dur-fast) var(--t-ease-out),
-      background-color var(--t-dur-fast) var(--t-ease-out),
+    transition: border-color var(--t-dur-fast) var(--t-ease-out), background-color var(--t-dur-fast) var(--t-ease-out),
       box-shadow var(--t-dur-fast) var(--t-ease-out);
   }
 
@@ -317,15 +346,26 @@
     border-radius: 12px;
     background: var(--t-accent-tint);
     color: var(--t-accent);
-    transition:
-      background-color var(--t-dur-fast) var(--t-ease-out),
-      color var(--t-dur-fast) var(--t-ease-out);
+    transition: background-color var(--t-dur-fast) var(--t-ease-out), color var(--t-dur-fast) var(--t-ease-out);
+  }
+
+  /* Duotone icons: a soft "contents" layer under the outline (water in the
+     bottle, coffee in the cup, food in the tub). A filled mass is read far
+     faster than an outline at 26px, and it matches the duotone language the
+     capsule and quality-standards icons already use. Inherits currentColor,
+     so it works on the tinted chip AND on the solid-accent selected state. */
+  .tamarinse-quiz-icon .qi-fill {
+    fill: currentColor;
+    fill-opacity: 0.16;
+    stroke: none;
   }
 
   .tamarinse-quiz__option-label {
     font-size: var(--t-type-body);
     line-height: 1.35;
     font-weight: 500;
+    text-align: center;
+    margin-top: 10px;
   }
 
   /* Selected: bold accent border + tinted fill — the accent's one job here */
@@ -440,7 +480,7 @@
     }
 
     .tamarinse-quiz__option {
-      padding: var(--t-space-md) var(--t-space-sm);
+      padding: var(--t-space-sm) var(--t-space-sm);
     }
   }
 
@@ -573,9 +613,26 @@
       "default": "Meet Tamarinse™"
     },
     {
+      "type": "select",
+      "id": "result_mode",
+      "label": "Where the result appears",
+      "options": [
+        { "value": "inline", "label": "On this page" },
+        { "value": "product", "label": "On the product page" }
+      ],
+      "default": "inline",
+      "info": "\"On the product page\" sends people straight there after the last question and shows their tier at the top. Requires the Exposure Result section on the product template."
+    },
+    {
+      "type": "product",
+      "id": "result_product",
+      "label": "Result button product",
+      "info": "Sends people straight to this product page after the quiz. Defaults to the shop's first product if left empty."
+    },
+    {
       "type": "url",
       "id": "result_cta_link",
-      "label": "Result button link"
+      "label": "Result button link (overrides the product above)"
     },
     {
       "type": "text",
@@ -668,20 +725,31 @@
           "id": "option1_icon",
           "label": "Icon",
           "options": [
-            { "value": "bottle", "label": "Water bottle" },
-            { "value": "cup", "label": "To-go cup" },
-            { "value": "shaker", "label": "Shaker bottle" },
+            { "value": "bottle", "label": "Plastic water bottle" },
+            { "value": "soda", "label": "Soft-drink bottle" },
+            { "value": "cup", "label": "To-go coffee cup" },
+            { "value": "shaker", "label": "Protein shaker" },
             { "value": "teabag", "label": "Tea bag" },
             { "value": "jar", "label": "Glass jar" },
-            { "value": "container", "label": "Food container" },
+            { "value": "tap", "label": "Kitchen tap" },
+            { "value": "container", "label": "Food storage tub" },
             { "value": "microwave", "label": "Microwave" },
-            { "value": "bag", "label": "Plastic bag" },
-            { "value": "pan", "label": "Frying pan" },
+            { "value": "bag", "label": "Zip-top bag" },
+            { "value": "wrap", "label": "Cling film" },
+            { "value": "can", "label": "Canned food" },
+            { "value": "pan", "label": "Non-stick pan" },
             { "value": "board", "label": "Cutting board" },
-            { "value": "takeout", "label": "Takeout box" },
-            { "value": "package", "label": "Packaged food" },
-            { "value": "fish", "label": "Fish" },
-            { "value": "shirt", "label": "Shirt" },
+            { "value": "utensils", "label": "Plastic cutlery" },
+            { "value": "takeout", "label": "Takeout carton" },
+            { "value": "package", "label": "Snack packet" },
+            { "value": "cart", "label": "Grocery cart" },
+            { "value": "crate", "label": "Case of bottles" },
+            { "value": "gum", "label": "Chewing gum" },
+            { "value": "fish", "label": "Seafood" },
+            { "value": "shirt", "label": "Synthetic clothing" },
+            { "value": "washer", "label": "Washing machine" },
+            { "value": "rug", "label": "Synthetic rug" },
+            { "value": "toy", "label": "Kids' plastics" },
             { "value": "receipt", "label": "Receipt" },
             { "value": "droplet", "label": "Water drop" },
             { "value": "none", "label": "None of these" }
@@ -699,20 +767,31 @@
           "id": "option2_icon",
           "label": "Icon",
           "options": [
-            { "value": "bottle", "label": "Water bottle" },
-            { "value": "cup", "label": "To-go cup" },
-            { "value": "shaker", "label": "Shaker bottle" },
+            { "value": "bottle", "label": "Plastic water bottle" },
+            { "value": "soda", "label": "Soft-drink bottle" },
+            { "value": "cup", "label": "To-go coffee cup" },
+            { "value": "shaker", "label": "Protein shaker" },
             { "value": "teabag", "label": "Tea bag" },
             { "value": "jar", "label": "Glass jar" },
-            { "value": "container", "label": "Food container" },
+            { "value": "tap", "label": "Kitchen tap" },
+            { "value": "container", "label": "Food storage tub" },
             { "value": "microwave", "label": "Microwave" },
-            { "value": "bag", "label": "Plastic bag" },
-            { "value": "pan", "label": "Frying pan" },
+            { "value": "bag", "label": "Zip-top bag" },
+            { "value": "wrap", "label": "Cling film" },
+            { "value": "can", "label": "Canned food" },
+            { "value": "pan", "label": "Non-stick pan" },
             { "value": "board", "label": "Cutting board" },
-            { "value": "takeout", "label": "Takeout box" },
-            { "value": "package", "label": "Packaged food" },
-            { "value": "fish", "label": "Fish" },
-            { "value": "shirt", "label": "Shirt" },
+            { "value": "utensils", "label": "Plastic cutlery" },
+            { "value": "takeout", "label": "Takeout carton" },
+            { "value": "package", "label": "Snack packet" },
+            { "value": "cart", "label": "Grocery cart" },
+            { "value": "crate", "label": "Case of bottles" },
+            { "value": "gum", "label": "Chewing gum" },
+            { "value": "fish", "label": "Seafood" },
+            { "value": "shirt", "label": "Synthetic clothing" },
+            { "value": "washer", "label": "Washing machine" },
+            { "value": "rug", "label": "Synthetic rug" },
+            { "value": "toy", "label": "Kids' plastics" },
             { "value": "receipt", "label": "Receipt" },
             { "value": "droplet", "label": "Water drop" },
             { "value": "none", "label": "None of these" }
@@ -730,20 +809,31 @@
           "id": "option3_icon",
           "label": "Icon",
           "options": [
-            { "value": "bottle", "label": "Water bottle" },
-            { "value": "cup", "label": "To-go cup" },
-            { "value": "shaker", "label": "Shaker bottle" },
+            { "value": "bottle", "label": "Plastic water bottle" },
+            { "value": "soda", "label": "Soft-drink bottle" },
+            { "value": "cup", "label": "To-go coffee cup" },
+            { "value": "shaker", "label": "Protein shaker" },
             { "value": "teabag", "label": "Tea bag" },
             { "value": "jar", "label": "Glass jar" },
-            { "value": "container", "label": "Food container" },
+            { "value": "tap", "label": "Kitchen tap" },
+            { "value": "container", "label": "Food storage tub" },
             { "value": "microwave", "label": "Microwave" },
-            { "value": "bag", "label": "Plastic bag" },
-            { "value": "pan", "label": "Frying pan" },
+            { "value": "bag", "label": "Zip-top bag" },
+            { "value": "wrap", "label": "Cling film" },
+            { "value": "can", "label": "Canned food" },
+            { "value": "pan", "label": "Non-stick pan" },
             { "value": "board", "label": "Cutting board" },
-            { "value": "takeout", "label": "Takeout box" },
-            { "value": "package", "label": "Packaged food" },
-            { "value": "fish", "label": "Fish" },
-            { "value": "shirt", "label": "Shirt" },
+            { "value": "utensils", "label": "Plastic cutlery" },
+            { "value": "takeout", "label": "Takeout carton" },
+            { "value": "package", "label": "Snack packet" },
+            { "value": "cart", "label": "Grocery cart" },
+            { "value": "crate", "label": "Case of bottles" },
+            { "value": "gum", "label": "Chewing gum" },
+            { "value": "fish", "label": "Seafood" },
+            { "value": "shirt", "label": "Synthetic clothing" },
+            { "value": "washer", "label": "Washing machine" },
+            { "value": "rug", "label": "Synthetic rug" },
+            { "value": "toy", "label": "Kids' plastics" },
             { "value": "receipt", "label": "Receipt" },
             { "value": "droplet", "label": "Water drop" },
             { "value": "none", "label": "None of these" }
@@ -761,20 +851,31 @@
           "id": "option4_icon",
           "label": "Icon",
           "options": [
-            { "value": "bottle", "label": "Water bottle" },
-            { "value": "cup", "label": "To-go cup" },
-            { "value": "shaker", "label": "Shaker bottle" },
+            { "value": "bottle", "label": "Plastic water bottle" },
+            { "value": "soda", "label": "Soft-drink bottle" },
+            { "value": "cup", "label": "To-go coffee cup" },
+            { "value": "shaker", "label": "Protein shaker" },
             { "value": "teabag", "label": "Tea bag" },
             { "value": "jar", "label": "Glass jar" },
-            { "value": "container", "label": "Food container" },
+            { "value": "tap", "label": "Kitchen tap" },
+            { "value": "container", "label": "Food storage tub" },
             { "value": "microwave", "label": "Microwave" },
-            { "value": "bag", "label": "Plastic bag" },
-            { "value": "pan", "label": "Frying pan" },
+            { "value": "bag", "label": "Zip-top bag" },
+            { "value": "wrap", "label": "Cling film" },
+            { "value": "can", "label": "Canned food" },
+            { "value": "pan", "label": "Non-stick pan" },
             { "value": "board", "label": "Cutting board" },
-            { "value": "takeout", "label": "Takeout box" },
-            { "value": "package", "label": "Packaged food" },
-            { "value": "fish", "label": "Fish" },
-            { "value": "shirt", "label": "Shirt" },
+            { "value": "utensils", "label": "Plastic cutlery" },
+            { "value": "takeout", "label": "Takeout carton" },
+            { "value": "package", "label": "Snack packet" },
+            { "value": "cart", "label": "Grocery cart" },
+            { "value": "crate", "label": "Case of bottles" },
+            { "value": "gum", "label": "Chewing gum" },
+            { "value": "fish", "label": "Seafood" },
+            { "value": "shirt", "label": "Synthetic clothing" },
+            { "value": "washer", "label": "Washing machine" },
+            { "value": "rug", "label": "Synthetic rug" },
+            { "value": "toy", "label": "Kids' plastics" },
             { "value": "receipt", "label": "Receipt" },
             { "value": "droplet", "label": "Water drop" },
             { "value": "none", "label": "None of these" }
@@ -792,20 +893,31 @@
           "id": "option5_icon",
           "label": "Icon",
           "options": [
-            { "value": "bottle", "label": "Water bottle" },
-            { "value": "cup", "label": "To-go cup" },
-            { "value": "shaker", "label": "Shaker bottle" },
+            { "value": "bottle", "label": "Plastic water bottle" },
+            { "value": "soda", "label": "Soft-drink bottle" },
+            { "value": "cup", "label": "To-go coffee cup" },
+            { "value": "shaker", "label": "Protein shaker" },
             { "value": "teabag", "label": "Tea bag" },
             { "value": "jar", "label": "Glass jar" },
-            { "value": "container", "label": "Food container" },
+            { "value": "tap", "label": "Kitchen tap" },
+            { "value": "container", "label": "Food storage tub" },
             { "value": "microwave", "label": "Microwave" },
-            { "value": "bag", "label": "Plastic bag" },
-            { "value": "pan", "label": "Frying pan" },
+            { "value": "bag", "label": "Zip-top bag" },
+            { "value": "wrap", "label": "Cling film" },
+            { "value": "can", "label": "Canned food" },
+            { "value": "pan", "label": "Non-stick pan" },
             { "value": "board", "label": "Cutting board" },
-            { "value": "takeout", "label": "Takeout box" },
-            { "value": "package", "label": "Packaged food" },
-            { "value": "fish", "label": "Fish" },
-            { "value": "shirt", "label": "Shirt" },
+            { "value": "utensils", "label": "Plastic cutlery" },
+            { "value": "takeout", "label": "Takeout carton" },
+            { "value": "package", "label": "Snack packet" },
+            { "value": "cart", "label": "Grocery cart" },
+            { "value": "crate", "label": "Case of bottles" },
+            { "value": "gum", "label": "Chewing gum" },
+            { "value": "fish", "label": "Seafood" },
+            { "value": "shirt", "label": "Synthetic clothing" },
+            { "value": "washer", "label": "Washing machine" },
+            { "value": "rug", "label": "Synthetic rug" },
+            { "value": "toy", "label": "Kids' plastics" },
             { "value": "receipt", "label": "Receipt" },
             { "value": "droplet", "label": "Water drop" },
             { "value": "none", "label": "None of these" }
@@ -823,20 +935,31 @@
           "id": "option6_icon",
           "label": "Icon",
           "options": [
-            { "value": "bottle", "label": "Water bottle" },
-            { "value": "cup", "label": "To-go cup" },
-            { "value": "shaker", "label": "Shaker bottle" },
+            { "value": "bottle", "label": "Plastic water bottle" },
+            { "value": "soda", "label": "Soft-drink bottle" },
+            { "value": "cup", "label": "To-go coffee cup" },
+            { "value": "shaker", "label": "Protein shaker" },
             { "value": "teabag", "label": "Tea bag" },
             { "value": "jar", "label": "Glass jar" },
-            { "value": "container", "label": "Food container" },
+            { "value": "tap", "label": "Kitchen tap" },
+            { "value": "container", "label": "Food storage tub" },
             { "value": "microwave", "label": "Microwave" },
-            { "value": "bag", "label": "Plastic bag" },
-            { "value": "pan", "label": "Frying pan" },
+            { "value": "bag", "label": "Zip-top bag" },
+            { "value": "wrap", "label": "Cling film" },
+            { "value": "can", "label": "Canned food" },
+            { "value": "pan", "label": "Non-stick pan" },
             { "value": "board", "label": "Cutting board" },
-            { "value": "takeout", "label": "Takeout box" },
-            { "value": "package", "label": "Packaged food" },
-            { "value": "fish", "label": "Fish" },
-            { "value": "shirt", "label": "Shirt" },
+            { "value": "utensils", "label": "Plastic cutlery" },
+            { "value": "takeout", "label": "Takeout carton" },
+            { "value": "package", "label": "Snack packet" },
+            { "value": "cart", "label": "Grocery cart" },
+            { "value": "crate", "label": "Case of bottles" },
+            { "value": "gum", "label": "Chewing gum" },
+            { "value": "fish", "label": "Seafood" },
+            { "value": "shirt", "label": "Synthetic clothing" },
+            { "value": "washer", "label": "Washing machine" },
+            { "value": "rug", "label": "Synthetic rug" },
+            { "value": "toy", "label": "Kids' plastics" },
             { "value": "receipt", "label": "Receipt" },
             { "value": "droplet", "label": "Water drop" },
             { "value": "none", "label": "None of these" }
@@ -856,80 +979,228 @@
           "type": "question",
           "settings": {
             "question": "What do you drink most days?",
-            "option1_label": "Bottled water", "option1_icon": "bottle", "option1_weight": 3,
-            "option2_label": "Coffee with a plastic lid", "option2_icon": "cup", "option2_weight": 2,
-            "option3_label": "Tea from tea bags", "option3_icon": "teabag", "option3_weight": 1,
-            "option4_label": "Mostly glass or steel", "option4_icon": "jar", "option4_weight": 0
+            "option1_label": "Bottled water",
+            "option1_icon": "bottle",
+            "option1_weight": 3,
+            "option2_label": "Coffee with a plastic lid",
+            "option2_icon": "cup",
+            "option2_weight": 2,
+            "option3_label": "Soft drinks from plastic bottles",
+            "option3_icon": "soda",
+            "option3_weight": 2,
+            "option4_label": "Tea from tea bags",
+            "option4_icon": "teabag",
+            "option4_weight": 1,
+            "option5_label": "Tap water, unfiltered",
+            "option5_icon": "tap",
+            "option5_weight": 1,
+            "option6_label": "Mostly glass or steel",
+            "option6_icon": "jar",
+            "option6_weight": 0
           }
         },
         {
           "type": "question",
           "settings": {
             "question": "Do you carry a bottle with you?",
-            "option1_label": "Plastic water bottle daily", "option1_icon": "bottle", "option1_weight": 2,
-            "option2_label": "Protein shaker bottle", "option2_icon": "shaker", "option2_weight": 2,
-            "option3_label": "Steel or glass bottle", "option3_icon": "jar", "option3_weight": 0
+            "option1_label": "Plastic water bottle daily",
+            "option1_icon": "bottle",
+            "option1_weight": 2,
+            "option2_label": "Protein shaker bottle",
+            "option2_icon": "shaker",
+            "option2_weight": 2,
+            "option3_label": "Bottled drinks by the case at home",
+            "option3_icon": "crate",
+            "option3_weight": 2,
+            "option4_label": "Steel or glass bottle",
+            "option4_icon": "jar",
+            "option4_weight": 0
           }
         },
         {
           "type": "question",
           "settings": {
             "question": "How do you store leftovers?",
-            "option1_label": "Plastic containers", "option1_icon": "container", "option1_weight": 2,
-            "option2_label": "Plastic bags or cling wrap", "option2_icon": "bag", "option2_weight": 1,
-            "option3_label": "Mostly glass containers", "option3_icon": "jar", "option3_weight": 0
+            "option1_label": "Plastic containers",
+            "option1_icon": "container",
+            "option1_weight": 2,
+            "option2_label": "Cling film or plastic wrap",
+            "option2_icon": "wrap",
+            "option2_weight": 2,
+            "option3_label": "Zip-top freezer bags",
+            "option3_icon": "bag",
+            "option3_weight": 1,
+            "option4_label": "Mostly glass containers",
+            "option4_icon": "jar",
+            "option4_weight": 0
           }
         },
         {
           "type": "question",
           "settings": {
             "question": "How do you reheat food?",
-            "option1_label": "Microwave in plastic containers", "option1_icon": "microwave", "option1_weight": 3,
-            "option2_label": "Microwave in original packaging", "option2_icon": "package", "option2_weight": 3,
-            "option3_label": "Transferred to glass or ceramic first", "option3_icon": "jar", "option3_weight": 0
+            "option1_label": "Microwave in plastic containers",
+            "option1_icon": "microwave",
+            "option1_weight": 3,
+            "option2_label": "Microwave in original packaging",
+            "option2_icon": "package",
+            "option2_weight": 3,
+            "option3_label": "Boil-in-bag or steam pouches",
+            "option3_icon": "bag",
+            "option3_weight": 2,
+            "option4_label": "Transferred to glass or ceramic first",
+            "option4_icon": "jar",
+            "option4_weight": 0
           }
         },
         {
           "type": "question",
           "settings": {
             "question": "What's in your kitchen rotation?",
-            "option1_label": "Non-stick cookware", "option1_icon": "pan", "option1_weight": 2,
-            "option2_label": "Plastic cutting boards", "option2_icon": "board", "option2_weight": 2,
-            "option3_label": "Neither of these", "option3_icon": "none", "option3_weight": 0
+            "option1_label": "Non-stick cookware",
+            "option1_icon": "pan",
+            "option1_weight": 2,
+            "option2_label": "Plastic cutting boards",
+            "option2_icon": "board",
+            "option2_weight": 2,
+            "option3_label": "Plastic utensils or spatulas",
+            "option3_icon": "utensils",
+            "option3_weight": 1,
+            "option4_label": "Canned food regularly",
+            "option4_icon": "can",
+            "option4_weight": 1,
+            "option5_label": "None of these",
+            "option5_icon": "none",
+            "option5_weight": 0
           }
         },
         {
           "type": "question",
           "settings": {
             "question": "When cooking doesn't happen…",
-            "option1_label": "Takeout or delivery often", "option1_icon": "takeout", "option1_weight": 2,
-            "option2_label": "Frozen or ready meals", "option2_icon": "package", "option2_weight": 2,
-            "option3_label": "Rarely — mostly home cooking", "option3_icon": "none", "option3_weight": 0
+            "option1_label": "Takeout or delivery often",
+            "option1_icon": "takeout",
+            "option1_weight": 2,
+            "option2_label": "Frozen or ready meals",
+            "option2_icon": "package",
+            "option2_weight": 2,
+            "option3_label": "Coffee-shop drinks most days",
+            "option3_icon": "cup",
+            "option3_weight": 1,
+            "option4_label": "Rarely — mostly home cooking",
+            "option4_icon": "none",
+            "option4_weight": 0
           }
         },
         {
           "type": "question",
           "settings": {
             "question": "What's on your plate most weeks?",
-            "option1_label": "Seafood twice a week or more", "option1_icon": "fish", "option1_weight": 1,
-            "option2_label": "Processed or packaged snacks", "option2_icon": "package", "option2_weight": 2,
-            "option3_label": "Neither of these", "option3_icon": "none", "option3_weight": 0
+            "option1_label": "Seafood twice a week or more",
+            "option1_icon": "fish",
+            "option1_weight": 1,
+            "option2_label": "Processed or packaged snacks",
+            "option2_icon": "package",
+            "option2_weight": 2,
+            "option3_label": "Chewing gum regularly",
+            "option3_icon": "gum",
+            "option3_weight": 1,
+            "option4_label": "Neither of these",
+            "option4_icon": "none",
+            "option4_weight": 0
           }
         },
         {
           "type": "question",
           "settings": {
-            "question": "What do you wear to move?",
-            "option1_label": "Synthetic athletic clothing weekly", "option1_icon": "shirt", "option1_weight": 1,
-            "option2_label": "Mostly natural fibers", "option2_icon": "none", "option2_weight": 0
+            "question": "How do you shop?",
+            "option1_label": "Groceries in plastic packaging",
+            "option1_icon": "cart",
+            "option1_weight": 2,
+            "option2_label": "Plastic produce or grocery bags",
+            "option2_icon": "bag",
+            "option2_weight": 1,
+            "option3_label": "Bulk or loose where possible",
+            "option3_icon": "none",
+            "option3_weight": 0
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "What do you wear?",
+            "option1_label": "Synthetic athletic clothing weekly",
+            "option1_icon": "shirt",
+            "option1_weight": 1,
+            "option2_label": "Synthetic fabrics most days",
+            "option2_icon": "shirt",
+            "option2_weight": 1,
+            "option3_label": "Mostly natural fibers",
+            "option3_icon": "none",
+            "option3_weight": 0
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "How's your laundry?",
+            "option1_label": "Machine-wash synthetics often",
+            "option1_icon": "washer",
+            "option1_weight": 2,
+            "option2_label": "Tumble-dry synthetics",
+            "option2_icon": "washer",
+            "option2_weight": 1,
+            "option3_label": "Mostly natural fibers, line dried",
+            "option3_icon": "none",
+            "option3_weight": 0
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "What's underfoot and around the house?",
+            "option1_label": "Synthetic carpets or rugs",
+            "option1_icon": "rug",
+            "option1_weight": 1,
+            "option2_label": "Dust builds up quickly",
+            "option2_icon": "droplet",
+            "option2_weight": 1,
+            "option3_label": "Plastic toys or kids' tableware",
+            "option3_icon": "toy",
+            "option3_weight": 2,
+            "option4_label": "None of these",
+            "option4_icon": "none",
+            "option4_weight": 0
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "How's your drinking water at home?",
+            "option1_label": "Straight from the tap",
+            "option1_icon": "tap",
+            "option1_weight": 2,
+            "option2_label": "Bottled water delivered",
+            "option2_icon": "crate",
+            "option2_weight": 2,
+            "option3_label": "Filtered",
+            "option3_icon": "droplet",
+            "option3_weight": 0
           }
         },
         {
           "type": "question",
           "settings": {
             "question": "And day to day?",
-            "option1_label": "Paper receipts most days", "option1_icon": "receipt", "option1_weight": 1,
-            "option2_label": "None of these", "option2_icon": "none", "option2_weight": 0
+            "option1_label": "Paper receipts most days",
+            "option1_icon": "receipt",
+            "option1_weight": 1,
+            "option2_label": "Food on the go in packaging",
+            "option2_icon": "package",
+            "option2_weight": 1,
+            "option3_label": "None of these",
+            "option3_icon": "none",
+            "option3_weight": 0
           }
         }
       ]
